@@ -178,7 +178,7 @@ const NotificationDisplayModal = ({ message, type, visible, hideNotification }: 
 
     // Modal'ın görünümünü ConfirmModal'a benzetiyoruz.
     return (
-        <div className="fixed inset-0 flex items-center justify-center z-[100] p-4 bg-black/30 backdrop-blur-sm transition-all duration-300">
+        <div className="fixed inset-0 z-[102] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300">
             <div className="relative bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in duration-300 space-y-6 text-center">
 
                 {/* İkon Bölümü */}
