@@ -93,7 +93,7 @@ const isPastDate = (dateString: string) => {
 
 // --- INITIAL DATA CONSTANTS ---
 const defaultHero = '/default-hero.jpg';
-const defaultLogo = '/reformer-pilates-logo.jpg';
+const defaultLogo = '/default-logo.jpg';
 
 const initialData = {
     heroTitle: 'Breathe. Move. Transform.',
