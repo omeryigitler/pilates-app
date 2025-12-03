@@ -536,15 +536,45 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
         const trimmedPassword = userForm.password.trim();
         const trimmedConfirmPassword = userForm.confirmPassword.trim();
         const trimmedEmail = userForm.email.trim();
+        let cleanPhone = userForm.phone.replace(/\D/g, ''); // Remove non-digits
 
-        if (!userForm.firstName || !userForm.lastName || !userForm.phone || !trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
+        if (!userForm.firstName || !userForm.lastName || !cleanPhone || !trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
             showNotification('All fields are required!', 'error');
             return;
         }
+
+        // Email Validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            showNotification('Please enter a valid email address.', 'error');
+            return;
+        }
+
+        // Password Validation
+        if (trimmedPassword.length < 6) {
+            showNotification('Password must be at least 6 characters long.', 'error');
+            return;
+        }
+
         if (trimmedPassword !== trimmedConfirmPassword) {
             showNotification('Passwords do not match!', 'error');
             return;
         }
+
+        // Phone Validation (Malta Format)
+        // If 8 digits, assume Malta local and add +356
+        if (cleanPhone.length === 8) {
+            cleanPhone = '356' + cleanPhone;
+        }
+
+        // Must be 11 digits (356 + 8 digits)
+        if (cleanPhone.length !== 11 || !cleanPhone.startsWith('356')) {
+            showNotification('Please enter a valid Malta phone number (8 digits).', 'error');
+            return;
+        }
+
+        const formattedPhone = '+' + cleanPhone;
+
         if (existingUsers.some((u: UserType) => u.email === trimmedEmail)) {
             showNotification('This email is already registered!', 'error');
             return;
@@ -556,7 +586,7 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
             role: 'user',
             firstName: userForm.firstName,
             lastName: userForm.lastName,
-            phone: userForm.phone,
+            phone: formattedPhone,
             registered: new Date().toISOString().substring(0, 10)
         };
 
@@ -618,9 +648,22 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
                                     <input type="text" placeholder="First Name" value={userForm.firstName} onChange={e => setUserForm(prev => ({ ...prev, firstName: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                     <input type="text" placeholder="Last Name" value={userForm.lastName} onChange={e => setUserForm(prev => ({ ...prev, lastName: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 </div>
-                                <input type="text" placeholder="Phone" value={userForm.phone} onChange={e => setUserForm(prev => ({ ...prev, phone: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
+                                <input
+                                    type="tel"
+                                    placeholder="Phone (e.g. 99123456)"
+                                    value={userForm.phone}
+                                    onChange={e => {
+                                        // Only allow digits to be typed
+                                        const val = e.target.value;
+                                        if (/^\d*$/.test(val)) {
+                                            setUserForm(prev => ({ ...prev, phone: val }));
+                                        }
+                                    }}
+                                    maxLength={8}
+                                    className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700"
+                                />
                                 <input type="email" placeholder="Email" value={userForm.email} onChange={e => setUserForm(prev => ({ ...prev, email: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
-                                <input type="password" placeholder="Password" value={userForm.password} onChange={e => setUserForm(prev => ({ ...prev, password: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
+                                <input type="password" placeholder="Password (min 6 chars)" value={userForm.password} onChange={e => setUserForm(prev => ({ ...prev, password: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 <input type="password" placeholder="Confirm Password" value={userForm.confirmPassword} onChange={e => setUserForm(prev => ({ ...prev, confirmPassword: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                             </div>
                             <Button type="submit" className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95">Create Account</Button>
