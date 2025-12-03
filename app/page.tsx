@@ -34,6 +34,7 @@ import {
     AlertCircle,
     Database,
     TrendingUp,
+    Download,
 } from "lucide-react";
 import { db } from "./firebase";
 import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, query } from "firebase/firestore";
@@ -691,6 +692,9 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
     );
 }
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 // ------------------------------------
 // --- RAPORLAMA & ANALİZ BİLEŞENLERİ ---
 // ------------------------------------
@@ -764,8 +768,64 @@ const AdminAnalytics = ({ slots, users }: { slots: Slot[], users: UserType[] }) 
     // Sıralı aylar
     const sortedMonths = Object.keys(monthlyStats).sort().reverse();
 
+    const handleDownloadPDF = () => {
+        const doc = new jsPDF();
+
+        // Başlık
+        doc.setFontSize(22);
+        doc.setTextColor(206, 142, 148); // #CE8E94
+        doc.text("Reformer Pilates Malta - Analytics Report", 14, 20);
+
+        // Tarih
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 28);
+
+        // Genel İstatistikler
+        doc.setFontSize(14);
+        doc.setTextColor(0);
+        doc.text("Overview", 14, 40);
+
+        doc.setFontSize(11);
+        doc.setTextColor(80);
+        doc.text(`Total Bookings: ${totalBookings}`, 14, 50);
+        doc.text(`Total Members: ${totalUsers}`, 14, 56);
+        doc.text(`Occupancy Rate: %${occupancyRate}`, 14, 62);
+
+        // Tablo Verisi Hazırlama
+        const tableData = sortedMonths.map(month => [
+            new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+            `${monthlyStats[month]} sessions`,
+            'Active'
+        ]);
+
+        // Tabloyu Çiz
+        autoTable(doc, {
+            startY: 70,
+            head: [['Month', 'Total Sessions', 'Status']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [206, 142, 148] }, // #CE8E94
+            styles: { fontSize: 10, cellPadding: 4 },
+        });
+
+        // Kaydet
+        doc.save(`pilates-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+    };
+
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Header & Download Button */}
+            <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
+                <Button
+                    onClick={handleDownloadPDF}
+                    className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-2 rounded-xl flex items-center gap-2 shadow-lg transition transform active:scale-95"
+                >
+                    <Download className="w-5 h-5" /> Download Report
+                </Button>
+            </div>
+
             {/* Üst Kartlar */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
