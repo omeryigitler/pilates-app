@@ -96,7 +96,7 @@ const isPastDate = (dateString: string) => {
 
 // --- INITIAL DATA CONSTANTS ---
 const defaultHero = '/default-hero.jpg';
-const defaultLogo = '/logo-eye.jpg';
+const defaultLogo = '/icon.jpg';
 
 const initialData = {
     heroTitle: 'Breathe. Move. Transform.',
@@ -1331,7 +1331,7 @@ function PilatesMaltaByGozde() {
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
                 <div className="relative w-32 h-32 animate-pulse rounded-full overflow-hidden shadow-xl border-2 border-white">
                     <img
-                        src="/logo-eye.jpg"
+                        src="/icon.jpg"
                         alt="Loading..."
                         className="w-full h-full object-cover"
                     />
