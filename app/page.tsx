@@ -125,13 +125,7 @@ const futureDate = new Date();
 futureDate.setDate(futureDate.getDate() + 6);
 const futureDateString = futureDate.toISOString().substring(0, 10);
 
-// const initialSlots: Slot[] = [
-//     { date: today, time: '09:00 AM', status: 'Available', bookedBy: null },
-//     { date: today, time: '01:00 PM', status: 'Booked', bookedBy: 'Omer Yigitler' },
-//     { date: tomorrowDate, time: '10:00 AM', status: 'Available', bookedBy: null },
-//     { date: futureDateString, time: '05:00 PM', status: 'Available', bookedBy: null },
-// ];
-const initialSlots: Slot[] = []; // Artık kullanılmıyor, güvenli olması için boş bırakıldı.
+const initialSlots: Slot[] = [];
 
 const initialUsers: UserType[] = [
     { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
@@ -349,9 +343,7 @@ import { createPortal } from "react-dom";
 
 // ... (previous imports)
 
-// ------------------------------------
-// --- KOMPONENTLER ---
-// ------------------------------------
+
 
 const Modal = ({ children, onClose }: { children: React.ReactNode, onClose: () => void }) => {
     const [mounted, setMounted] = useState(false);
@@ -1643,11 +1635,31 @@ function PilatesMaltaByGozde() {
                         </button>
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-2 mb-10 bg-gray-100/80 p-2 rounded-2xl w-full max-w-3xl mx-auto backdrop-blur-sm shadow-inner">
-                        <button onClick={() => setActiveTab('bookings')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'bookings' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Bookings</button>
-                        <button onClick={() => setActiveTab('members')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'members' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Members</button>
-                        <button onClick={() => setActiveTab('analytics')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'analytics' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Analytics</button>
-                        <button onClick={() => setActiveTab('management')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'management' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Management</button>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-4xl mx-auto">
+                        <button onClick={() => setActiveTab('bookings')} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 border-2 ${activeTab === 'bookings' ? 'bg-white border-[#CE8E94] shadow-lg scale-105' : 'bg-white/50 border-transparent hover:bg-white hover:shadow-md'}`}>
+                            <div className={`p-3 rounded-full mb-2 ${activeTab === 'bookings' ? 'bg-[#CE8E94] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                <Calendar className="w-6 h-6" />
+                            </div>
+                            <span className={`font-bold ${activeTab === 'bookings' ? 'text-[#CE8E94]' : 'text-gray-500'}`}>Bookings</span>
+                        </button>
+                        <button onClick={() => setActiveTab('members')} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 border-2 ${activeTab === 'members' ? 'bg-white border-[#CE8E94] shadow-lg scale-105' : 'bg-white/50 border-transparent hover:bg-white hover:shadow-md'}`}>
+                            <div className={`p-3 rounded-full mb-2 ${activeTab === 'members' ? 'bg-[#CE8E94] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                <Users className="w-6 h-6" />
+                            </div>
+                            <span className={`font-bold ${activeTab === 'members' ? 'text-[#CE8E94]' : 'text-gray-500'}`}>Members</span>
+                        </button>
+                        <button onClick={() => setActiveTab('analytics')} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 border-2 ${activeTab === 'analytics' ? 'bg-white border-[#CE8E94] shadow-lg scale-105' : 'bg-white/50 border-transparent hover:bg-white hover:shadow-md'}`}>
+                            <div className={`p-3 rounded-full mb-2 ${activeTab === 'analytics' ? 'bg-[#CE8E94] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                <TrendingUp className="w-6 h-6" />
+                            </div>
+                            <span className={`font-bold ${activeTab === 'analytics' ? 'text-[#CE8E94]' : 'text-gray-500'}`}>Analytics</span>
+                        </button>
+                        <button onClick={() => setActiveTab('management')} className={`flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 border-2 ${activeTab === 'management' ? 'bg-white border-[#CE8E94] shadow-lg scale-105' : 'bg-white/50 border-transparent hover:bg-white hover:shadow-md'}`}>
+                            <div className={`p-3 rounded-full mb-2 ${activeTab === 'management' ? 'bg-[#CE8E94] text-white' : 'bg-gray-100 text-gray-500'}`}>
+                                <Edit3 className="w-6 h-6" />
+                            </div>
+                            <span className={`font-bold ${activeTab === 'management' ? 'text-[#CE8E94]' : 'text-gray-500'}`}>Management</span>
+                        </button>
                     </div>
 
                     {activeTab === 'analytics' && (
@@ -2096,8 +2108,12 @@ function PilatesMaltaByGozde() {
                             <div className="absolute -inset-1 bg-gradient-to-r from-[#CE8E94] to-pink-200 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                             {managementState.heroImage && (
                                 <img
-                                    src={managementState.heroImage}
+                                    src={managementState.heroImage || defaultHero}
                                     alt="Hero"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = defaultHero;
+                                    }}
                                     className="relative w-full h-auto max-h-[600px] object-contain rounded-[2rem] shadow-2xl transform transition duration-500 hover:scale-[1.01]"
                                 />
                             )}
