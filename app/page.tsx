@@ -1621,7 +1621,7 @@ function PilatesMaltaByGozde() {
                     </div>
                 </div>
 
-                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+                <div className="flex flex-col lg:flex-row-reverse items-center gap-16 lg:gap-24">
 
                     <div className="w-full lg:w-1/2 flex justify-center">
                         <div className="relative group w-full max-w-md lg:max-w-full">
