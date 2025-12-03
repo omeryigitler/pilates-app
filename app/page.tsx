@@ -941,11 +941,18 @@ function PilatesMaltaByGozde() {
     // --- EARLY RETURN FOR CLIENT SIDE RENDERING ---
     if (!isClient) return null;
 
-    // Basit bir yükleniyor ekranı
+    // Markalı Yükleme Ekranı (Göz İkonu ile)
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-screen bg-[#FFF0E5]">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#CE8E94]"></div>
+            <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
+                <div className="relative w-32 h-32 animate-pulse">
+                    <img
+                        src="/default-logo.jpg"
+                        alt="Loading..."
+                        className="w-full h-full object-contain drop-shadow-xl rounded-full"
+                    />
+                </div>
+                <p className="mt-4 text-[#CE8E94] font-bold text-lg tracking-widest animate-pulse">LOADING</p>
             </div>
         );
     }
