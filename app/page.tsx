@@ -761,7 +761,7 @@ const FileUploadInput = ({ label, onChange, previewUrl }: { label: string, onCha
                     className="flex-shrink-0 cursor-pointer bg-[#CE8E94] hover:bg-[#B57A80] text-white py-3 px-6 rounded-xl font-medium shadow-md transition-colors flex items-center gap-2"
                 >
                     <Upload className="w-5 h-5 mr-1" />
-                    Dosya Seç
+                    Choose File
                 </label>
                 <input
                     id={inputId}
