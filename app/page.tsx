@@ -1718,12 +1718,12 @@ function PilatesMaltaByGozde() {
                 <div className="text-center md:text-right flex flex-col items-center md:items-end w-full md:w-auto">
                     <h2 className="text-2xl font-bold mb-6 text-[#CE8E94] tracking-tight">Contact</h2>
                     <div className="space-y-3">
-                        <p className="flex items-center justify-center md:justify-end text-gray-600 text-lg group hover:text-[#CE8E94] transition cursor-pointer">
+                        <a href={`mailto:${managementState.contactInfo.email}`} className="flex items-center justify-center md:justify-end text-gray-600 text-lg group hover:text-[#CE8E94] transition cursor-pointer">
                             <Mail className="w-5 h-5 mr-3 text-[#CE8E94]" />{managementState.contactInfo.email}
-                        </p>
-                        <p className="flex items-center justify-center md:justify-end text-gray-600 text-lg group hover:text-[#CE8E94] transition cursor-pointer">
+                        </a>
+                        <a href={`tel:${managementState.contactInfo.phone}`} className="flex items-center justify-center md:justify-end text-gray-600 text-lg group hover:text-[#CE8E94] transition cursor-pointer">
                             <Phone className="w-5 h-5 mr-3 text-[#CE8E94]" />{managementState.contactInfo.phone}
-                        </p>
+                        </a>
                     </div>
 
                 </div>
