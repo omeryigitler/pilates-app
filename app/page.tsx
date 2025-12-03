@@ -33,6 +33,7 @@ import {
     Info,
     AlertCircle,
     Database,
+    TrendingUp,
 } from "lucide-react";
 import { db } from "./firebase";
 import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, query } from "firebase/firestore";
@@ -690,6 +691,163 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
     );
 }
 
+// ------------------------------------
+// --- RAPORLAMA & ANALİZ BİLEŞENLERİ ---
+// ------------------------------------
+
+const UserHistory = ({ slots, userName }: { slots: Slot[], userName: string }) => {
+    // Geçmiş dersleri bul ve sırala (En yeniden eskiye)
+    const pastBookings = slots
+        .filter(slot => slot.bookedBy === userName && isPastDate(slot.date))
+        .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+
+    const totalSessions = pastBookings.length;
+
+    return (
+        <div className="space-y-6 animate-in fade-in duration-500">
+            {/* İstatistik Kartları */}
+            <div className="grid grid-cols-2 gap-4">
+                <div className="p-6 bg-white rounded-2xl shadow-sm border border-[#CE8E94]/20 text-center">
+                    <h3 className="text-4xl font-bold text-[#CE8E94]">{totalSessions}</h3>
+                    <p className="text-gray-500 text-sm font-medium mt-1">Total Sessions Completed</p>
+                </div>
+                <div className="p-6 bg-white rounded-2xl shadow-sm border border-[#CE8E94]/20 text-center flex flex-col items-center justify-center">
+                    <Award className="w-10 h-10 text-[#CE8E94] mb-2" />
+                    <p className="text-gray-500 text-sm font-medium">Keep it up!</p>
+                </div>
+            </div>
+
+            {/* Geçmiş Ders Listesi */}
+            <div className="bg-white rounded-3xl shadow-lg border border-white/50 p-6 md:p-8">
+                <h3 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-gray-400" /> Session History
+                </h3>
+
+                {pastBookings.length > 0 ? (
+                    <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                        {pastBookings.map((slot, idx) => (
+                            <div key={idx} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100 opacity-75 hover:opacity-100 transition">
+                                <div>
+                                    <span className="font-bold text-gray-700 block">{formatDateDisplay(slot.date)}</span>
+                                    <span className="text-sm text-gray-500">{slot.time}</span>
+                                </div>
+                                <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                                    Completed
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center text-gray-500 py-10">No past sessions found.</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const AdminAnalytics = ({ slots, users }: { slots: Slot[], users: UserType[] }) => {
+    // 1. Genel İstatistikler
+    const totalBookings = slots.filter(s => s.status === 'Booked').length;
+    const totalSlots = slots.length;
+    const occupancyRate = totalSlots > 0 ? Math.round((totalBookings / totalSlots) * 100) : 0;
+    const totalUsers = users.length;
+
+    // 2. Aylık Dağılım
+    const monthlyStats = slots.reduce((acc, slot) => {
+        if (slot.status === 'Booked') {
+            const monthKey = slot.date.substring(0, 7); // YYYY-MM
+            acc[monthKey] = (acc[monthKey] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+
+    // Sıralı aylar
+    const sortedMonths = Object.keys(monthlyStats).sort().reverse();
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Üst Kartlar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Total Bookings</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalBookings}</h3>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-xl">
+                            <Calendar className="w-6 h-6 text-blue-500" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Total Members</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalUsers}</h3>
+                        </div>
+                        <div className="p-3 bg-purple-50 rounded-xl">
+                            <Users className="w-6 h-6 text-purple-500" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Occupancy Rate</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">%{occupancyRate}</h3>
+                        </div>
+                        <div className="p-3 bg-green-50 rounded-xl">
+                            <TrendingUp className="w-6 h-6 text-green-500" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Aylık Tablo */}
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-800">Monthly Performance</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 text-gray-500 font-medium text-sm">
+                            <tr>
+                                <th className="p-4 pl-6">Month</th>
+                                <th className="p-4">Total Sessions</th>
+                                <th className="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {sortedMonths.map(month => (
+                                <tr key={month} className="hover:bg-gray-50 transition">
+                                    <td className="p-4 pl-6 font-bold text-gray-700">
+                                        {new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                    </td>
+                                    <td className="p-4 text-gray-600 font-medium">{monthlyStats[month]} sessions</td>
+                                    <td className="p-4">
+                                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Active</span>
+                                    </td>
+                                </tr>
+                            ))}
+                            {sortedMonths.length === 0 && (
+                                <tr>
+                                    <td colSpan={3} className="p-8 text-center text-gray-400">No data available yet.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ------------------------------------
+// --- ANA SAYFA BİLEŞENLERİ ---
+// ------------------------------------
+
 const UserDashboard = ({
     loggedInUser,
     slots,
@@ -706,6 +864,7 @@ const UserDashboard = ({
     const userName = `${loggedInUser.firstName} ${loggedInUser.lastName}`;
     const { showConfirm } = useConfirm();
     const [selectedDate, setSelectedDate] = useState(getTodayDate());
+    const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
 
     const futureSlots = slots.filter(slot => !isPastDate(slot.date));
 
@@ -722,70 +881,96 @@ const UserDashboard = ({
             <div className="w-full max-w-6xl px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
                 <div className="flex justify-between items-center border-b border-[#CE8E94]/20 pb-6">
                     <h1 className="text-4xl font-bold text-[#CE8E94] flex items-center gap-3"><User className="w-8 h-8" /> Hi, {loggedInUser.firstName}</h1>
-                    <Button
-                        onClick={onLogout}
-                        className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-red-100 hover:text-red-500 transition duration-300 flex items-center gap-2"
-                    >
-                        <LogOut className="w-4 h-4" /> Logout
-                    </Button>
-                </div>
-
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2 border-b pb-2"><Calendar className="w-6 h-6 text-[#CE8E94]" /> Your Active Bookings ({userBookings.length})</h2>
-                    {userBookings.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {userBookings.map((slot, idx) => (
-                                <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white rounded-2xl shadow-md transition border border-[#CE8E94]/20">
-                                    <div className="space-y-1">
-                                        <span className="text-lg font-bold text-gray-800 flex items-center gap-2"><Clock className="w-5 h-5 text-[#CE8E94]" /> {slot.time}</span>
-                                        <span className="text-sm text-gray-500 block ml-7">{formatDateDisplay(slot.date)}</span>
-                                    </div>
-                                    <Button
-                                        onClick={() => showConfirm('Please contact your instructor to cancel this booking.', () => { }, 'Contact Instructor', undefined, 'OK', false)}
-                                        className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg"
-                                        title="Contact Instructor"
-                                    >
-                                        Contact
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-gray-600">You currently have no active bookings. Time to book a session!</p>
-                    )}
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="lg:col-span-1 space-y-4">
-                        <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2 border-b pb-2"><Zap className="w-6 h-6 text-[#CE8E94]" /> Book a Class</h2>
-                        <BookingCalendar
-                            slots={futureSlots}
-                            onSelectDate={setSelectedDate}
-                            selectedDate={selectedDate}
-                        />
+                    <div className="flex gap-3">
+                        <Button
+                            onClick={onLogout}
+                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-red-100 hover:text-red-500 transition duration-300 flex items-center gap-2"
+                        >
+                            <LogOut className="w-4 h-4" /> Logout
+                        </Button>
                     </div>
+                </div>
 
-                    <div className="lg:col-span-1 space-y-4">
-                        <h3 className="text-xl font-bold text-gray-700 border-b pb-2">{formatDateDisplay(selectedDate)}</h3>
-                        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-                            {availableSlotsForSelectedDate.length > 0 ? (
-                                availableSlotsForSelectedDate.map((slot, idx) => (
-                                    <div key={idx} className="flex justify-between items-center p-5 bg-white/60 rounded-2xl hover:bg-white hover:shadow-md transition border border-white/40 hover:border-[#CE8E94]/30 gap-4">
-                                        <span className="text-xl font-medium text-gray-800 flex items-center gap-3"><Clock className="w-5 h-5 text-green-600" /> {slot.time}</span>
-                                        <Button
-                                            onClick={() => handleBookSlot(slot.date, slot.time)}
-                                            className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-md transition-colors"
-                                        >
-                                            Book
-                                        </Button>
-                                    </div>
-                                ))
+                {/* Tab Toggle */}
+                <div className="flex justify-center">
+                    <div className="bg-white p-1 rounded-full shadow-sm border border-gray-200 inline-flex">
+                        <button
+                            onClick={() => setActiveTab('upcoming')}
+                            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'upcoming' ? 'bg-[#CE8E94] text-white shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            Upcoming
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('history')}
+                            className={`px-6 py-2 rounded-full text-sm font-bold transition-all ${activeTab === 'history' ? 'bg-[#CE8E94] text-white shadow-md' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            History
+                        </button>
+                    </div>
+                </div>
+
+                {activeTab === 'upcoming' ? (
+                    <>
+                        <div className="space-y-6">
+                            <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2 border-b pb-2"><Calendar className="w-6 h-6 text-[#CE8E94]" /> Your Active Bookings ({userBookings.length})</h2>
+                            {userBookings.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {userBookings.map((slot, idx) => (
+                                        <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white rounded-2xl shadow-md transition border border-[#CE8E94]/20">
+                                            <div className="space-y-1">
+                                                <span className="text-lg font-bold text-gray-800 flex items-center gap-2"><Clock className="w-5 h-5 text-[#CE8E94]" /> {slot.time}</span>
+                                                <span className="text-sm text-gray-500 block ml-7">{formatDateDisplay(slot.date)}</span>
+                                            </div>
+                                            <Button
+                                                onClick={() => showConfirm('Please contact your instructor to cancel this booking.', () => { }, 'Contact Instructor', undefined, 'OK', false)}
+                                                className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg"
+                                                title="Contact Instructor"
+                                            >
+                                                Contact
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
                             ) : (
-                                <p className="p-4 bg-red-50 border border-red-200 rounded-xl text-gray-600">No available slots on this date. Please choose another day from the calendar.</p>
+                                <p className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-gray-600">You currently have no active bookings. Time to book a session!</p>
                             )}
                         </div>
-                    </div>
-                </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="lg:col-span-1 space-y-4">
+                                <h2 className="text-2xl font-bold text-gray-700 flex items-center gap-2 border-b pb-2"><Zap className="w-6 h-6 text-[#CE8E94]" /> Book a Class</h2>
+                                <BookingCalendar
+                                    slots={futureSlots}
+                                    onSelectDate={setSelectedDate}
+                                    selectedDate={selectedDate}
+                                />
+                            </div>
+
+                            <div className="lg:col-span-1 space-y-4">
+                                <h3 className="text-xl font-bold text-gray-700 border-b pb-2">{formatDateDisplay(selectedDate)}</h3>
+                                <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                                    {availableSlotsForSelectedDate.length > 0 ? (
+                                        availableSlotsForSelectedDate.map((slot, idx) => (
+                                            <div key={idx} className="flex justify-between items-center p-5 bg-white/60 rounded-2xl hover:bg-white hover:shadow-md transition border border-white/40 hover:border-[#CE8E94]/30 gap-4">
+                                                <span className="text-xl font-medium text-gray-800 flex items-center gap-3"><Clock className="w-5 h-5 text-green-600" /> {slot.time}</span>
+                                                <Button
+                                                    onClick={() => handleBookSlot(slot.date, slot.time)}
+                                                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold shadow-md transition-colors"
+                                                >
+                                                    Book
+                                                </Button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="p-4 bg-red-50 border border-red-200 rounded-xl text-gray-600">No available slots on this date. Please choose another day from the calendar.</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <UserHistory slots={slots} userName={userName} />
+                )}
             </div>
         </div>
     );
@@ -844,7 +1029,7 @@ function PilatesMaltaByGozde() {
     const { showNotification } = useNotification();
     const { showConfirm } = useConfirm();
     const [currentView, setCurrentView] = useState<'main' | 'admin' | 'user-dashboard'>('main');
-    const [adminTab, setAdminTab] = useState('management');
+    const [activeTab, setActiveTab] = useState<'bookings' | 'members' | 'management' | 'analytics'>('bookings');
     const [isClient, setIsClient] = useState(false);
 
     const [newSlotTime, setNewSlotTime] = useState('');
@@ -1272,12 +1457,17 @@ function PilatesMaltaByGozde() {
                     <h2 className="text-3xl font-bold mb-8 text-[#CE8E94] border-b border-[#CE8E94]/20 pb-4">Management</h2>
 
                     <div className="flex flex-wrap gap-2 mb-8 bg-gray-100/50 p-2 rounded-2xl w-fit backdrop-blur-sm">
-                        <Button onClick={() => setAdminTab('management')} className={`px-6 py-3 rounded-xl font-medium transition ${adminTab === 'management' ? 'bg-white text-[#CE8E94] shadow-md' : 'bg-transparent text-gray-500 hover:text-[#CE8E94]'}`}>Site Management</Button>
-                        <Button onClick={() => setAdminTab('bookings')} className={`px-6 py-3 rounded-xl font-medium transition ${adminTab === 'bookings' ? 'bg-white text-[#CE8E94] shadow-md' : 'bg-transparent text-gray-500 hover:text-[#CE8E94]'}`}>Bookings</Button>
-                        <Button onClick={() => setAdminTab('users')} className={`px-6 py-3 rounded-xl font-medium transition ${adminTab === 'users' ? 'bg-white text-[#CE8E94] shadow-md' : 'bg-transparent text-gray-500 hover:text-[#CE8E94]'}`}>Members</Button>
+                        <button onClick={() => setActiveTab('bookings')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'bookings' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Bookings</button>
+                        <button onClick={() => setActiveTab('members')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'members' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Members</button>
+                        <button onClick={() => setActiveTab('analytics')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'analytics' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Analytics</button>
+                        <button onClick={() => setActiveTab('management')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'management' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Management</button>
                     </div>
 
-                    {adminTab === 'management' && (
+                    {activeTab === 'analytics' && (
+                        <AdminAnalytics slots={slots} users={users} />
+                    )}
+
+                    {activeTab === 'management' && (
                         <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
                             <div>
                                 <h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3 border-b pb-2"><Edit3 className="w-6 h-6 text-[#CE8E94]" /> Hero Section Content</h3>
@@ -1452,7 +1642,7 @@ function PilatesMaltaByGozde() {
                         </div>
                     )}
 
-                    {adminTab === 'bookings' && (
+                    {activeTab === 'bookings' && (
                         <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
                             <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Clock className="w-6 h-6 text-[#CE8E94]" /> Class Schedule Management</h3>
 
@@ -1571,7 +1761,7 @@ function PilatesMaltaByGozde() {
                         </div>
                     )}
 
-                    {adminTab === 'users' && (
+                    {activeTab === 'members' && (
                         <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
                             <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Users className="w-6 h-6 text-[#CE8E94]" /> Member Management</h3>
 
