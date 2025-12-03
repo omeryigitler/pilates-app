@@ -870,15 +870,12 @@ function PilatesMaltaByGozde() {
             snapshot.forEach((doc) => {
                 loadedSlots.push(doc.data() as Slot);
             });
-
-            // Eğer veritabanı boşsa, varsayılan slotları yükle (Seeding)
-            if (loadedSlots.length === 0 && !snapshot.metadata.fromCache) {
-                initialSlots.forEach(async (s) => {
-                    await setDoc(doc(db, "slots", `${s.date}_${s.time}`), s);
-                });
-            } else {
-                setSlots(sortSlots(loadedSlots));
-            }
+            setSlots(sortSlots(loadedSlots));
+            setIsLoading(false); // Slotlar gelince yüklemeyi bitir
+        }, (error) => {
+            console.error("Slots subscription error:", error);
+            showNotification("Error loading slots", "error");
+            setIsLoading(false);
         });
 
         // Subscribe to Users
@@ -887,28 +884,21 @@ function PilatesMaltaByGozde() {
             snapshot.forEach((doc) => {
                 loadedUsers.push(doc.data() as UserType);
             });
-
-            // Eğer veritabanı boşsa, varsayılan kullanıcıları yükle (Seeding)
-            if (loadedUsers.length === 0) {
-                initialUsers.forEach(async (u) => {
-                    await setDoc(doc(db, "users", u.email), u);
-                });
-            } else {
-                setUsers(loadedUsers);
-            }
+            setUsers(loadedUsers);
+        }, (error) => {
+            console.error("Users subscription error:", error);
+            showNotification("Error loading users", "error");
         });
 
         // Subscribe to Management
         const mgmtUnsub = onSnapshot(doc(db, "management", "settings"), (docSnap) => {
             if (docSnap.exists()) {
                 setManagementState(docSnap.data() as typeof initialData);
-            } else {
-                // Seed initial management data
-                setDoc(doc(db, "management", "settings"), initialData);
-                setManagementState(initialData);
             }
-            // Veriler yüklendi kabul edelim (basit bir yaklaşım)
-            setIsLoading(false);
+            // Ayarlar yoksa varsayılan state zaten initialData, veritabanına yazmaya gerek yok.
+        }, (error) => {
+            console.error("Management subscription error:", error);
+            showNotification("Error loading management settings", "error");
         });
 
         // Session Persistence
