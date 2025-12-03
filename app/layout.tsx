@@ -45,7 +45,35 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ExerciseGym",
+              "name": "Reformer Pilates Malta",
+              "image": "https://www.reformerpilatesmalta.com/default-hero.jpg",
+              "description": "Premium Reformer Pilates Studio in Malta by Gozde.",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Malta",
+                "addressCountry": "MT"
+              },
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "35.9375",
+                "longitude": "14.3754"
+              },
+              "url": "https://www.reformerpilatesmalta.com",
+              "telephone": "+356 1234 5678",
+              "email": "info@pilatesmalta.com",
+              "priceRange": "$$"
+            })
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
