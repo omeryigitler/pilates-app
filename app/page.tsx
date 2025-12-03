@@ -1670,7 +1670,7 @@ function PilatesMaltaByGozde() {
 
                 {/* HEADER SECTION (Logo + Login/Register) - Moved to top for mobile */}
                 <div className="w-full flex flex-col sm:flex-row justify-between items-center mb-10 border-b border-[#CE8E94]/20 pb-6 gap-6 sm:gap-0">
-                    <div className="p-2 bg-white rounded-full shadow-lg inline-block hover:rotate-3 transition duration-500">
+                    <div className="p-1 bg-white rounded-full shadow-lg inline-block hover:rotate-3 transition duration-500">
                         <img src={managementState.logo} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
                     </div>
 
