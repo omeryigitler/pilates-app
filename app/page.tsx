@@ -1848,14 +1848,12 @@ function PilatesMaltaByGozde() {
                             <h4 className="text-xl font-bold text-[#CE8E94] mb-4">Add New Slot</h4>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                                <div className="lg:col-span-1 space-y-4 flex justify-center lg:block">
-                                    <div className="w-full max-w-sm">
-                                        <BookingCalendar
-                                            slots={slots}
-                                            onSelectDate={setNewSlotDate}
-                                            selectedDate={newSlotDate}
-                                        />
-                                    </div>
+                                <div className="lg:col-span-1 space-y-4">
+                                    <BookingCalendar
+                                        slots={slots}
+                                        onSelectDate={setNewSlotDate}
+                                        selectedDate={newSlotDate}
+                                    />
                                 </div>
 
                                 <div className="lg:col-span-1 flex flex-col justify-center space-y-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
