@@ -422,13 +422,13 @@ const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[],
             const isSelected = dateStr === selectedDate;
             const isPast = isPastDate(dateStr);
 
-            const baseClass = "p-3 rounded-full text-center font-bold transition-all duration-200";
+            const baseClass = "p-1 md:p-3 rounded-full text-center font-bold transition-all duration-200 text-sm md:text-base flex items-center justify-center aspect-square";
             let colorClass = 'text-gray-700 hover:bg-gray-100 cursor-pointer';
 
             if (isPast) {
                 colorClass = 'text-gray-400 cursor-not-allowed';
             } else if (isSelected) {
-                colorClass = 'bg-[#CE8E94] text-white shadow-lg ring-4 ring-[#CE8E94]/30 transform scale-105';
+                colorClass = 'bg-[#CE8E94] text-white shadow-lg ring-2 md:ring-4 ring-[#CE8E94]/30 transform scale-105';
             } else if (hasSlots) {
                 colorClass = 'bg-green-100 text-green-700 hover:bg-green-200 cursor-pointer border-2 border-green-300';
             } else if (isToday) {
@@ -449,7 +449,7 @@ const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[],
                 >
                     {day}
                     {hasSlots && !isSelected && !isPast && (
-                        <span className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="absolute top-1 right-1 w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span>
                     )}
                 </div>
             );
@@ -458,24 +458,24 @@ const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[],
     };
 
     return (
-        <div className="bg-white p-6 rounded-[3rem] shadow-xl border border-white/50 space-y-4">
-            <div className="flex justify-between items-center mb-4">
-                <Button onClick={() => handleMonthChange('prev')} className="p-3 rounded-full bg-gray-100 text-gray-700 hover:bg-[#CE8E94] hover:text-white transition shadow-md hover:shadow-lg">
-                    <ChevronLeft className="w-5 h-5" />
+        <div className="bg-white p-4 md:p-6 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-white/50 space-y-2 md:space-y-4">
+            <div className="flex justify-between items-center mb-2 md:mb-4">
+                <Button onClick={() => handleMonthChange('prev')} className="p-2 md:p-3 rounded-full bg-gray-100 text-gray-700 hover:bg-[#CE8E94] hover:text-white transition shadow-md hover:shadow-lg">
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                 </Button>
-                <h3 className="text-xl font-bold text-[#CE8E94]">{monthNames[monthIndex]} {year}</h3>
-                <Button onClick={() => handleMonthChange('next')} className="p-3 rounded-full bg-gray-100 text-gray-700 hover:bg-[#CE8E94] hover:text-white transition shadow-md hover:shadow-lg">
-                    <ChevronRight className="w-5 h-5" />
+                <h3 className="text-lg md:text-xl font-bold text-[#CE8E94]">{monthNames[monthIndex]} {year}</h3>
+                <Button onClick={() => handleMonthChange('next')} className="p-2 md:p-3 rounded-full bg-gray-100 text-gray-700 hover:bg-[#CE8E94] hover:text-white transition shadow-md hover:shadow-lg">
+                    <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                 </Button>
             </div>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {dayNames.map(day => (
-                    <div key={day} className="text-center text-sm font-bold text-gray-500 py-2 border-b-2 border-[#CE8E94]/30">
+                    <div key={day} className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">
                         {day}
                     </div>
                 ))}
             </div>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {renderDays()}
             </div>
             <div className="pt-4 flex justify-center gap-6 text-sm text-gray-600">
