@@ -777,32 +777,13 @@ const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: U
         };
 
         try {
-            // 1. Logo Ekle (Sol Üst) - Yuvarlak ve Beyaz Çerçeveli
-            // Sitedeki güncel logoyu kullanıyoruz
+            // 1. Logo Ekle (Sol Üst)
             const logo = await loadImage(currentLogo);
-
             const logoX = 14;
             const logoY = 10;
             const logoSize = 24;
-            const radius = logoSize / 2;
-            const centerX = logoX + radius;
-            const centerY = logoY + radius;
 
-            // Dairesel Kırpma (Clipping)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const pdf = doc as any;
-            pdf.saveGraphicsState();
-            pdf.beginPath();
-            pdf.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-            pdf.clip();
-            pdf.addImage(logo, 'JPEG', logoX, logoY, logoSize, logoSize);
-            pdf.restoreGraphicsState();
-
-            // İnce Beyaz Çerçeve
-            doc.setDrawColor(255, 255, 255);
-            doc.setLineWidth(1); // 2px gibi görünmesi için
-            doc.circle(centerX, centerY, radius, 'S'); // 'S' = Stroke (Sadece kenarlık)
-
+            doc.addImage(logo, 'JPEG', logoX, logoY, logoSize, logoSize);
         } catch (e) {
             console.error("Logo yüklenemedi:", e);
         }
