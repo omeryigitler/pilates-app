@@ -1552,65 +1552,67 @@ function PilatesMaltaByGozde() {
         <div className="pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-16 font-sans bg-[#FFF0E5]">
 
             <div className="w-full max-w-7xl px-8 md:px-16 py-16 md:py-20 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50">
+
+                {/* HEADER SECTION (Logo + Login/Register) - Moved to top for mobile */}
+                <div className="w-full flex flex-col sm:flex-row justify-between items-center mb-10 border-b border-[#CE8E94]/20 pb-6 gap-6 sm:gap-0">
+                    <div className="p-2 bg-white rounded-full shadow-lg inline-block hover:rotate-3 transition duration-500">
+                        <img src={managementState.logo} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
+                    </div>
+
+                    <div>
+                        {loggedInUser ? (
+                            <div className="flex gap-3 items-center">
+                                <span className="font-bold text-[#CE8E94] text-lg hidden sm:inline">Hi, {loggedInUser.firstName}</span>
+                                <Button
+                                    onClick={() => loggedInUser.role === 'user' ? setCurrentView('user-dashboard') : setCurrentView('admin')}
+                                    className="px-6 py-2 bg-green-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-green-700 hover:shadow-lg transition duration-300 flex items-center gap-2"
+                                >
+                                    {loggedInUser.role === 'user' ? <User className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                                    {loggedInUser.role === 'user' ? 'My Dashboard' : 'Admin Panel'}
+                                </Button>
+                                <Button
+                                    onClick={handleLogout}
+                                    className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-100 hover:text-red-500 transition duration-300"
+                                >
+                                    <LogOut className="w-5 h-5" />
+                                </Button>
+                            </div>
+                        ) : (
+                            <UserPanel existingUsers={users} addUser={addUser} onLogin={handleSetLoggedInUser} />
+                        )}
+                    </div>
+                </div>
+
                 <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
 
-                    <div className="w-full lg:w-1/2">
-                        <div className="relative group">
+                    <div className="w-full lg:w-1/2 flex justify-center">
+                        <div className="relative group w-full max-w-md lg:max-w-full">
                             <div className="absolute -inset-1 bg-gradient-to-r from-[#CE8E94] to-pink-200 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                             {managementState.heroImage && (
                                 <img
                                     src={managementState.heroImage}
                                     alt="Hero"
-                                    className="relative w-full h-[550px] object-cover rounded-[2rem] shadow-2xl transform transition duration-500 hover:scale-[1.01]"
+                                    className="relative w-full h-auto max-h-[600px] object-contain rounded-[2rem] shadow-2xl transform transition duration-500 hover:scale-[1.01]"
                                 />
                             )}
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-1/2 flex flex-col items-start h-full justify-between py-4">
-
-                        <div className="w-full flex justify-between items-center mb-10 border-b border-[#CE8E94]/20 pb-6">
-                            <div className="p-2 bg-white rounded-full shadow-lg inline-block hover:rotate-3 transition duration-500">
-                                <img src={managementState.logo} alt="Logo" className="w-20 h-20 rounded-full object-cover" />
-                            </div>
-
-                            <div>
-                                {loggedInUser ? (
-                                    <div className="flex gap-3 items-center">
-                                        <span className="font-bold text-[#CE8E94] text-lg hidden sm:inline">Hi, {loggedInUser.firstName}</span>
-                                        <Button
-                                            onClick={() => loggedInUser.role === 'user' ? setCurrentView('user-dashboard') : setCurrentView('admin')}
-                                            className="px-6 py-2 bg-green-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-green-700 hover:shadow-lg transition duration-300 flex items-center gap-2"
-                                        >
-                                            {loggedInUser.role === 'user' ? <User className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-                                            {loggedInUser.role === 'user' ? 'My Dashboard' : 'Admin Panel'}
-                                        </Button>
-                                        <Button
-                                            onClick={handleLogout}
-                                            className="p-2 bg-gray-200 text-gray-700 rounded-full hover:bg-red-100 hover:text-red-500 transition duration-300"
-                                        >
-                                            <LogOut className="w-5 h-5" />
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <UserPanel existingUsers={users} addUser={addUser} onLogin={handleSetLoggedInUser} />
-                                )}
-                            </div>
-                        </div>
+                    <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start h-full justify-center py-4 text-center lg:text-left">
 
                         <div className="space-y-8 w-full">
                             <div>
                                 <h1 className={`text-6xl lg:text-8xl ${managementState.heroFont} text-[#CE8E94] mb-4 leading-none tracking-tight drop-shadow-sm`}>
                                     {managementState.heroTitle}
                                 </h1>
-                                <p className={`text-xl text-gray-600 ${managementState.heroFont} leading-relaxed font-light max-w-md`}>
+                                <p className={`text-xl text-gray-600 ${managementState.heroFont} leading-relaxed font-light max-w-md mx-auto lg:mx-0`}>
                                     {managementState.heroSubtitle}
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap gap-8 pt-6">
+                            <div className="flex flex-wrap justify-center lg:justify-start gap-8 pt-6">
                                 {managementState.trustSignals.map((signal, idx) => (
-                                    <div key={idx} className="flex items-start gap-3 group cursor-default">
+                                    <div key={idx} className="flex items-start gap-3 group cursor-default text-left">
                                         <div className="bg-[#CE8E94]/20 p-3 rounded-full text-[#CE8E94] shadow-sm group-hover:bg-[#CE8E94] group-hover:text-white transition-colors duration-300">
                                             {idx === 0 && <Award className="w-6 h-6" />}
                                             {idx === 1 && <Star className="w-6 h-6" />}
@@ -1651,7 +1653,7 @@ function PilatesMaltaByGozde() {
             </div>
 
             <div className="w-full max-w-7xl mt-12 mb-6 px-10 py-12 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-xl border border-white/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-10 md:gap-0">
-                <div className="text-center md:text-left">
+                <div className="text-center md:text-left w-full md:w-auto">
                     <h2 className="text-2xl font-bold mb-6 text-[#CE8E94] tracking-tight">Follow Us</h2>
                     <div className="flex flex-wrap justify-center md:justify-start gap-4 md:gap-6">
                         {managementState.socialLinks.facebook && (
@@ -1675,7 +1677,7 @@ function PilatesMaltaByGozde() {
                     </div>
                 </div>
 
-                <div className="text-center md:text-right flex flex-col items-center md:items-end">
+                <div className="text-center md:text-right flex flex-col items-center md:items-end w-full md:w-auto">
                     <h2 className="text-2xl font-bold mb-6 text-[#CE8E94] tracking-tight">Contact</h2>
                     <div className="space-y-3">
                         <p className="flex items-center justify-center md:justify-end text-gray-600 text-lg group hover:text-[#CE8E94] transition cursor-pointer">
