@@ -67,7 +67,7 @@ export default function RootLayout({
               },
               "url": "https://www.reformerpilatesmalta.com",
               "telephone": "+356 1234 5678",
-              "email": "info@pilatesmalta.com",
+              "email": "info@reformerpilatesmalta.com",
               "priceRange": "$$"
             })
           }}
