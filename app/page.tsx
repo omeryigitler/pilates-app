@@ -779,8 +779,14 @@ const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: U
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     if (ctx) {
+                        // Yuvarlak Kırpma İşlemi
+                        ctx.beginPath();
+                        ctx.arc(img.width / 2, img.height / 2, Math.min(img.width, img.height) / 2, 0, Math.PI * 2, true);
+                        ctx.closePath();
+                        ctx.clip();
+
                         ctx.drawImage(img, 0, 0);
-                        resolve(canvas.toDataURL('image/jpeg'));
+                        resolve(canvas.toDataURL('image/png')); // PNG formatı şeffaflık (yuvarlak kenarlar) için gereklidir
                     } else {
                         reject(new Error('Canvas context failed'));
                     }
@@ -796,7 +802,7 @@ const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: U
             const logoY = 10;
             const logoSize = 24;
 
-            doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
+            doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
         } catch (e) {
             console.error("Logo yüklenemedi:", e);
         }
