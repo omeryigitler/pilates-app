@@ -5,8 +5,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Pilates Malta by Gozde",
-  description: "Premium Reformer Pilates Studio in Malta",
+  title: "Reformer Pilates Malta | Studio by Gozde",
+  description: "Join Gozde for premium Reformer Pilates sessions in Malta. Book your class today and transform your body and mind.",
+  icons: {
+    icon: '/reformer-pilates-logo.jpg',
+  },
 };
 
 export default function RootLayout({
