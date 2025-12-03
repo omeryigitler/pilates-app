@@ -812,8 +812,9 @@ function PilatesMaltaByGozde() {
     const [loggedInUser, setLoggedInUser] = useState<UserType | null>(null);
 
     const [managementState, setManagementState] = useState(initialData);
-    const [users, setUsers] = useState(initialUsers);
-    const [slots, setSlots] = useState(initialSlots);
+    const [users, setUsers] = useState<UserType[]>([]);
+    const [slots, setSlots] = useState<Slot[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // --- LOAD DATA FROM FIRESTORE ON STARTUP ---
     useEffect(() => {
@@ -825,12 +826,15 @@ function PilatesMaltaByGozde() {
             snapshot.forEach((doc) => {
                 loadedSlots.push(doc.data() as Slot);
             });
+
+            // Eğer veritabanı boşsa, varsayılan slotları yükle (Seeding)
             if (loadedSlots.length === 0 && !snapshot.metadata.fromCache) {
-                // Optional: Seed initial slots if empty and not from cache (first run)
-                // For now, let's just use empty or initialSlots if we want to seed
-                // To seed: initialSlots.forEach(s => setDoc(doc(db, "slots", `${s.date}_${s.time}`), s));
+                initialSlots.forEach(async (s) => {
+                    await setDoc(doc(db, "slots", `${s.date}_${s.time}`), s);
+                });
+            } else {
+                setSlots(sortSlots(loadedSlots));
             }
-            setSlots(sortSlots(loadedSlots));
         });
 
         // Subscribe to Users
@@ -840,10 +844,11 @@ function PilatesMaltaByGozde() {
                 loadedUsers.push(doc.data() as UserType);
             });
 
+            // Eğer veritabanı boşsa, varsayılan kullanıcıları yükle (Seeding)
             if (loadedUsers.length === 0) {
-                // Seed initial users if completely empty
-                initialUsers.forEach(u => setDoc(doc(db, "users", u.email), u));
-                setUsers(initialUsers);
+                initialUsers.forEach(async (u) => {
+                    await setDoc(doc(db, "users", u.email), u);
+                });
             } else {
                 setUsers(loadedUsers);
             }
@@ -858,15 +863,14 @@ function PilatesMaltaByGozde() {
                 setDoc(doc(db, "management", "settings"), initialData);
                 setManagementState(initialData);
             }
+            // Veriler yüklendi kabul edelim (basit bir yaklaşım)
+            setIsLoading(false);
         });
 
         // Session Persistence
         const savedEmail = localStorage.getItem('pilates_user_email');
         if (savedEmail) {
-            // We need to find the user. Since users might not be loaded yet, 
-            // we can set a temporary effect or just wait. 
-            // Actually, we can just set the email state and let a separate effect handle the matching.
-            // For simplicity in this refactor, let's just rely on the users subscription updating the loggedInUser if needed.
+            // Kullanıcı eşleşmesi alttaki useEffect'te yapılacak
         }
 
         return () => {
@@ -892,6 +896,15 @@ function PilatesMaltaByGozde() {
 
     // --- EARLY RETURN FOR CLIENT SIDE RENDERING ---
     if (!isClient) return null;
+
+    // Basit bir yükleniyor ekranı
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-[#FFF0E5]">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#CE8E94]"></div>
+            </div>
+        );
+    }
 
 
     // --- HANDLERS ---
