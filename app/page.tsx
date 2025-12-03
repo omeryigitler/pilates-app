@@ -96,7 +96,7 @@ const isPastDate = (dateString: string) => {
 
 // --- INITIAL DATA CONSTANTS ---
 const defaultHero = '/default-hero.jpg';
-const defaultLogo = '/default-logo.jpg';
+const defaultLogo = '/logo-eye.jpg';
 
 const initialData = {
     heroTitle: 'Breathe. Move. Transform.',
@@ -749,7 +749,7 @@ const UserHistory = ({ slots, userName }: { slots: Slot[], userName: string }) =
     );
 };
 
-const AdminAnalytics = ({ slots, users }: { slots: Slot[], users: UserType[] }) => {
+const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: UserType[], currentLogo: string }) => {
     // 1. Genel İstatistikler
     const totalBookings = slots.filter(s => s.status === 'Booked').length;
     const totalSlots = slots.length;
@@ -786,7 +786,8 @@ const AdminAnalytics = ({ slots, users }: { slots: Slot[], users: UserType[] }) 
 
         try {
             // 1. Logo Ekle (Sol Üst) - Yuvarlak ve Beyaz Çerçeveli
-            const logo = await loadImage('/default-logo.jpg');
+            // Sitedeki güncel logoyu kullanıyoruz
+            const logo = await loadImage(currentLogo);
 
             const logoX = 14;
             const logoY = 10;
@@ -1330,7 +1331,7 @@ function PilatesMaltaByGozde() {
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
                 <div className="relative w-32 h-32 animate-pulse rounded-full overflow-hidden shadow-xl border-2 border-white">
                     <img
-                        src="/default-logo.jpg"
+                        src="/logo-eye.jpg"
                         alt="Loading..."
                         className="w-full h-full object-cover"
                     />
@@ -1652,7 +1653,7 @@ function PilatesMaltaByGozde() {
                     </div>
 
                     {activeTab === 'analytics' && (
-                        <AdminAnalytics slots={slots} users={users} />
+                        <AdminAnalytics slots={slots} users={users} currentLogo={managementState.logo} />
                     )}
 
                     {activeTab === 'management' && (
