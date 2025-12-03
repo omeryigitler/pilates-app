@@ -1352,45 +1352,45 @@ function PilatesMaltaByGozde() {
                         <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
                             <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Clock className="w-6 h-6 text-[#CE8E94]" /> Class Schedule Management</h3>
 
-                            <div className="p-6 bg-white rounded-xl shadow-md space-y-6 border border-gray-100">
-                                <h4 className="text-xl font-bold text-[#CE8E94]">Add New Slot</h4>
+                            <h4 className="text-xl font-bold text-[#CE8E94] mb-4">Add New Slot</h4>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                    <div className="lg:col-span-1 space-y-4">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                                <div className="lg:col-span-1 space-y-4 flex justify-center lg:block">
+                                    <div className="w-full max-w-sm">
                                         <BookingCalendar
                                             slots={slots}
                                             onSelectDate={setNewSlotDate}
                                             selectedDate={newSlotDate}
                                         />
                                     </div>
+                                </div>
 
-                                    <div className="lg:col-span-1 flex flex-col justify-center space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-600">Selected Date</label>
-                                            <div className="text-2xl font-bold text-gray-800 border-b pb-2 border-gray-200">
-                                                {formatDateDisplay(newSlotDate)}
-                                            </div>
+                                <div className="lg:col-span-1 flex flex-col justify-center space-y-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-600">Selected Date</label>
+                                        <div className="text-2xl font-bold text-gray-800 border-b pb-2 border-gray-200">
+                                            {formatDateDisplay(newSlotDate)}
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-600">Time</label>
-                                            <input
-                                                type="text"
-                                                placeholder="e.g., 10:30 AM"
-                                                value={newSlotTime}
-                                                onChange={e => setNewSlotTime(e.target.value)}
-                                                className={`${standardInputClass} block text-lg py-4`}
-                                            />
-                                            <p className="text-xs text-gray-400">Format: HH:MM AM/PM (e.g. 09:30 AM)</p>
-                                        </div>
-
-                                        <Button
-                                            onClick={handleAddSlot}
-                                            className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold shadow-md transition-colors text-lg flex items-center justify-center"
-                                        >
-                                            <Plus className="w-6 h-6 mr-2" /> Add Slot
-                                        </Button>
                                     </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-gray-600">Time</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g., 10:30 AM"
+                                            value={newSlotTime}
+                                            onChange={e => setNewSlotTime(e.target.value)}
+                                            className={`${standardInputClass} block text-lg py-4`}
+                                        />
+                                        <p className="text-xs text-gray-400">Format: HH:MM AM/PM (e.g. 09:30 AM)</p>
+                                    </div>
+
+                                    <Button
+                                        onClick={handleAddSlot}
+                                        className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold shadow-md transition-colors text-lg flex items-center justify-center"
+                                    >
+                                        <Plus className="w-6 h-6 mr-2" /> Add Slot
+                                    </Button>
                                 </div>
                             </div>
 
