@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Reformer Pilates Malta | Studio by Gozde",
   description: "Join Gozde for premium Reformer Pilates sessions in Malta. Book your class today and transform your body and mind.",
   icons: {
-    icon: '/reformer-pilates-logo.jpg',
+    icon: '/favicon.jpg',
   },
 };
 
