@@ -1643,13 +1643,11 @@ function PilatesMaltaByGozde() {
                         </button>
                     </div>
 
-                    <h2 className="text-3xl font-bold mb-8 text-[#CE8E94] border-b border-[#CE8E94]/20 pb-4">Management</h2>
-
-                    <div className="flex flex-wrap gap-2 mb-8 bg-gray-100/50 p-2 rounded-2xl w-fit backdrop-blur-sm">
-                        <button onClick={() => setActiveTab('bookings')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'bookings' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Bookings</button>
-                        <button onClick={() => setActiveTab('members')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'members' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Members</button>
-                        <button onClick={() => setActiveTab('analytics')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'analytics' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Analytics</button>
-                        <button onClick={() => setActiveTab('management')} className={`px-6 py-3 rounded-xl font-bold transition-all ${activeTab === 'management' ? 'bg-[#CE8E94] text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'}`}>Management</button>
+                    <div className="flex flex-wrap justify-center gap-2 mb-10 bg-gray-100/80 p-2 rounded-2xl w-full max-w-3xl mx-auto backdrop-blur-sm shadow-inner">
+                        <button onClick={() => setActiveTab('bookings')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'bookings' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Bookings</button>
+                        <button onClick={() => setActiveTab('members')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'members' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Members</button>
+                        <button onClick={() => setActiveTab('analytics')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'analytics' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Analytics</button>
+                        <button onClick={() => setActiveTab('management')} className={`flex-1 px-6 py-3 rounded-xl font-bold transition-all duration-300 ${activeTab === 'management' ? 'bg-[#CE8E94] text-white shadow-md transform scale-105' : 'text-gray-500 hover:text-[#CE8E94] hover:bg-white/60'}`}>Management</button>
                     </div>
 
                     {activeTab === 'analytics' && (
