@@ -131,7 +131,7 @@ const initialSlots: Slot[] = [
 ];
 
 const initialUsers: UserType[] = [
-    { email: 'omer@mail.com', password: '1234', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
+    { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
     { email: 'user@test.com', password: 'userpass', role: 'user', firstName: 'Jane', lastName: 'Doe', phone: '+356 555 5678', registered: '2025-11-25' }
 ];
 
@@ -882,7 +882,13 @@ function PilatesMaltaByGozde() {
         const usersUnsub = onSnapshot(collection(db, "users"), (snapshot) => {
             const loadedUsers: UserType[] = [];
             snapshot.forEach((doc) => {
-                loadedUsers.push(doc.data() as UserType);
+                const userData = doc.data() as UserType;
+                loadedUsers.push(userData);
+
+                // Auto-fix: Update admin password if it's the old weak one
+                if (userData.email === 'omer@mail.com' && userData.password === '1234') {
+                    updateDoc(doc.ref, { password: '123456' });
+                }
             });
             setUsers(loadedUsers);
         }, (error) => {
