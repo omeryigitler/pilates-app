@@ -7,10 +7,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Reformer Pilates Malta | Studio by Gozde",
   description: "Join Gozde for premium Reformer Pilates sessions in Malta. Book your class today and transform your body and mind.",
-  icons: {
-    icon: '/favicon.jpg?v=2',
-    apple: '/favicon.jpg?v=2',
-  },
   manifest: '/manifest.json',
 };
 

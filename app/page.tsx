@@ -949,11 +949,9 @@ function PilatesMaltaByGozde() {
     }, [users, loggedInUser]);
 
 
-    // --- EARLY RETURN FOR CLIENT SIDE RENDERING ---
-    if (!isClient) return null;
-
-    // Markalı Yükleme Ekranı (Göz İkonu ile)
-    if (isLoading) {
+    // --- EARLY RETURN FOR CLIENT SIDE RENDERING & LOADING ---
+    // Sayfa yüklenirken veya veriler çekilirken Loading ekranını göster
+    if (!isClient || isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
                 <div className="relative w-32 h-32 animate-pulse rounded-full overflow-hidden shadow-xl border-2 border-white">
