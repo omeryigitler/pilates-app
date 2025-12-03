@@ -767,23 +767,36 @@ const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: U
         const brandColor = [206, 142, 148] as [number, number, number]; // #CE8E94
 
         // Helper to load image
-        const loadImage = (url: string): Promise<HTMLImageElement> => {
+        // Helper to load image as Base64
+        const loadImage = (url: string): Promise<string> => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
+                img.crossOrigin = 'Anonymous'; // CORS sorunlarını önlemek için
                 img.src = url;
-                img.onload = () => resolve(img);
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/jpeg'));
+                    } else {
+                        reject(new Error('Canvas context failed'));
+                    }
+                };
                 img.onerror = (e) => reject(e);
             });
         };
 
         try {
             // 1. Logo Ekle (Sol Üst)
-            const logo = await loadImage(currentLogo);
+            const logoBase64 = await loadImage(currentLogo);
             const logoX = 14;
             const logoY = 10;
             const logoSize = 24;
 
-            doc.addImage(logo, 'JPEG', logoX, logoY, logoSize, logoSize);
+            doc.addImage(logoBase64, 'JPEG', logoX, logoY, logoSize, logoSize);
         } catch (e) {
             console.error("Logo yüklenemedi:", e);
         }
