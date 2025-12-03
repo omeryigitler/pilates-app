@@ -935,11 +935,11 @@ function PilatesMaltaByGozde() {
     if (isLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
-                <div className="relative w-32 h-32 animate-pulse">
+                <div className="relative w-32 h-32 animate-pulse rounded-full overflow-hidden shadow-xl border-4 border-white/50">
                     <img
                         src="/default-logo.jpg"
                         alt="Loading..."
-                        className="w-full h-full object-contain drop-shadow-xl rounded-full"
+                        className="w-full h-full object-cover"
                     />
                 </div>
                 <p className="mt-4 text-[#CE8E94] font-bold text-lg tracking-widest animate-pulse">LOADING</p>
