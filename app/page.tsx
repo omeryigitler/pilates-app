@@ -1557,7 +1557,7 @@ function PilatesMaltaByGozde() {
 
 
                             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-700">
-                                Note: Admin kullanıcılar bu panelden silinemez.
+                                Note: Admin users cannot be deleted from this panel.
                             </div>
                         </div>
                     )}
