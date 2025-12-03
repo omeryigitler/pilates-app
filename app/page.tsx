@@ -32,6 +32,7 @@ import {
     AlertTriangle,
     Info,
     AlertCircle,
+    Database,
 } from "lucide-react";
 import { db } from "./firebase";
 import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, query } from "firebase/firestore";
@@ -1059,22 +1060,43 @@ function PilatesMaltaByGozde() {
         }
     };
 
-    // window.confirm() yerine showConfirm kullanıldı
-    const handleDeleteSlot = (slotDate: string, slotTime: string) => {
-        const bookingDateDisplay = formatDateDisplay(slotDate);
-
+    const handleDeleteSlot = async (slot: Slot) => {
         showConfirm(
-            `Are you sure you want to delete the slot on ${bookingDateDisplay} at ${slotTime}? This action cannot be undone.`,
-            async () => { // On Confirm Action
+            "Are you sure you want to delete this slot? This action cannot be undone.",
+            async () => {
                 try {
-                    await deleteDoc(doc(db, "slots", `${slotDate}_${slotTime}`));
-                    showNotification('Slot deleted.', 'success');
-                } catch (e) {
-                    showNotification('Error deleting slot', 'error');
+                    const slotId = `${slot.date}_${slot.time}`;
+                    await deleteDoc(doc(db, "slots", slotId));
+                    showNotification("Slot deleted successfully", "success");
+                } catch (error) {
+                    console.error("Error deleting slot:", error);
+                    showNotification("Failed to delete slot", "error");
                 }
             },
-            `Confirm Slot Deletion`
+            "Delete Slot",
+            undefined,
+            "Delete",
+            true
         );
+    };
+
+    const handleDownloadBackup = () => {
+        const backupData = {
+            timestamp: new Date().toISOString(),
+            users,
+            slots,
+            managementState
+        };
+
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `pilates_backup_${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+
+        showNotification("Backup downloaded successfully!", "success");
     };
 
     const handleAddSlot = async () => {
@@ -1352,12 +1374,21 @@ function PilatesMaltaByGozde() {
                                 </div>
                             </div>
 
-                            <Button
-                                onClick={handleSaveManagement}
-                                className="mt-10 w-full py-5 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold shadow-lg transition-colors text-xl transform active:scale-95"
-                            >
-                                Save All Changes
-                            </Button>
+                            <div className="flex flex-col md:flex-row gap-4 mt-10">
+                                <Button
+                                    onClick={handleSaveManagement}
+                                    className="flex-1 py-5 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold shadow-lg transition-colors text-xl transform active:scale-95"
+                                >
+                                    Save All Changes
+                                </Button>
+
+                                <Button
+                                    onClick={handleDownloadBackup}
+                                    className="flex-1 py-5 bg-gray-800 hover:bg-gray-900 text-white rounded-xl font-bold shadow-lg transition-colors text-xl transform active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    <Database className="w-6 h-6" /> Download Backup
+                                </Button>
+                            </div>
                         </div>
                     )}
 
@@ -1465,7 +1496,7 @@ function PilatesMaltaByGozde() {
                                                 </button>
 
                                                 <button
-                                                    onClick={() => handleDeleteSlot(slot.date, slot.time)}
+                                                    onClick={() => handleDeleteSlot(slot)}
                                                     className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50"
                                                     title="Delete Slot"
                                                 >
