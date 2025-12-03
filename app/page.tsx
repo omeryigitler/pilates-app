@@ -881,15 +881,30 @@ function PilatesMaltaByGozde() {
         // Subscribe to Users
         const usersUnsub = onSnapshot(collection(db, "users"), (snapshot) => {
             const loadedUsers: UserType[] = [];
+            let adminFound = false;
+
             snapshot.forEach((doc) => {
                 const userData = doc.data() as UserType;
                 loadedUsers.push(userData);
 
-                // Auto-fix: Update admin password if it's the old weak one
-                if (userData.email === 'omer@mail.com' && userData.password === '1234') {
-                    updateDoc(doc.ref, { password: '123456' });
+                if (userData.email === 'omer@mail.com') {
+                    adminFound = true;
+                    // Admin şifresi 123456 değilse düzelt
+                    if (userData.password !== '123456') {
+                        updateDoc(doc.ref, { password: '123456' });
+                    }
                 }
             });
+
+            // Admin yoksa oluştur (Kurtarıcı Kod)
+            if (!adminFound) {
+                const adminUser = initialUsers.find(u => u.email === 'omer@mail.com');
+                if (adminUser) {
+                    setDoc(doc(db, "users", 'omer@mail.com'), adminUser);
+                    loadedUsers.push(adminUser); // UI'da hemen görünsün diye
+                }
+            }
+
             setUsers(loadedUsers);
         }, (error) => {
             console.error("Users subscription error:", error);
