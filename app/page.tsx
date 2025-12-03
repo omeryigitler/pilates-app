@@ -123,16 +123,17 @@ const futureDate = new Date();
 futureDate.setDate(futureDate.getDate() + 6);
 const futureDateString = futureDate.toISOString().substring(0, 10);
 
-const initialSlots: Slot[] = [
-    { date: today, time: '09:00 AM', status: 'Available', bookedBy: null },
-    { date: today, time: '01:00 PM', status: 'Booked', bookedBy: 'Omer Yigitler' },
-    { date: tomorrowDate, time: '10:00 AM', status: 'Available', bookedBy: null },
-    { date: futureDateString, time: '05:00 PM', status: 'Available', bookedBy: null },
-];
+// const initialSlots: Slot[] = [
+//     { date: today, time: '09:00 AM', status: 'Available', bookedBy: null },
+//     { date: today, time: '01:00 PM', status: 'Booked', bookedBy: 'Omer Yigitler' },
+//     { date: tomorrowDate, time: '10:00 AM', status: 'Available', bookedBy: null },
+//     { date: futureDateString, time: '05:00 PM', status: 'Available', bookedBy: null },
+// ];
+const initialSlots: Slot[] = []; // Artık kullanılmıyor, güvenli olması için boş bırakıldı.
 
 const initialUsers: UserType[] = [
     { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
-    { email: 'user@test.com', password: 'userpass', role: 'user', firstName: 'Jane', lastName: 'Doe', phone: '+356 555 5678', registered: '2025-11-25' }
+    // Diğer test kullanıcısını kaldırdık, sadece Admin kalsın.
 ];
 
 // -----------------------------------------------------
