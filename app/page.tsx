@@ -768,46 +768,155 @@ const AdminAnalytics = ({ slots, users }: { slots: Slot[], users: UserType[] }) 
     // Sıralı aylar
     const sortedMonths = Object.keys(monthlyStats).sort().reverse();
 
-    const handleDownloadPDF = () => {
+    const handleDownloadPDF = async () => {
         const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const brandColor = [206, 142, 148] as [number, number, number]; // #CE8E94
 
-        // Başlık
-        doc.setFontSize(22);
-        doc.setTextColor(206, 142, 148); // #CE8E94
-        doc.text("Reformer Pilates Malta - Analytics Report", 14, 20);
+        // Helper to load image
+        const loadImage = (url: string): Promise<HTMLImageElement> => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.src = url;
+                img.onload = () => resolve(img);
+                img.onerror = (e) => reject(e);
+            });
+        };
 
-        // Tarih
-        doc.setFontSize(10);
+        try {
+            // 1. Logo Ekle (Sol Üst)
+            // Not: Resmin public klasöründe olduğundan emin olun.
+            const logo = await loadImage('/default-logo.jpg');
+            // Resmi dairesel kırpmak PDF'te zordur, kare/dikdörtgen olarak eklenir.
+            // Ancak temiz bir görünüm için beyaz kenarlık varmış gibi duracaktır.
+            doc.addImage(logo, 'JPEG', 14, 10, 24, 24);
+        } catch (e) {
+            console.error("Logo yüklenemedi:", e);
+        }
+
+        // 2. Başlık ve Kurumsal Bilgi (Header)
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(24);
+        doc.setTextColor(...brandColor);
+        doc.text("Reformer Pilates Malta", 42, 22);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
         doc.setTextColor(100);
-        doc.text(`Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 28);
+        doc.text("Monthly Performance & Analytics Report", 42, 29);
 
-        // Genel İstatistikler
-        doc.setFontSize(14);
-        doc.setTextColor(0);
-        doc.text("Overview", 14, 40);
+        // Sağ Üst Tarih
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        doc.text(dateStr, pageWidth - 14, 22, { align: 'right' });
 
-        doc.setFontSize(11);
-        doc.setTextColor(80);
-        doc.text(`Total Bookings: ${totalBookings}`, 14, 50);
-        doc.text(`Total Members: ${totalUsers}`, 14, 56);
-        doc.text(`Occupancy Rate: %${occupancyRate}`, 14, 62);
+        // Ayırıcı Çizgi
+        doc.setDrawColor(...brandColor);
+        doc.setLineWidth(0.5);
+        doc.line(14, 38, pageWidth - 14, 38);
 
-        // Tablo Verisi Hazırlama
+        // 3. Genel İstatistikler (Overview Section)
+        doc.setFontSize(16);
+        doc.setTextColor(60);
+        doc.text("Executive Summary", 14, 50);
+
+        // İstatistik Kutuları (Basit çizim)
+        const statY = 58;
+        const boxWidth = (pageWidth - 28 - 10) / 3; // 3 kutu, aralarında 5mm boşluk
+
+        // Kutu 1: Bookings
+        doc.setFillColor(250, 250, 250);
+        doc.setDrawColor(230, 230, 230);
+        doc.roundedRect(14, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.text("Total Bookings", 14 + 5, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(totalBookings.toString(), 14 + 5, statY + 18);
+
+        // Kutu 2: Members
+        doc.setFillColor(250, 250, 250);
+        doc.roundedRect(14 + boxWidth + 5, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.setFont("helvetica", "normal");
+        doc.text("Total Members", 14 + boxWidth + 10, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(totalUsers.toString(), 14 + boxWidth + 10, statY + 18);
+
+        // Kutu 3: Occupancy
+        doc.setFillColor(250, 250, 250);
+        doc.roundedRect(14 + (boxWidth + 5) * 2, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.setFont("helvetica", "normal");
+        doc.text("Occupancy Rate", 14 + (boxWidth + 5) * 2 + 5, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(`%${occupancyRate}`, 14 + (boxWidth + 5) * 2 + 5, statY + 18);
+
+        // 4. Tablo Verisi Hazırlama
         const tableData = sortedMonths.map(month => [
             new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
             `${monthlyStats[month]} sessions`,
-            'Active'
+            'Active',
+            // Basit bir bar grafik temsili (text olarak)
+            '|'.repeat(Math.min(monthlyStats[month], 20))
         ]);
 
-        // Tabloyu Çiz
+        // 5. Tabloyu Çiz
         autoTable(doc, {
-            startY: 70,
-            head: [['Month', 'Total Sessions', 'Status']],
+            startY: 95,
+            head: [['Month', 'Total Sessions', 'Status', 'Activity Level']],
             body: tableData,
             theme: 'grid',
-            headStyles: { fillColor: [206, 142, 148] }, // #CE8E94
-            styles: { fontSize: 10, cellPadding: 4 },
+            headStyles: {
+                fillColor: brandColor,
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'left'
+            },
+            columnStyles: {
+                0: { fontStyle: 'bold', textColor: 80 },
+                3: { textColor: brandColor, fontStyle: 'bold' } // Activity Level rengi
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 6,
+                lineColor: [240, 240, 240],
+                lineWidth: 0.1
+            },
+            alternateRowStyles: {
+                fillColor: [255, 250, 250] // Çok hafif pembe/beyaz
+            },
+            margin: { top: 90 }
         });
+
+        // 6. Footer (Alt Bilgi)
+        const footerY = pageHeight - 15;
+
+        // Footer Çizgisi
+        doc.setDrawColor(200);
+        doc.setLineWidth(0.1);
+        doc.line(14, footerY - 5, pageWidth - 14, footerY - 5);
+
+        // Site Linki
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.setFont("helvetica", "normal");
+        doc.text("www.reformerpilatesmalta.com", pageWidth / 2, footerY, { align: 'center' });
+
+        // Telif Hakkı / Ek Bilgi
+        doc.setFontSize(8);
+        doc.setTextColor(180);
+        doc.text("Confidential Report • Generated by PilatesApp System", pageWidth / 2, footerY + 5, { align: 'center' });
 
         // Kaydet
         doc.save(`pilates-report-${new Date().toISOString().slice(0, 10)}.pdf`);
