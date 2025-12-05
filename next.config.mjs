@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    // Vercel ucretsiz paket limitlerine takilmamak icin optimizasyonu kapatiyoruz
-    unoptimized: true,
-  },
+  // Vercel varsayılan optimizasyonunu kullanıyoruz (Hız için)
 };
 
 export default nextConfig;

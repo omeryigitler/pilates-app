@@ -515,7 +515,7 @@ const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[],
 
 interface UserPanelProps {
     existingUsers: UserType[];
-    addUser: (user: UserType) => void;
+    addUser: (user: UserType) => Promise<void>;
     onLogin: (user: UserType) => void;
 }
 
@@ -526,7 +526,7 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
 
     // alert() yerine showNotification kullanıldı
-    const handleRegister = (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         const trimmedPassword = userForm.password.trim();
         const trimmedConfirmPassword = userForm.confirmPassword.trim();
@@ -585,10 +585,16 @@ const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
             registered: new Date().toISOString().substring(0, 10)
         };
 
-        addUser(newUser);
-        showNotification('Registration successful! Please log in.', 'success');
-        setActiveUserPanel(null);
-        setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
+        try {
+            await addUser(newUser);
+            showNotification('Registration successful! Logging you in...', 'success');
+            onLogin(newUser); // Otomatik giriş yap
+            setActiveUserPanel(null);
+            setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
+        } catch (error) {
+            console.error(error);
+            showNotification('Registration failed. Please try again.', 'error');
+        }
     };
 
     // alert() yerine showNotification kullanıldı
