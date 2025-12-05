@@ -151,11 +151,15 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         setIsResetting(true);
         try {
             await resetPasswordAuth(forgotEmail);
-            setResetSuccess('Password reset email sent! Check your inbox.');
+            setResetSuccess('Reset link sent! Please check your inbox and SPAM folder.');
             setForgotEmail('');
         } catch (error: any) {
             console.error("Reset error:", error);
-            setResetError(error.message);
+            if (error.code === 'auth/user-not-found') {
+                setResetError('No user found with this email.');
+            } else {
+                setResetError('Error sending email. Please try again.');
+            }
         } finally {
             setIsResetting(false);
         }

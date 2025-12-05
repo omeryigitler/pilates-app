@@ -70,7 +70,7 @@ const initialData = {
 };
 
 const initialUsers: UserType[] = [
-    { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Ömer', lastName: 'Yiğitler', phone: '+356 555 1234', registered: '2025-11-20' },
+    { email: 'omeryigitler@hotmail.com', password: '123456', role: 'admin', firstName: 'Ömer', lastName: 'Yiğitler', phone: '+356 9988 7766', registered: '2025-12-05' },
     { email: 'gozde@mail.com', password: '123456', role: 'admin', firstName: 'Gözde', lastName: 'Arslan', phone: '+356 555 5678', registered: '2025-12-03' },
 ];
 // --- CONTEXT IMPORTS ---
@@ -143,11 +143,12 @@ function PilatesMaltaByGozde() {
             initialUsers.forEach(initialAdmin => {
                 const found = loadedUsers.find(u => u.email === initialAdmin.email);
                 if (!found) {
+                    console.log(`Auto-creating admin: ${initialAdmin.email}`);
                     registerUser(initialAdmin);
                 } else if (found.password !== initialAdmin.password) {
-                    // Force reset admin password if it doesn't match initial
-                    console.log(`Resetting password for ${initialAdmin.email} to default.`);
-                    registerUser({ ...found, password: initialAdmin.password });
+                    // Start of optional password sync
+                    // console.log(`Resetting password for ${initialAdmin.email} to default.`);
+                    // registerUser({ ...found, password: initialAdmin.password });
                 }
             });
             setUsers(loadedUsers);
