@@ -91,13 +91,55 @@ export const UserDashboard = ({
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {userBookings.map((slot, idx) => (
                                         <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white rounded-2xl shadow-md transition border border-[#CE8E94]/20">
-                                            <div className="space-y-1">
-                                                <span className="text-lg font-bold text-gray-800 flex items-center gap-2"><Clock className="w-5 h-5 text-[#CE8E94]" /> {slot.time}</span>
-                                                <span className="text-sm text-gray-500 block ml-7">{formatDateDisplay(slot.date)}</span>
+                                            <div className="space-y-3 w-full sm:w-auto">
+                                                <div className="space-y-1">
+                                                    <span className="text-lg font-bold text-gray-800 flex items-center gap-2"><Clock className="w-5 h-5 text-[#CE8E94]" /> {slot.time}</span>
+                                                    <span className="text-sm text-gray-500 block ml-7">{formatDateDisplay(slot.date)}</span>
+                                                </div>
+
+                                                {/* Calendar Buttons */}
+                                                <div className="flex gap-2 ml-7">
+                                                    <Button
+                                                        className="h-7 text-xs px-2 bg-white border border-blue-200 text-blue-600 hover:bg-blue-50 shadow-sm"
+                                                        onClick={() => {
+                                                            const startTime = `${slot.date.replace(/-/g, '')}T${slot.time.replace(':', '')}00`;
+                                                            const endTime = `${slot.date.replace(/-/g, '')}T${parseInt(slot.time.split(':')[0]) + 1}${slot.time.split(':')[1]}00`;
+                                                            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Pilates+Session&dates=${startTime}/${endTime}&details=Reformer+Pilates+Malta+Session&location=Reformer+Pilates+Malta`;
+                                                            window.open(url, '_blank');
+                                                        }}
+                                                    >
+                                                        G-Cal
+                                                    </Button>
+                                                    <Button
+                                                        className="h-7 text-xs px-2 bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 shadow-sm"
+                                                        onClick={() => {
+                                                            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+URL:${window.location.origin}
+DTSTART:${slot.date.replace(/-/g, '')}T${slot.time.replace(':', '')}00
+DTEND:${slot.date.replace(/-/g, '')}T${parseInt(slot.time.split(':')[0]) + 1}${slot.time.split(':')[1]}00
+SUMMARY:Pilates Session
+DESCRIPTION:Reformer Pilates Malta Session
+LOCATION:Reformer Pilates Malta
+END:VEVENT
+END:VCALENDAR`;
+                                                            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                                                            const link = document.createElement('a');
+                                                            link.href = window.URL.createObjectURL(blob);
+                                                            link.setAttribute('download', 'pilates_session.ics');
+                                                            document.body.appendChild(link);
+                                                            link.click();
+                                                            document.body.removeChild(link);
+                                                        }}
+                                                    >
+                                                        Apple
+                                                    </Button>
+                                                </div>
                                             </div>
                                             <Button
                                                 onClick={() => showConfirm('Please contact your instructor to cancel this booking.', () => { }, 'Contact Instructor', undefined, 'OK', false)}
-                                                className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg"
+                                                className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg mt-3 sm:mt-0"
                                                 title="Contact Instructor"
                                             >
                                                 Contact
