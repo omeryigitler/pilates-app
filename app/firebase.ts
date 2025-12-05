@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBG2Br1O8PkgKg4ofeXbdqSO0OxkbHMxao",
@@ -17,7 +17,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-export const auth = getAuth(app); // Initialize Auth
+export const auth = getAuth(app);
+
+// Explicitly set persistence ensures it sticks even after bad resets
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+    console.error("Firebase Persistence Error:", error);
+});
 // Enable Firestore persistence for offline support (Optional but good)
 // enableIndexedDbPersistence(db).catch((err) => {
 //     if (err.code == 'failed-precondition') {
