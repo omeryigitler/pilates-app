@@ -514,7 +514,7 @@ function PilatesMaltaByGozde() {
             {/* Developer Credit */}
             <div className="w-full text-center pb-8 text-gray-400 text-sm font-medium">
                 <p>
-                    Designed & Developed by <span className="text-[#CE8E94]">Omer Yigitler</span>
+                    Designed & Developed by <span className="text-[#CE8E94]">Ömer YİĞİTLER</span>
                 </p>
             </div>
 

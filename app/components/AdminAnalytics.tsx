@@ -202,11 +202,11 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header & Download Button */}
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
                 <Button
                     onClick={handleDownloadPDF}
-                    className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-2 rounded-xl flex items-center gap-2 shadow-lg transition transform active:scale-95"
+                    className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-3 w-full sm:w-auto rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold"
                 >
                     <Download className="w-5 h-5" /> Download Report
                 </Button>
