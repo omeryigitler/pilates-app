@@ -303,9 +303,8 @@ function PilatesMaltaByGozde() {
                 const found = loadedUsers.find(u => u.email === initialAdmin.email);
                 if (!found) {
                     setDoc(doc(db, "users", initialAdmin.email), initialAdmin);
-                } else if (found.password !== initialAdmin.password) {
-                    setDoc(doc(db, "users", initialAdmin.email), { ...found, password: initialAdmin.password });
                 }
+                // Şifre kontrolünü kaldırdık, böylece admin şifresini değiştirirse kod bunu ezmeyecek.
             });
 
             setUsers(loadedUsers);
