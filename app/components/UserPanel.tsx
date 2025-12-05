@@ -6,7 +6,7 @@ import { UserType } from '../types';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from './Modal';
 import { db } from "../firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
 
 interface UserPanelProps {
     existingUsers: UserType[];
@@ -74,13 +74,15 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         };
 
         try {
-            await addUser(newUser);
+            // DIRECT WRITE TO FIRESTORE (Most Reliable Method)
+            await setDoc(doc(db, "users", newUser.email), newUser);
+
             showNotification('Registration successful! Logging you in...', 'success');
             onLogin(newUser);
             setActiveUserPanel(null);
             setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
         } catch (error: any) {
-            console.error(error);
+            console.error("Registration Error:", error);
             setRegisterError(`Registration failed: ${error.message || 'Unknown error'}`);
         } finally {
             setIsRegistering(false);
@@ -101,26 +103,8 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
 
         setIsLoggingIn(true);
 
-        // 1. STRATEGY: Check local list first (Fastest & Guarantees Admin login)
-        const localUser = existingUsers.find(u => u.email.toLowerCase() === enteredEmail);
-
-        if (localUser) {
-            if (localUser.password === enteredPassword) {
-                onLogin(localUser);
-                showNotification(`Welcome back, ${localUser.firstName}!`, 'success');
-                setActiveUserPanel(null);
-                setLoginForm({ email: '', password: '' });
-                setIsLoggingIn(false);
-                return;
-            } else {
-                setLoginError('Invalid password!');
-                setIsLoggingIn(false);
-                return;
-            }
-        }
-
-        // 2. STRATEGY: If not found locally, check Server (Fixes Cross-Device Sync)
         try {
+            // Query Firestore directly for the user
             const q = query(collection(db, "users"), where("email", "==", enteredEmail));
             const querySnapshot = await getDocs(q);
 
@@ -130,6 +114,7 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                 return;
             }
 
+            // User found, check password
             const userDoc = querySnapshot.docs[0];
             const userData = userDoc.data() as UserType;
 
@@ -139,6 +124,7 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                 return;
             }
 
+            // Login successful
             onLogin(userData);
             showNotification(`Welcome back, ${userData.firstName}!`, 'success');
             setActiveUserPanel(null);
