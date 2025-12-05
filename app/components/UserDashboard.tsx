@@ -42,18 +42,23 @@ export const UserDashboard = ({
     return (
         <div className="pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]">
             <div className="w-full max-w-6xl px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
-                <div className="flex justify-between items-center border-b border-[#CE8E94]/20 pb-6">
-                    <h1 className="text-4xl font-bold text-[#CE8E94] flex items-center gap-3"><User className="w-8 h-8" /> Hi, {loggedInUser.firstName}</h1>
-                    <div className="flex gap-3">
+                <div className="flex justify-between items-start md:items-center border-b border-[#CE8E94]/20 pb-6">
+                    <h1 className="text-3xl md:text-4xl font-bold text-[#CE8E94] flex items-center gap-3"><User className="w-8 h-8" />
+                        <span className="flex flex-col md:flex-row md:gap-2">
+                            <span>Hi,</span>
+                            <span>{loggedInUser.firstName}</span>
+                        </span>
+                    </h1>
+                    <div className="flex flex-col sm:flex-row gap-3 items-end">
                         <Button
                             onClick={navigateToHome}
-                            className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl text-sm font-bold hover:bg-gray-100 transition duration-300 flex items-center gap-2"
+                            className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl text-sm font-bold hover:bg-gray-100 transition duration-300 flex items-center gap-2 w-full sm:w-auto justify-center"
                         >
                             <User className="w-4 h-4" /> Home
                         </Button>
                         <Button
                             onClick={onLogout}
-                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-red-100 hover:text-red-500 transition duration-300 flex items-center gap-2"
+                            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-red-100 hover:text-red-500 transition duration-300 flex items-center gap-2 w-full sm:w-auto justify-center"
                         >
                             <LogOut className="w-4 h-4" /> Logout
                         </Button>
