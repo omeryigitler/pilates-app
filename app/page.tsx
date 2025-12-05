@@ -25,7 +25,7 @@ import {
     Calendar,
 } from "lucide-react";
 import { db } from "./firebase";
-import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc } from "firebase/firestore";
+import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import dynamic from 'next/dynamic';
 
 // --- TYPE DEFINITIONS ---
@@ -320,20 +320,35 @@ function PilatesMaltaByGozde() {
         };
     }, []);
 
-    // Effect to restore session when users are loaded
+    // Effect to restore session (Hybrid: Local List + Direct Fetch)
     useEffect(() => {
-        if (isLoading) return;
+        const checkSession = async () => {
+            const savedEmail = localStorage.getItem('pilates_user_email');
+            if (!savedEmail || loggedInUser) return;
 
-        const savedEmail = localStorage.getItem('pilates_user_email');
-        if (savedEmail && !loggedInUser) {
-            const found = users.find(u => u.email === savedEmail);
-            if (found) {
-                setLoggedInUser(found);
-                if (found.role === 'admin') setCurrentView('admin');
-                else setCurrentView('user-dashboard');
+            // 1. Try finding in currently loaded list (Fastest)
+            const localFound = users.find(u => u.email === savedEmail);
+            if (localFound) {
+                handleSetLoggedInUser(localFound);
+                return;
             }
-        }
-    }, [users, loggedInUser, isLoading]);
+
+            // 2. If not in list (e.g. list not loaded yet), fetch directly (Reliable)
+            try {
+                const userDocRef = doc(db, "users", savedEmail);
+                const userDocSnap = await getDoc(userDocRef);
+
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data() as UserType;
+                    handleSetLoggedInUser(userData);
+                }
+            } catch (error) {
+                console.error("Session restore error:", error);
+            }
+        };
+
+        checkSession();
+    }, [users, loggedInUser]);
 
 
     // --- EARLY RETURN FOR CLIENT SIDE RENDERING ---
