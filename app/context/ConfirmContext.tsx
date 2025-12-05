@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
@@ -34,7 +35,7 @@ const ConfirmModal = ({ state, hideConfirm }: { state: ConfirmState, hideConfirm
         hideConfirm();
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4 bg-black/30 backdrop-blur-sm transition-all duration-300">
             <div className="relative bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in duration-300 space-y-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -61,7 +62,8 @@ const ConfirmModal = ({ state, hideConfirm }: { state: ConfirmState, hideConfirm
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

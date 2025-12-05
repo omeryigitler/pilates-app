@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertTriangle, Info } from 'lucide-react';
 import { NotificationType, NotificationState } from '../types';
@@ -38,7 +39,7 @@ const NotificationDisplayModal = ({ message, type, visible, hideNotification }: 
             break;
     }
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300">
             <div className="relative bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in duration-300 space-y-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -57,7 +58,8 @@ const NotificationDisplayModal = ({ message, type, visible, hideNotification }: 
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
