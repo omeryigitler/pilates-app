@@ -14,13 +14,15 @@ export const UserDashboard = ({
     slots,
     handleBookSlot,
     handleCancelBooking,
-    onLogout
+    onLogout,
+    navigateToHome
 }: {
     loggedInUser: UserType,
     slots: Slot[],
     handleBookSlot: (date: string, time: string) => void,
     handleCancelBooking: (date: string, time: string) => void,
-    onLogout: () => void
+    onLogout: () => void,
+    navigateToHome: () => void
 }) => {
     const userName = `${loggedInUser.firstName} ${loggedInUser.lastName}`;
     const { showConfirm } = useConfirm();
@@ -43,6 +45,12 @@ export const UserDashboard = ({
                 <div className="flex justify-between items-center border-b border-[#CE8E94]/20 pb-6">
                     <h1 className="text-4xl font-bold text-[#CE8E94] flex items-center gap-3"><User className="w-8 h-8" /> Hi, {loggedInUser.firstName}</h1>
                     <div className="flex gap-3">
+                        <Button
+                            onClick={navigateToHome}
+                            className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl text-sm font-bold hover:bg-gray-100 transition duration-300 flex items-center gap-2"
+                        >
+                            <User className="w-4 h-4" /> Home
+                        </Button>
                         <Button
                             onClick={onLogout}
                             className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-red-100 hover:text-red-500 transition duration-300 flex items-center gap-2"

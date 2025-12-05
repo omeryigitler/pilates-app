@@ -344,6 +344,7 @@ function PilatesMaltaByGozde() {
                 handleBookSlot={handleBookSlot}
                 handleCancelBooking={handleCancelBooking}
                 onLogout={handleLogout}
+                navigateToHome={() => setCurrentView('main')}
             />
         );
     }
