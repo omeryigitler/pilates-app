@@ -1301,17 +1301,24 @@ function PilatesMaltaByGozde() {
     }, []);
 
     // Effect to restore session when users are loaded
+    // Effect to restore session when users are loaded
     useEffect(() => {
+        if (isLoading) return; // Veriler henüz yüklenmediyse bekle
+
         const savedEmail = localStorage.getItem('pilates_user_email');
-        if (savedEmail && users.length > 0 && !loggedInUser) {
+        if (savedEmail && !loggedInUser) {
             const found = users.find(u => u.email === savedEmail);
             if (found) {
                 setLoggedInUser(found);
                 if (found.role === 'admin') setCurrentView('admin');
                 else setCurrentView('user-dashboard');
+            } else {
+                // Email var ama kullanıcı listede yoksa (silinmiş olabilir), local storage'ı temizle
+                // Ancak hemen temizlemek yerine, belki veri geç geliyordur diye dokunmuyoruz.
+                // console.log("User not found in list despite saved email");
             }
         }
-    }, [users, loggedInUser]);
+    }, [users, loggedInUser, isLoading]);
 
 
     // --- EARLY RETURN FOR CLIENT SIDE RENDERING & LOADING ---
