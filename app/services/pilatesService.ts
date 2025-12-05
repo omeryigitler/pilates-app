@@ -92,9 +92,12 @@ export const cancelBookingTransaction = async (slotDate: string, slotTime: strin
 
 // --- 5. KULLANICI İŞLEMLERİ (AUTH + FIRESTORE) ---
 import { auth } from "../firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence } from "firebase/auth";
 
 export const registerUserAuth = async (user: UserType) => {
+    // Force persistence to LOCAL specifically
+    await setPersistence(auth, browserLocalPersistence);
+
     // 1. Firebase Auth ile kullanıcı oluştur
     const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
     const firebaseUser = userCredential.user;
@@ -125,6 +128,8 @@ export const getUserProfile = async (email: string) => {
 };
 
 export const loginUserAuth = async (email: string, pass: string) => {
+    // Force persistence to LOCAL before login
+    await setPersistence(auth, browserLocalPersistence);
     const userCredential = await signInWithEmailAndPassword(auth, email, pass);
     return userCredential.user;
 };
