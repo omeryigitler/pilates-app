@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, Calendar, Clock, Zap } from 'lucide-react';
+import { User, LogOut, Calendar, Clock, Zap, Home } from 'lucide-react';
 import { UserType, Slot } from '../types';
 import { getTodayDate, isPastDate, formatDateDisplay } from '../utils/helpers';
 import { useConfirm } from '../context/ConfirmContext';
@@ -54,7 +54,7 @@ export const UserDashboard = ({
                             onClick={navigateToHome}
                             className="px-6 py-3 bg-white text-gray-700 border border-gray-300 rounded-xl text-sm font-bold hover:bg-gray-100 transition duration-300 flex items-center gap-2 w-full sm:w-auto justify-center"
                         >
-                            <User className="w-4 h-4" /> Home
+                            <Home className="w-4 h-4" /> Home
                         </Button>
                         <Button
                             onClick={onLogout}
