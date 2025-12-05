@@ -245,7 +245,7 @@ function PilatesMaltaByGozde() {
                     <img
                         src={managementState.logo}
                         alt="Loading..."
-                        className="w-full h-full object-contain animate-pulse drop-shadow-xl"
+                        className="w-full h-full object-contain rounded-full animate-pulse drop-shadow-xl"
                     />
                     <div className="absolute inset-0 rounded-full border-2 border-white/50 animate-ping opacity-20"></div>
                 </div>
