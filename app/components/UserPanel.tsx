@@ -18,39 +18,44 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
     const [userForm, setUserForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
     const [isRegistering, setIsRegistering] = useState(false);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [loginError, setLoginError] = useState<string | null>(null);
+    const [registerError, setRegisterError] = useState<string | null>(null);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        setRegisterError(null);
+
         const trimmedPassword = userForm.password.trim();
         const trimmedConfirmPassword = userForm.confirmPassword.trim();
         const trimmedEmail = userForm.email.trim();
         const phoneInput = userForm.phone.trim();
 
         if (!userForm.firstName || !userForm.lastName || !phoneInput || !trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
-            showNotification('All fields are required!', 'error');
+            setRegisterError('All fields are required!');
             return;
         }
 
         // Email Validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(trimmedEmail)) {
-            showNotification('Please enter a valid email address.', 'error');
+            setRegisterError('Please enter a valid email address.');
             return;
         }
 
         // Password Validation
         if (trimmedPassword.length < 6) {
-            showNotification('Password must be at least 6 characters long.', 'error');
+            setRegisterError('Password must be at least 6 characters long.');
             return;
         }
 
         if (trimmedPassword !== trimmedConfirmPassword) {
-            showNotification('Passwords do not match!', 'error');
+            setRegisterError('Passwords do not match!');
             return;
         }
 
         if (existingUsers.some((u: UserType) => u.email === trimmedEmail)) {
-            showNotification('This email is already registered!', 'error');
+            setRegisterError('This email is already registered!');
             return;
         }
 
@@ -69,12 +74,12 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         try {
             await addUser(newUser);
             showNotification('Registration successful! Logging you in...', 'success');
-            onLogin(newUser); // Otomatik giriş yap
+            onLogin(newUser);
             setActiveUserPanel(null);
             setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
         } catch (error: any) {
             console.error(error);
-            showNotification(`Registration failed: ${error.message || 'Unknown error'}`, 'error');
+            setRegisterError(`Registration failed: ${error.message || 'Unknown error'}`);
         } finally {
             setIsRegistering(false);
         }
@@ -82,40 +87,56 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
+        setLoginError(null);
+
         const enteredEmail = loginForm.email.trim().toLowerCase();
         const enteredPassword = loginForm.password.trim();
 
-        if (existingUsers.length === 0) {
-            showNotification('System is still loading data. Please wait a moment and try again.', 'info');
+        if (!enteredEmail || !enteredPassword) {
+            setLoginError('Please enter both email and password.');
             return;
         }
 
-        const found = existingUsers.find((u: UserType) =>
-            u.email.toLowerCase() === enteredEmail &&
-            u.password === enteredPassword
-        );
+        setIsLoggingIn(true);
 
-        if (!found) {
-            showNotification('Invalid email or password!', 'error');
-            return;
-        }
-        onLogin(found);
-        showNotification(`Welcome back, ${found.firstName}!`, 'success');
-        setActiveUserPanel(null);
-        setLoginForm({ email: '', password: '' });
+        // Simulate a small delay to ensure UI updates and data check happens smoothly
+        setTimeout(() => {
+            if (existingUsers.length === 0) {
+                setLoginError('System is loading data. Please try again in a few seconds.');
+                setIsLoggingIn(false);
+                return;
+            }
+
+            const found = existingUsers.find((u: UserType) =>
+                u.email.toLowerCase() === enteredEmail &&
+                u.password === enteredPassword
+            );
+
+            if (!found) {
+                setLoginError('Invalid email or password!');
+                setIsLoggingIn(false);
+                return;
+            }
+
+            onLogin(found);
+            showNotification(`Welcome back, ${found.firstName}!`, 'success');
+            setActiveUserPanel(null);
+            setLoginForm({ email: '', password: '' });
+            setIsLoggingIn(false);
+        }, 500);
     };
 
     return (
         <>
             <div className="flex gap-3">
                 <Button
-                    onClick={() => setActiveUserPanel('login')}
+                    onClick={() => { setActiveUserPanel('login'); setLoginError(null); }}
                     className="px-6 py-2 border-2 border-[#CE8E94] text-[#CE8E94] bg-white rounded-xl text-sm font-bold hover:bg-[#CE8E94] hover:text-white transition duration-300"
                 >
                     Login
                 </Button>
                 <Button
-                    onClick={() => setActiveUserPanel('register')}
+                    onClick={() => { setActiveUserPanel('register'); setRegisterError(null); }}
                     className="px-6 py-2 bg-[#CE8E94] text-white rounded-xl text-sm font-bold shadow-md
                         hover:bg-white hover:text-[#CE8E94] hover:border-2 hover:border-[#CE8E94] transition duration-300"
                 >
@@ -138,23 +159,23 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                                 </div>
                                 <input
                                     type="tel"
-                                    placeholder="Phone (e.g. 99123456)"
+                                    placeholder="Phone"
                                     value={userForm.phone}
-                                    onChange={e => {
-                                        // Only allow digits to be typed
-                                        const val = e.target.value;
-                                        if (/^\d*$/.test(val)) {
-                                            setUserForm(prev => ({ ...prev, phone: val }));
-                                        }
-                                    }}
-                                    maxLength={8}
+                                    onChange={e => setUserForm(prev => ({ ...prev, phone: e.target.value }))}
                                     className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700"
                                 />
                                 <input type="email" placeholder="Email" value={userForm.email} onChange={e => setUserForm(prev => ({ ...prev, email: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 <input type="password" placeholder="Password (min 6 chars)" value={userForm.password} onChange={e => setUserForm(prev => ({ ...prev, password: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 <input type="password" placeholder="Confirm Password" value={userForm.confirmPassword} onChange={e => setUserForm(prev => ({ ...prev, confirmPassword: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                             </div>
-                            <Button type="submit" className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95">Create Account</Button>
+
+                            {registerError && (
+                                <p className="text-red-500 text-center font-medium bg-red-50 p-2 rounded-lg">{registerError}</p>
+                            )}
+
+                            <Button type="submit" disabled={isRegistering} className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                {isRegistering ? 'Creating Account...' : 'Create Account'}
+                            </Button>
                         </form>
                     )}
 
@@ -168,7 +189,14 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                                 <input type="email" placeholder="Email" value={loginForm.email} onChange={e => setLoginForm(prev => ({ ...prev, email: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 <input type="password" placeholder="Password" value={loginForm.password} onChange={e => setLoginForm(prev => ({ ...prev, password: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                             </div>
-                            <Button type="submit" className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95">Login</Button>
+
+                            {loginError && (
+                                <p className="text-red-500 text-center font-medium bg-red-50 p-2 rounded-lg">{loginError}</p>
+                            )}
+
+                            <Button type="submit" disabled={isLoggingIn} className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                {isLoggingIn ? 'Logging in...' : 'Login'}
+                            </Button>
                         </form>
                     )}
                 </Modal>
