@@ -1,0 +1,291 @@
+"use client";
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Download, Calendar, Users, TrendingUp } from 'lucide-react';
+import { Slot, UserType } from '../types';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: UserType[], currentLogo: string }) => {
+    // 1. Genel İstatistikler
+    const totalBookings = slots.filter(s => s.status === 'Booked').length;
+    const totalSlots = slots.length;
+    const occupancyRate = totalSlots > 0 ? Math.round((totalBookings / totalSlots) * 100) : 0;
+    const totalUsers = users.length;
+
+    // 2. Aylık Dağılım
+    const monthlyStats = slots.reduce((acc, slot) => {
+        if (slot.status === 'Booked') {
+            const monthKey = slot.date.substring(0, 7); // YYYY-MM
+            acc[monthKey] = (acc[monthKey] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+
+    // Sıralı aylar
+    const sortedMonths = Object.keys(monthlyStats).sort().reverse();
+
+    const handleDownloadPDF = async () => {
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.width;
+        const pageHeight = doc.internal.pageSize.height;
+        const brandColor = [206, 142, 148] as [number, number, number]; // #CE8E94
+
+        // Helper to load image as Base64
+        const loadImage = (url: string): Promise<string> => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = 'Anonymous'; // CORS sorunlarını önlemek için
+                img.src = url;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    if (ctx) {
+                        // Yuvarlak Kırpma İşlemi
+                        ctx.beginPath();
+                        ctx.arc(img.width / 2, img.height / 2, Math.min(img.width, img.height) / 2, 0, Math.PI * 2, true);
+                        ctx.closePath();
+                        ctx.clip();
+
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/png')); // PNG formatı şeffaflık (yuvarlak kenarlar) için gereklidir
+                    } else {
+                        reject(new Error('Canvas context failed'));
+                    }
+                };
+                img.onerror = (e) => reject(e);
+            });
+        };
+
+        try {
+            // 1. Logo Ekle (Sol Üst)
+            const logoBase64 = await loadImage(currentLogo);
+            const logoX = 14;
+            const logoY = 10;
+            const logoSize = 24;
+
+            doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+        } catch (e) {
+            console.error("Logo yüklenemedi:", e);
+        }
+
+        // 2. Başlık ve Kurumsal Bilgi (Header)
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(24);
+        doc.setTextColor(...brandColor);
+        doc.text("Reformer Pilates Malta", 42, 22);
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text("Monthly Performance & Analytics Report", 42, 29);
+
+        // Sağ Üst Tarih
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        doc.text(dateStr, pageWidth - 14, 22, { align: 'right' });
+
+        // Ayırıcı Çizgi
+        doc.setDrawColor(...brandColor);
+        doc.setLineWidth(0.5);
+        doc.line(14, 38, pageWidth - 14, 38);
+
+        // 3. Genel İstatistikler (Overview Section)
+        doc.setFontSize(16);
+        doc.setTextColor(60);
+        doc.text("Executive Summary", 14, 50);
+
+        // İstatistik Kutuları (Basit çizim)
+        const statY = 58;
+        const boxWidth = (pageWidth - 28 - 10) / 3; // 3 kutu, aralarında 5mm boşluk
+
+        // Kutu 1: Bookings
+        doc.setFillColor(250, 250, 250);
+        doc.setDrawColor(230, 230, 230);
+        doc.roundedRect(14, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.text("Total Bookings", 14 + 5, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(totalBookings.toString(), 14 + 5, statY + 18);
+
+        // Kutu 2: Members
+        doc.setFillColor(250, 250, 250);
+        doc.roundedRect(14 + boxWidth + 5, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.setFont("helvetica", "normal");
+        doc.text("Total Members", 14 + boxWidth + 10, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(totalUsers.toString(), 14 + boxWidth + 10, statY + 18);
+
+        // Kutu 3: Occupancy
+        doc.setFillColor(250, 250, 250);
+        doc.roundedRect(14 + (boxWidth + 5) * 2, statY, boxWidth, 25, 3, 3, 'FD');
+        doc.setFontSize(10);
+        doc.setTextColor(120);
+        doc.setFont("helvetica", "normal");
+        doc.text("Occupancy Rate", 14 + (boxWidth + 5) * 2 + 5, statY + 8);
+        doc.setFontSize(16);
+        doc.setTextColor(...brandColor);
+        doc.setFont("helvetica", "bold");
+        doc.text(`%${occupancyRate}`, 14 + (boxWidth + 5) * 2 + 5, statY + 18);
+
+        // 4. Tablo Verisi Hazırlama
+        const tableData = sortedMonths.map(month => [
+            new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+            `${monthlyStats[month]} sessions`,
+            'Active',
+            // Basit bir bar grafik temsili (text olarak)
+            '|'.repeat(Math.min(monthlyStats[month], 20))
+        ]);
+
+        // 5. Tabloyu Çiz
+        autoTable(doc, {
+            startY: 95,
+            head: [['Month', 'Total Sessions', 'Status', 'Activity Level']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: brandColor,
+                textColor: 255,
+                fontStyle: 'bold',
+                halign: 'left'
+            },
+            columnStyles: {
+                0: { fontStyle: 'bold', textColor: 80 },
+                3: { textColor: brandColor, fontStyle: 'bold' } // Activity Level rengi
+            },
+            styles: {
+                fontSize: 10,
+                cellPadding: 6,
+                lineColor: [240, 240, 240],
+                lineWidth: 0.1
+            },
+            alternateRowStyles: {
+                fillColor: [255, 250, 250] // Çok hafif pembe/beyaz
+            },
+            margin: { top: 90 }
+        });
+
+        // 6. Footer (Alt Bilgi)
+        const footerY = pageHeight - 15;
+
+        // Footer Çizgisi
+        doc.setDrawColor(200);
+        doc.setLineWidth(0.1);
+        doc.line(14, footerY - 5, pageWidth - 14, footerY - 5);
+
+        // Site Linki
+        doc.setFontSize(10);
+        doc.setTextColor(150);
+        doc.setFont("helvetica", "normal");
+        doc.text("www.reformerpilatesmalta.com", pageWidth / 2, footerY, { align: 'center' });
+
+        // Telif Hakkı / Ek Bilgi
+        doc.setFontSize(8);
+        doc.setTextColor(180);
+        doc.text("Confidential Report • Generated by ReformerPilatesMalta", pageWidth / 2, footerY + 5, { align: 'center' });
+
+        // Kaydet
+        doc.save(`pilates-report-${new Date().toISOString().slice(0, 10)}.pdf`);
+    };
+
+    return (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Header & Download Button */}
+            <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
+                <Button
+                    onClick={handleDownloadPDF}
+                    className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-2 rounded-xl flex items-center gap-2 shadow-lg transition transform active:scale-95"
+                >
+                    <Download className="w-5 h-5" /> Download Report
+                </Button>
+            </div>
+
+            {/* Üst Kartlar */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Total Bookings</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalBookings}</h3>
+                        </div>
+                        <div className="p-3 bg-blue-50 rounded-xl">
+                            <Calendar className="w-6 h-6 text-blue-500" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Total Members</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">{totalUsers}</h3>
+                        </div>
+                        <div className="p-3 bg-purple-50 rounded-xl">
+                            <Users className="w-6 h-6 text-purple-500" />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-100">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-gray-500 font-medium text-sm">Occupancy Rate</p>
+                            <h3 className="text-3xl font-bold text-gray-800 mt-1">%{occupancyRate}</h3>
+                        </div>
+                        <div className="p-3 bg-green-50 rounded-xl">
+                            <TrendingUp className="w-6 h-6 text-green-500" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Aylık Tablo */}
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                    <h3 className="text-xl font-bold text-gray-800">Monthly Performance</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 text-gray-500 font-medium text-sm">
+                            <tr>
+                                <th className="p-4 pl-6">Month</th>
+                                <th className="p-4">Total Sessions</th>
+                                <th className="p-4">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {sortedMonths.map(month => (
+                                <tr key={month} className="hover:bg-gray-50 transition">
+                                    <td className="p-4 pl-6 font-bold text-gray-700">
+                                        {new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                    </td>
+                                    <td className="p-4 text-gray-600 font-medium">{monthlyStats[month]} sessions</td>
+                                    <td className="p-4">
+                                        <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">Active</span>
+                                    </td>
+                                </tr>
+                            ))}
+                            {sortedMonths.length === 0 && (
+                                <tr>
+                                    <td colSpan={3} className="p-8 text-center text-gray-400">No data available yet.</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
