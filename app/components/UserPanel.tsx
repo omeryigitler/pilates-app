@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { UserType } from '../types';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from './Modal';
-import { db } from "../firebase";
-import { collection, query, where, getDocs, setDoc, doc } from "firebase/firestore";
+import { registerUserAuth, loginUserAuth, resetPasswordAuth } from '../services/pilatesService';
 
 interface UserPanelProps {
     existingUsers: UserType[];
@@ -19,10 +18,14 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
     const [activeUserPanel, setActiveUserPanel] = useState<string | null>(null);
     const [userForm, setUserForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
+    const [forgotEmail, setForgotEmail] = useState('');
     const [isRegistering, setIsRegistering] = useState(false);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [isResetting, setIsResetting] = useState(false);
     const [loginError, setLoginError] = useState<string | null>(null);
     const [registerError, setRegisterError] = useState<string | null>(null);
+    const [resetError, setResetError] = useState<string | null>(null);
+    const [resetSuccess, setResetSuccess] = useState<string | null>(null);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -56,34 +59,37 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
             return;
         }
 
-        if (existingUsers.some((u: UserType) => u.email === trimmedEmail)) {
-            setRegisterError('This email is already registered!');
-            return;
-        }
+        // Auth handles reuse checks, but we can do a soft check if we want.
+        // For now, let Auth throw error if email exists.
 
         setIsRegistering(true);
 
         const newUser: UserType = {
-            email: trimmedEmail,
-            password: trimmedPassword,
+            email: trimmedEmail.toLowerCase(),
+            password: trimmedPassword, // Auth handles hashing, passing raw for consistency
             role: 'user',
-            firstName: userForm.firstName,
-            lastName: userForm.lastName,
+            firstName: userForm.firstName.trim(),
+            lastName: userForm.lastName.trim(),
             phone: phoneInput,
             registered: new Date().toISOString().substring(0, 10)
         };
 
         try {
-            // DIRECT WRITE TO FIRESTORE (Most Reliable Method)
-            await setDoc(doc(db, "users", newUser.email), newUser);
+            await registerUserAuth(newUser);
 
-            showNotification('Registration successful! Logging you in...', 'success');
-            onLogin(newUser);
+            showNotification('Registration successful!', 'success');
+            // Auth listener in page.tsx will handle login state
             setActiveUserPanel(null);
             setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
         } catch (error: any) {
             console.error("Registration Error:", error);
-            setRegisterError(`Registration failed: ${error.message || 'Unknown error'}`);
+            let msg = 'Registration failed.';
+            if (error.code === 'auth/email-already-in-use') {
+                msg = 'This email is already registered.';
+            } else {
+                msg = error.message;
+            }
+            setRegisterError(msg);
         } finally {
             setIsRegistering(false);
         }
@@ -104,39 +110,47 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         setIsLoggingIn(true);
 
         try {
-            // Query Firestore directly for the user
-            const q = query(collection(db, "users"), where("email", "==", enteredEmail));
-            const querySnapshot = await getDocs(q);
+            await loginUserAuth(enteredEmail, enteredPassword);
 
-            if (querySnapshot.empty) {
-                setLoginError('User not found. Please register first.');
-                setIsLoggingIn(false);
-                return;
-            }
-
-            // User found, check password
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data() as UserType;
-
-            if (userData.password !== enteredPassword) {
-                setLoginError('Invalid password!');
-                setIsLoggingIn(false);
-                return;
-            }
-
-            // Login successful
-            onLogin(userData);
-            showNotification(`Welcome back, ${userData.firstName}!`, 'success');
+            showNotification('Welcome back!', 'success');
+            // Auth listener handles the rest
             setActiveUserPanel(null);
             setLoginForm({ email: '', password: '' });
 
         } catch (error: any) {
             console.error("Login error:", error);
-            setLoginError('Connection error. Please try again.');
+            let msg = 'Connection error. Please try again.';
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                msg = 'Invalid email or password.';
+            }
+            setLoginError(msg);
         } finally {
             setIsLoggingIn(false);
         }
     };
+
+    const handleForgotPassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setResetError(null);
+        setResetSuccess(null);
+
+        if (!forgotEmail) {
+            setResetError('Please enter your email.');
+            return;
+        }
+
+        setIsResetting(true);
+        try {
+            await resetPasswordAuth(forgotEmail);
+            setResetSuccess('Password reset email sent! Check your inbox.');
+            setForgotEmail('');
+        } catch (error: any) {
+            console.error("Reset error:", error);
+            setResetError(error.message);
+        } finally {
+            setIsResetting(false);
+        }
+    }
 
     return (
         <>
@@ -200,6 +214,16 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                             <div className="space-y-4">
                                 <input type="email" placeholder="Email" value={loginForm.email} onChange={e => setLoginForm(prev => ({ ...prev, email: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
                                 <input type="password" placeholder="Password" value={loginForm.password} onChange={e => setLoginForm(prev => ({ ...prev, password: e.target.value }))} className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700" />
+
+                                <div className="text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setActiveUserPanel('forgot-password'); setResetError(null); setResetSuccess(null); }}
+                                        className="text-sm font-semibold text-gray-500 hover:text-[#CE8E94] underline"
+                                    >
+                                        Forgot Password?
+                                    </button>
+                                </div>
                             </div>
 
                             {loginError && (
@@ -211,8 +235,46 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
                             </Button>
                         </form>
                     )}
+
+                    {activeUserPanel === 'forgot-password' && (
+                        <form onSubmit={handleForgotPassword} className="space-y-6">
+                            <div className="text-center">
+                                <h2 className="text-3xl font-bold text-[#CE8E94] mb-2">Reset Password</h2>
+                                <p className="text-gray-500 font-light">Enter your email to receive a reset link.</p>
+                            </div>
+                            <div className="space-y-4">
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={forgotEmail}
+                                    onChange={e => setForgotEmail(e.target.value)}
+                                    className="w-full p-4 border border-gray-100 rounded-xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700"
+                                />
+                            </div>
+
+                            {resetError && (
+                                <p className="text-red-500 text-center font-medium bg-red-50 p-2 rounded-lg">{resetError}</p>
+                            )}
+                            {resetSuccess && (
+                                <p className="text-green-600 text-center font-medium bg-green-50 p-2 rounded-lg">{resetSuccess}</p>
+                            )}
+
+                            <Button type="submit" disabled={isResetting} className="w-full py-4 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
+                                {isResetting ? 'Sending...' : 'Send Reset Link'}
+                            </Button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setActiveUserPanel('login'); setLoginError(null); }}
+                                className="w-full text-center text-gray-500 hover:text-[#CE8E94] underline mt-4"
+                            >
+                                Back to Login
+                            </button>
+                        </form>
+                    )}
                 </Modal>
             )}
         </>
     );
 }
+

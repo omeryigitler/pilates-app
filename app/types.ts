@@ -13,6 +13,7 @@ export type UserType = {
     lastName: string;
     phone: string;
     registered: string;
+    uid?: string;
 }
 
 export type NotificationType = 'success' | 'error' | 'info';

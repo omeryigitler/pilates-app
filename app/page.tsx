@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
-import { listenToSlots, listenToUsers, bookSlotTransaction, cancelBookingTransaction, registerUser } from "./services/pilatesService";
+import { listenToSlots, listenToUsers, bookSlotTransaction, cancelBookingTransaction, registerUser, logoutUserAuth } from "./services/pilatesService";
 import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,8 @@ import {
     AlertCircle,
     Calendar,
 } from "lucide-react";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import dynamic from 'next/dynamic';
 
@@ -65,8 +66,8 @@ const initialData = {
 };
 
 const initialUsers: UserType[] = [
-    { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
-    { email: 'gozde@mail.com', password: '123456', role: 'admin', firstName: 'Gozde', lastName: 'Arslan', phone: '+356 555 5678', registered: '2025-12-03' },
+    { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Ömer', lastName: 'Yiğitler', phone: '+356 555 1234', registered: '2025-11-20' },
+    { email: 'gozde@mail.com', password: '123456', role: 'admin', firstName: 'Gözde', lastName: 'Arslan', phone: '+356 555 5678', registered: '2025-12-03' },
 ];
 // -----------------------------------------------------
 // --- BİLDİRİM SİSTEMİ (MODAL REPLACEMENT) ---
@@ -276,34 +277,19 @@ function PilatesMaltaByGozde() {
     const [slots, setSlots] = useState<Slot[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
+    const [isAuthChecking, setIsAuthChecking] = useState(true);
+
     // --- LOAD DATA FROM FIRESTORE ON STARTUP ---
     useEffect(() => {
         setIsClient(true);
 
-        // Subscribe to Slots using Service
+        // Subscribe to Slots (Needed for everyone)
         const slotsUnsub = listenToSlots((loadedSlots) => {
             setSlots(sortSlots(loadedSlots));
             setIsLoading(false);
         });
 
-        // Subscribe to Users using Service
-        const usersUnsub = listenToUsers((loadedUsers) => {
-            // Check for missing initial admins and create them
-            initialUsers.forEach(initialAdmin => {
-                const found = loadedUsers.find(u => u.email === initialAdmin.email);
-                if (!found) {
-                    registerUser(initialAdmin);
-                } else if (found.password !== initialAdmin.password) {
-                    // Force reset admin password if it doesn't match initial (Fix for login issues)
-                    console.log(`Resetting password for ${initialAdmin.email} to default.`);
-                    registerUser({ ...found, password: initialAdmin.password });
-                }
-            });
-
-            setUsers(loadedUsers);
-        });
-
-        // Subscribe to Management
+        // Subscribe to Management (Needed for Logo/branding)
         const mgmtUnsub = onSnapshot(doc(db, "management", "settings"), (docSnap) => {
             if (docSnap.exists()) {
                 setManagementState(docSnap.data() as typeof initialData);
@@ -315,40 +301,81 @@ function PilatesMaltaByGozde() {
 
         return () => {
             slotsUnsub();
-            usersUnsub();
             mgmtUnsub();
         };
     }, []);
 
-    // Effect to restore session (Hybrid: Local List + Direct Fetch)
+    // Fetch Users ONLY if Admin (Optimization)
     useEffect(() => {
-        const checkSession = async () => {
-            const savedEmail = localStorage.getItem('pilates_user_email');
-            if (!savedEmail || loggedInUser) return;
+        if (loggedInUser?.role !== 'admin') {
+            setUsers([]); // Clear users to save memory if not admin
+            return;
+        }
 
-            // 1. Try finding in currently loaded list (Fastest)
-            const localFound = users.find(u => u.email === savedEmail);
-            if (localFound) {
-                handleSetLoggedInUser(localFound);
-                return;
-            }
-
-            // 2. If not in list (e.g. list not loaded yet), fetch directly (Reliable)
-            try {
-                const userDocRef = doc(db, "users", savedEmail);
-                const userDocSnap = await getDoc(userDocRef);
-
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data() as UserType;
-                    handleSetLoggedInUser(userData);
+        const usersUnsub = listenToUsers((loadedUsers) => {
+            // Check for missing initial admins and create them
+            initialUsers.forEach(initialAdmin => {
+                const found = loadedUsers.find(u => u.email === initialAdmin.email);
+                if (!found) {
+                    registerUser(initialAdmin);
+                } else if (found.password !== initialAdmin.password) {
+                    // Force reset admin password if it doesn't match initial
+                    console.log(`Resetting password for ${initialAdmin.email} to default.`);
+                    registerUser({ ...found, password: initialAdmin.password });
                 }
-            } catch (error) {
-                console.error("Session restore error:", error);
-            }
-        };
+            });
+            setUsers(loadedUsers);
+        });
 
-        checkSession();
-    }, [users, loggedInUser]);
+        return () => {
+            usersUnsub();
+        };
+    }, [loggedInUser?.role]); // Re-run when role changes
+
+    // --- AUTH STATE LISTENER (THE MODERN & ROBUST WAY) ---
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log("Auth State: User logged in:", user.email);
+                // User is authenticated by Firebase. Now fetch their detailed profile from Firestore.
+                // We use user.email to fetch the profile because we key users by email in Firestore.
+                if (user.email) {
+                    try {
+                        const userDocRef = doc(db, "users", user.email);
+                        const userDocSnap = await getDoc(userDocRef);
+
+                        if (userDocSnap.exists()) {
+                            const userData = userDocSnap.data() as UserType;
+                            // Ensure the UID matches (update it if it's missing, e.g. for old users)
+                            if (!userData.uid) {
+                                await updateDoc(userDocRef, { uid: user.uid });
+                                userData.uid = user.uid;
+                            }
+                            handleSetLoggedInUser(userData);
+                        } else {
+                            // Rare edge case: Auth exists but Firestore profile missing.
+                            // Maybe create a placeholder or log out?
+                            console.error("Auth exists but Firestore profile missing for:", user.email);
+                            // Optionally create a default profile here?
+                            // For now, let's just log them out to avoid broken state.
+                            // await logoutUserAuth();
+                        }
+                    } catch (error) {
+                        console.error("Error fetching user profile:", error);
+                    }
+                }
+            } else {
+                console.log("Auth State: No user (Logged out)");
+                setLoggedInUser(null);
+                setCurrentView('main');
+            }
+            // Done checking
+            setIsAuthChecking(false);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, []);
 
 
     // --- EARLY RETURN FOR CLIENT SIDE RENDERING ---
@@ -356,10 +383,18 @@ function PilatesMaltaByGozde() {
         return null;
     }
 
+    if (isAuthChecking) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-[#FFF0E5]">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#CE8E94]"></div>
+            </div>
+        );
+    }
+
     // --- HANDLERS ---
     const handleSetLoggedInUser = (user: UserType) => {
         setLoggedInUser(user);
-        localStorage.setItem('pilates_user_email', user.email);
+        // localStorage usage REMOVED. Auth state handles persistence.
         if (user.role === 'user') {
             setCurrentView('user-dashboard');
         } else if (user.role === 'admin') {
@@ -367,11 +402,15 @@ function PilatesMaltaByGozde() {
         }
     }
 
-    const handleLogout = () => {
-        setLoggedInUser(null);
-        localStorage.removeItem('pilates_user_email');
-        setCurrentView('main');
-        showNotification('Successfully logged out.', 'info');
+    const handleLogout = async () => {
+        try {
+            await logoutUserAuth();
+            showNotification('Successfully logged out.', 'info');
+            // 'onAuthStateChanged' will handle the state update (setLoggedInUser(null))
+        } catch (error: any) {
+            console.error("Logout error:", error);
+            showNotification("Error logging out", "error");
+        }
     }
 
     const addUser = async (user: UserType) => {
