@@ -91,11 +91,16 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        const enteredEmail = loginForm.email.trim();
+        const enteredEmail = loginForm.email.trim().toLowerCase();
         const enteredPassword = loginForm.password.trim();
 
+        if (existingUsers.length === 0) {
+            showNotification('System is still loading data. Please wait a moment and try again.', 'info');
+            return;
+        }
+
         const found = existingUsers.find((u: UserType) =>
-            u.email === enteredEmail &&
+            u.email.toLowerCase() === enteredEmail &&
             u.password === enteredPassword
         );
 
