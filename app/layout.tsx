@@ -36,6 +36,11 @@ export const metadata: Metadata = {
     follow: true,
   },
   manifest: '/manifest.json',
+  icons: {
+    icon: '/icon.jpg',
+    shortcut: '/icon.jpg',
+    apple: '/icon.jpg',
+  },
 };
 
 export default function RootLayout({
