@@ -358,6 +358,7 @@ function PilatesMaltaByGozde() {
                 managementState={managementState}
                 setManagementState={setManagementState}
                 handleLogout={handleLogout}
+                navigateToHome={() => setCurrentView('main')}
             />
         );
     }

@@ -22,6 +22,7 @@ interface AdminPanelProps {
     managementState: ManagementState;
     setManagementState: React.Dispatch<React.SetStateAction<ManagementState>>;
     handleLogout: () => void;
+    navigateToHome: () => void;
 }
 
 export const AdminPanel = ({
@@ -30,7 +31,8 @@ export const AdminPanel = ({
     users,
     managementState,
     setManagementState,
-    handleLogout
+    handleLogout,
+    navigateToHome
 }: AdminPanelProps) => {
     const { showNotification } = useNotification();
     const { showConfirm } = useConfirm();
