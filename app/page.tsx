@@ -25,7 +25,11 @@ import {
     Calendar,
 } from "lucide-react";
 import { db, auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence
+} from "firebase/auth";
 import { collection, doc, setDoc, onSnapshot, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import dynamic from 'next/dynamic';
 
@@ -334,54 +338,71 @@ function PilatesMaltaByGozde() {
 
     // --- AUTH STATE LISTENER (THE MODERN & ROBUST WAY) ---
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log("Auth State: User logged in:", user.email);
-                // User is authenticated by Firebase. Now fetch their detailed profile from Firestore.
-                // We use user.email to fetch the profile because we key users by email in Firestore.
-                if (user.email) {
-                    try {
-                        const userDocRef = doc(db, "users", user.email);
-                        const userDocSnap = await getDoc(userDocRef);
+        let unsubscribe: () => void;
 
-                        if (userDocSnap.exists()) {
-                            const userData = userDocSnap.data() as UserType;
-                            // Ensure the UID matches
-                            if (!userData.uid) {
-                                await updateDoc(userDocRef, { uid: user.uid });
-                                userData.uid = user.uid;
+        const initAuth = async () => {
+            try {
+                // FORCE Local Persistence before listening
+                await setPersistence(auth, browserLocalPersistence);
+                console.log("Persistence enforced to LOCAL in page.tsx");
+
+                unsubscribe = onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        console.log("Auth State: User logged in:", user.email);
+                        // User is authenticated by Firebase. Now fetch their detailed profile from Firestore.
+                        if (user.email) {
+                            try {
+                                const userDocRef = doc(db, "users", user.email);
+                                const userDocSnap = await getDoc(userDocRef);
+
+                                if (userDocSnap.exists()) {
+                                    const userData = userDocSnap.data() as UserType;
+                                    // Ensure the UID matches
+                                    if (!userData.uid) {
+                                        await updateDoc(userDocRef, { uid: user.uid });
+                                        userData.uid = user.uid;
+                                    }
+                                    handleSetLoggedInUser(userData);
+                                } else {
+                                    // Firestore profile missing/delayed. Fallback to Auth data.
+                                    console.warn("Firestore profile missing, using Auth fallback.");
+                                    const fallbackUser: UserType = {
+                                        email: user.email!,
+                                        uid: user.uid,
+                                        role: 'user',
+                                        firstName: 'Member',
+                                        lastName: '',
+                                        phone: '',
+                                        password: '',
+                                        registered: new Date().toISOString()
+                                    };
+                                    handleSetLoggedInUser(fallbackUser);
+                                }
+                            } catch (error) {
+                                console.error("Error fetching user profile:", error);
                             }
-                            handleSetLoggedInUser(userData);
-                        } else {
-                            // Firestore profile missing/delayed. Fallback to Auth data.
-                            console.warn("Firestore profile missing, using Auth fallback.");
-                            const fallbackUser: UserType = {
-                                email: user.email,
-                                uid: user.uid,
-                                role: 'user', // Default role
-                                firstName: 'Member', // Generic name until profile load
-                                lastName: '',
-                                phone: '',
-                                password: '',
-                                registered: new Date().toISOString()
-                            };
-                            handleSetLoggedInUser(fallbackUser);
                         }
-                    } catch (error) {
-                        console.error("Error fetching user profile:", error);
+                    } else {
+                        console.log("Auth State: No user (Logged out)");
+                        setLoggedInUser(null);
+                        setCurrentView('main');
                     }
-                }
-            } else {
-                console.log("Auth State: No user (Logged out)");
-                setLoggedInUser(null);
-                setCurrentView('main');
+                    // Done checking
+                    setIsAuthChecking(false);
+                });
+
+            } catch (err) {
+                console.error("Error setting persistence:", err);
+                setIsAuthChecking(false); // Stop spinner even if error
             }
-            // Done checking
-            setIsAuthChecking(false);
-        });
+        };
+
+        initAuth();
 
         // Cleanup subscription on unmount
-        return () => unsubscribe();
+        return () => {
+            if (unsubscribe) unsubscribe();
+        };
     }, []);
 
 
