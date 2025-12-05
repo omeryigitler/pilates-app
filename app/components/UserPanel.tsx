@@ -156,9 +156,11 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         } catch (error: any) {
             console.error("Reset error:", error);
             if (error.code === 'auth/user-not-found') {
-                setResetError('No user found with this email.');
+                setResetError('No user found with this email address.');
+            } else if (error.code === 'auth/invalid-email') {
+                setResetError('Invalid email format. Please check your email.');
             } else {
-                setResetError('Error sending email. Please try again.');
+                setResetError('Error sending email. Please try again later.');
             }
         } finally {
             setIsResetting(false);
