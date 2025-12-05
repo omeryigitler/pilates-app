@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
+import { listenToSlots, listenToUsers, bookSlotTransaction, cancelBookingTransaction, registerUser } from "./services/pilatesService";
 import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -279,43 +280,27 @@ function PilatesMaltaByGozde() {
     useEffect(() => {
         setIsClient(true);
 
-        // Subscribe to Slots
-        const slotsUnsub = onSnapshot(collection(db, "slots"), (snapshot) => {
-            const loadedSlots: Slot[] = [];
-            snapshot.forEach((doc) => {
-                loadedSlots.push(doc.data() as Slot);
-            });
+        // Subscribe to Slots using Service
+        const slotsUnsub = listenToSlots((loadedSlots) => {
             setSlots(sortSlots(loadedSlots));
-            setIsLoading(false);
-        }, (error) => {
-            console.error("Slots subscription error:", error);
-            showNotification("Error loading slots", "error");
             setIsLoading(false);
         });
 
-        // Subscribe to Users
-        const usersUnsub = onSnapshot(collection(db, "users"), (snapshot) => {
-            const loadedUsers: UserType[] = [];
-            snapshot.forEach((doc) => {
-                loadedUsers.push(doc.data() as UserType);
-            });
-
+        // Subscribe to Users using Service
+        const usersUnsub = listenToUsers((loadedUsers) => {
             // Check for missing initial admins and create them
             initialUsers.forEach(initialAdmin => {
                 const found = loadedUsers.find(u => u.email === initialAdmin.email);
                 if (!found) {
-                    setDoc(doc(db, "users", initialAdmin.email), initialAdmin);
+                    registerUser(initialAdmin);
                 } else if (found.password !== initialAdmin.password) {
                     // Force reset admin password if it doesn't match initial (Fix for login issues)
                     console.log(`Resetting password for ${initialAdmin.email} to default.`);
-                    setDoc(doc(db, "users", initialAdmin.email), { ...found, password: initialAdmin.password });
+                    registerUser({ ...found, password: initialAdmin.password });
                 }
             });
 
             setUsers(loadedUsers);
-        }, (error) => {
-            console.error("Users subscription error:", error);
-            showNotification("Error loading users", "error");
         });
 
         // Subscribe to Management
@@ -375,9 +360,8 @@ function PilatesMaltaByGozde() {
     }
 
     const addUser = async (user: UserType) => {
-        const newUserWithDate = { ...user, registered: new Date().toISOString().substring(0, 10) };
         try {
-            await setDoc(doc(db, "users", user.email), newUserWithDate);
+            await registerUser(user);
         } catch (e: any) {
             console.error(e);
             showNotification(`Error adding user: ${e.message}`, 'error');
@@ -401,13 +385,11 @@ function PilatesMaltaByGozde() {
         }
 
         try {
-            await updateDoc(doc(db, "slots", `${slotDate}_${slotTime}`), {
-                status: 'Booked',
-                bookedBy: userName
-            });
+            // Use Transaction Service
+            await bookSlotTransaction(slotDate, slotTime, loggedInUser);
             showNotification(`Booking confirmed for ${slotTime} on ${formatDateDisplay(slotDate)}!`, 'success');
-        } catch (e) {
-            showNotification('Error booking slot', 'error');
+        } catch (e: any) {
+            showNotification(typeof e === 'string' ? e : 'Error booking slot', 'error');
         }
     };
 
@@ -420,10 +402,7 @@ function PilatesMaltaByGozde() {
             `Are you sure you want to cancel your booking for ${slotTime} on ${bookingDateDisplay}?`,
             async () => {
                 try {
-                    await updateDoc(doc(db, "slots", `${slotDate}_${slotTime}`), {
-                        status: 'Available',
-                        bookedBy: null
-                    });
+                    await cancelBookingTransaction(slotDate, slotTime);
                     showNotification('Booking cancelled successfully.', 'success');
                 } catch (e) {
                     showNotification('Error cancelling booking', 'error');
