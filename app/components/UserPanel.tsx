@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { UserType } from '../types';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from './Modal';
+import { db } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 interface UserPanelProps {
     existingUsers: UserType[];
@@ -85,7 +87,7 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         }
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoginError(null);
 
@@ -99,31 +101,39 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
 
         setIsLoggingIn(true);
 
-        // Simulate a small delay to ensure UI updates and data check happens smoothly
-        setTimeout(() => {
-            if (existingUsers.length === 0) {
-                setLoginError('System is loading data. Please try again in a few seconds.');
+        try {
+            // Query Firestore directly for the user
+            const q = query(collection(db, "users"), where("email", "==", enteredEmail));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                setLoginError('User not found. Please register first.');
                 setIsLoggingIn(false);
                 return;
             }
 
-            const found = existingUsers.find((u: UserType) =>
-                u.email.toLowerCase() === enteredEmail &&
-                u.password === enteredPassword
-            );
+            // User found, check password
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data() as UserType;
 
-            if (!found) {
-                setLoginError('Invalid email or password!');
+            if (userData.password !== enteredPassword) {
+                setLoginError('Invalid password!');
                 setIsLoggingIn(false);
                 return;
             }
 
-            onLogin(found);
-            showNotification(`Welcome back, ${found.firstName}!`, 'success');
+            // Login successful
+            onLogin(userData);
+            showNotification(`Welcome back, ${userData.firstName}!`, 'success');
             setActiveUserPanel(null);
             setLoginForm({ email: '', password: '' });
+
+        } catch (error: any) {
+            console.error("Login error:", error);
+            setLoginError('Connection error. Please try again.');
+        } finally {
             setIsLoggingIn(false);
-        }, 500);
+        }
     };
 
     return (
