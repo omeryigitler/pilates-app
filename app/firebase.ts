@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyBG2Br1O8PkgKg4ofeXbdqSO0OxkbHMxao",
@@ -13,21 +13,9 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// Enable Offline Persistence (Classic Method - More Compatible)
-// This attempts to enable persistence, but falls back gracefully if not supported,
-// ensuring synchronization always works.
-if (typeof window !== "undefined") {
-    enableIndexedDbPersistence(db).catch((err) => {
-        if (err.code == 'failed-precondition') {
-            // Multiple tabs open, persistence can only be enabled in one tab at a a time.
-            console.warn("Firebase persistence failed-precondition: Multiple tabs open.");
-        } else if (err.code == 'unimplemented') {
-            // The current browser does not support all of the features required to enable persistence
-            console.warn("Firebase persistence unimplemented: Browser not supported.");
-        }
-    });
-}
+// Initialize Firestore WITHOUT persistence for maximum reliability and sync accuracy.
+// This prevents browser cache conflicts and ensures real-time data fetching.
+const db = getFirestore(app);
 
 export { db };
