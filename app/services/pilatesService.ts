@@ -92,7 +92,7 @@ export const cancelBookingTransaction = async (slotDate: string, slotTime: strin
 
 // --- 5. KULLANICI İŞLEMLERİ (AUTH + FIRESTORE) ---
 import { auth } from "../firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, setPersistence, browserLocalPersistence, updateProfile } from "firebase/auth";
 
 export const registerUserAuth = async (user: UserType) => {
     // Force persistence to LOCAL specifically
@@ -101,6 +101,13 @@ export const registerUserAuth = async (user: UserType) => {
     // 1. Firebase Auth ile kullanıcı oluştur
     const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
     const firebaseUser = userCredential.user;
+
+    // 1.5. Update Profile with Display Name immediately
+    if (user.firstName) {
+        await updateProfile(firebaseUser, {
+            displayName: `${user.firstName} ${user.lastName || ''}`.trim()
+        });
+    }
 
     // 2. Firestore'a kullanıcı detaylarını kaydet
     // ÖNEMLİ: Mevcut yapı (Email bazlı) bozulmasın diye UID yerine Email'i key olarak kullanmaya devam edelim.
