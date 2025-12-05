@@ -6,7 +6,8 @@ import {
     onSnapshot,
     query,
     updateDoc,
-    setDoc
+    setDoc,
+    getDoc
 } from "firebase/firestore";
 import { Slot, UserType } from "../types";
 
@@ -112,6 +113,15 @@ export const registerUserAuth = async (user: UserType) => {
     await setDoc(doc(db, "users", user.email), newUserWithDate);
 
     return firebaseUser;
+};
+
+export const getUserProfile = async (email: string) => {
+    const docRef = doc(db, "users", email);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data() as UserType;
+    }
+    return null;
 };
 
 export const loginUserAuth = async (email: string, pass: string) => {

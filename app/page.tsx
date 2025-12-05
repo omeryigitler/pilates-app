@@ -346,19 +346,26 @@ function PilatesMaltaByGozde() {
 
                         if (userDocSnap.exists()) {
                             const userData = userDocSnap.data() as UserType;
-                            // Ensure the UID matches (update it if it's missing, e.g. for old users)
+                            // Ensure the UID matches
                             if (!userData.uid) {
                                 await updateDoc(userDocRef, { uid: user.uid });
                                 userData.uid = user.uid;
                             }
                             handleSetLoggedInUser(userData);
                         } else {
-                            // Rare edge case: Auth exists but Firestore profile missing.
-                            // Maybe create a placeholder or log out?
-                            console.error("Auth exists but Firestore profile missing for:", user.email);
-                            // Optionally create a default profile here?
-                            // For now, let's just log them out to avoid broken state.
-                            // await logoutUserAuth();
+                            // Firestore profile missing/delayed. Fallback to Auth data.
+                            console.warn("Firestore profile missing, using Auth fallback.");
+                            const fallbackUser: UserType = {
+                                email: user.email,
+                                uid: user.uid,
+                                role: 'user', // Default role
+                                firstName: 'Member', // Generic name until profile load
+                                lastName: '',
+                                phone: '',
+                                password: '',
+                                registered: new Date().toISOString()
+                            };
+                            handleSetLoggedInUser(fallbackUser);
                         }
                     } catch (error) {
                         console.error("Error fetching user profile:", error);

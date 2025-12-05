@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { UserType } from '../types';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from './Modal';
-import { registerUserAuth, loginUserAuth, resetPasswordAuth } from '../services/pilatesService';
+import { registerUserAuth, loginUserAuth, resetPasswordAuth, getUserProfile } from '../services/pilatesService';
 
 interface UserPanelProps {
     existingUsers: UserType[];
@@ -77,8 +77,9 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         try {
             await registerUserAuth(newUser);
 
-            showNotification('Registration successful!', 'success');
-            // Auth listener in page.tsx will handle login state
+            showNotification('Registration successful! Logging you in...', 'success');
+            // Check session manually to update UI immediately
+            onLogin(newUser);
             setActiveUserPanel(null);
             setUserForm({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
         } catch (error: any) {
@@ -112,10 +113,18 @@ export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) =
         try {
             await loginUserAuth(enteredEmail, enteredPassword);
 
-            showNotification('Welcome back!', 'success');
-            // Auth listener handles the rest
-            setActiveUserPanel(null);
-            setLoginForm({ email: '', password: '' });
+            // Fetch profile for immediate UI update
+            const userProfile = await getUserProfile(enteredEmail);
+
+            if (userProfile) {
+                showNotification(`Welcome back, ${userProfile.firstName}!`, 'success');
+                onLogin(userProfile);
+                setActiveUserPanel(null);
+                setLoginForm({ email: '', password: '' });
+            } else {
+                // Should not happen if registered correctly
+                showNotification('User profile not found in database.', 'error');
+            }
 
         } catch (error: any) {
             console.error("Login error:", error);
