@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, createContext, useContext, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -66,7 +67,6 @@ const initialUsers: UserType[] = [
     { email: 'omer@mail.com', password: '123456', role: 'admin', firstName: 'Omer', lastName: 'Yigitler', phone: '+356 555 1234', registered: '2025-11-20' },
     { email: 'gozde@mail.com', password: '123456', role: 'admin', firstName: 'Gozde', lastName: 'Arslan', phone: '+356 555 5678', registered: '2025-12-03' },
 ];
-
 // -----------------------------------------------------
 // --- BİLDİRİM SİSTEMİ (MODAL REPLACEMENT) ---
 // -----------------------------------------------------
@@ -105,7 +105,7 @@ const NotificationDisplayModal = ({ message, type, visible, hideNotification }: 
             break;
     }
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[10002] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-300">
             <div className="relative bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in duration-300 space-y-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -124,7 +124,8 @@ const NotificationDisplayModal = ({ message, type, visible, hideNotification }: 
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -181,7 +182,7 @@ const ConfirmModal = ({ state, hideConfirm }: { state: ConfirmState, hideConfirm
         hideConfirm();
     };
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 flex items-center justify-center z-[10001] p-4 bg-black/30 backdrop-blur-sm transition-all duration-300">
             <div className="relative bg-white p-8 md:p-10 rounded-[2rem] shadow-2xl w-full max-w-sm mx-4 animate-in fade-in zoom-in duration-300 space-y-6 text-center">
                 <div className="flex justify-center mb-4">
@@ -208,7 +209,8 @@ const ConfirmModal = ({ state, hideConfirm }: { state: ConfirmState, hideConfirm
                     </Button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
