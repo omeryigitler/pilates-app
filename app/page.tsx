@@ -241,13 +241,13 @@ function PilatesMaltaByGozde() {
     if (isAuthChecking) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#FFF0E5]">
-                <div className="relative w-24 h-24 sm:w-32 sm:h-32 mb-6">
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 mb-6 rounded-full overflow-hidden border-4 border-white shadow-xl">
                     <img
                         src={managementState.logo}
                         alt="Loading..."
-                        className="w-full h-full object-contain rounded-full animate-pulse drop-shadow-xl"
+                        className="w-full h-full object-cover animate-pulse"
                     />
-                    <div className="absolute inset-0 rounded-full border-2 border-white/50 animate-ping opacity-20"></div>
+                    <div className="absolute inset-0 rounded-full border-2 border-white/50 animate-ping opacity-20 pointer-events-none"></div>
                 </div>
                 <p className="text-[#CE8E94] font-bold tracking-[0.2em] text-sm animate-pulse">LOADING</p>
             </div>
