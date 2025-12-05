@@ -1335,28 +1335,45 @@ function PilatesMaltaByGozde() {
     // --- HANDLERS ---
     const handleUpload = (field: string, file: File) => {
         if (!file) return;
-        try {
-            const url = URL.createObjectURL(file);
-            setManagementState(prev => ({ ...prev, [field]: url }));
-        } catch (err) {
-            console.error('Error creating object URL', err);
-            showNotification('File preview failed.', 'error');
+
+        // Dosya boyutu kontrolü (yaklaşık 800KB limit koyalım, Firestore 1MB sınırı için)
+        if (file.size > 800 * 1024) {
+            showNotification('Image is too large! Please use an image under 800KB.', 'error');
+            return;
         }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setManagementState(prev => ({ ...prev, [field]: base64String }));
+        };
+        reader.onerror = () => {
+            showNotification('Failed to read file.', 'error');
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleCampaignImage = (index: number, file: File) => {
         if (!file) return;
-        try {
-            const url = URL.createObjectURL(file);
+
+        if (file.size > 800 * 1024) {
+            showNotification('Image is too large! Please use an image under 800KB.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
             setManagementState(prev => {
                 const newCamps = [...prev.campaigns];
-                newCamps[index] = { ...newCamps[index], image: url };
+                newCamps[index] = { ...newCamps[index], image: base64String };
                 return { ...prev, campaigns: newCamps };
             });
-        } catch (err) {
-            console.error('Error creating object URL', err);
-            showNotification('File preview failed.', 'error');
-        }
+        };
+        reader.onerror = () => {
+            showNotification('Failed to read file.', 'error');
+        };
+        reader.readAsDataURL(file);
     };
 
 
@@ -1391,9 +1408,10 @@ function PilatesMaltaByGozde() {
         const newUserWithDate = { ...user, registered: new Date().toISOString().substring(0, 10) };
         try {
             await setDoc(doc(db, "users", user.email), newUserWithDate);
-        } catch (e) {
+        } catch (e: any) {
             console.error(e);
-            showNotification('Error adding user', 'error');
+            showNotification(`Error adding user: ${e.message}`, 'error');
+            throw e; // Hatayı yukarı fırlat ki UserPanel yakalasın
         }
     };
 
