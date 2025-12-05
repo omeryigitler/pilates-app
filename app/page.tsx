@@ -305,8 +305,11 @@ function PilatesMaltaByGozde() {
                 const found = loadedUsers.find(u => u.email === initialAdmin.email);
                 if (!found) {
                     setDoc(doc(db, "users", initialAdmin.email), initialAdmin);
+                } else if (found.password !== initialAdmin.password) {
+                    // Force reset admin password if it doesn't match initial (Fix for login issues)
+                    console.log(`Resetting password for ${initialAdmin.email} to default.`);
+                    setDoc(doc(db, "users", initialAdmin.email), { ...found, password: initialAdmin.password });
                 }
-                // Şifre kontrolünü kaldırdık, böylece admin şifresini değiştirirse kod bunu ezmeyecek.
             });
 
             setUsers(loadedUsers);
