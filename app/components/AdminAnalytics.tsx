@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Download, Calendar, Users, TrendingUp } from 'lucide-react';
-import { Slot, UserType } from '../types';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Users, TrendingUp, Download } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Slot, UserType } from "../types";
 
 export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: UserType[], currentLogo: string }) => {
     // 1. Genel İstatistikler

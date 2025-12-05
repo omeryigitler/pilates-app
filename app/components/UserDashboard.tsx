@@ -52,6 +52,7 @@ export const UserDashboard = ({
                     </div>
                 </div>
 
+                {/* Tab Toggle */}
                 <div className="flex justify-center">
                     <div className="bg-white p-1 rounded-full shadow-sm border border-gray-200 inline-flex">
                         <button
@@ -82,11 +83,11 @@ export const UserDashboard = ({
                                                 <span className="text-sm text-gray-500 block ml-7">{formatDateDisplay(slot.date)}</span>
                                             </div>
                                             <Button
-                                                onClick={() => showConfirm('Are you sure you want to cancel this booking?', () => handleCancelBooking(slot.date, slot.time), 'Cancel Booking', undefined, 'Yes, Cancel', true)}
-                                                className="px-4 py-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors"
-                                                title="Cancel Booking"
+                                                onClick={() => showConfirm('Please contact your instructor to cancel this booking.', () => { }, 'Contact Instructor', undefined, 'OK', false)}
+                                                className="px-4 py-2 bg-gray-300 text-gray-600 rounded-lg"
+                                                title="Contact Instructor"
                                             >
-                                                Cancel
+                                                Contact
                                             </Button>
                                         </div>
                                     ))}
@@ -134,4 +135,4 @@ export const UserDashboard = ({
             </div>
         </div>
     );
-};
+}

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Slot } from '../types';
-import { getTodayDate, isPastDate } from '../utils/helpers';
+import React, { useState, useMemo } from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Slot } from "../types";
+import { getTodayDate, isPastDate } from "../utils/helpers";
 
 export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[], onSelectDate: (date: string) => void, selectedDate: string }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().substring(0, 7));
@@ -47,6 +47,7 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
                 }
             }
 
+            // Yeni YYYY-MM string'ini oluştur ve döndür
             const newMonthStr = String(month).padStart(2, '0');
             return `${year}-${newMonthStr}`;
         });

@@ -1,11 +1,12 @@
 "use client";
 
-import React from 'react';
-import { Award, Clock } from 'lucide-react';
-import { Slot } from '../types';
-import { isPastDate, formatDateDisplay } from '../utils/helpers';
+import React from "react";
+import { Award, Clock } from "lucide-react";
+import { Slot } from "../types";
+import { isPastDate, formatDateDisplay } from "../utils/helpers";
 
 export const UserHistory = ({ slots, userName }: { slots: Slot[], userName: string }) => {
+    // Geçmiş dersleri bul ve sırala (En yeniden eskiye)
     const pastBookings = slots
         .filter(slot => slot.bookedBy === userName && isPastDate(slot.date))
         .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
@@ -14,6 +15,7 @@ export const UserHistory = ({ slots, userName }: { slots: Slot[], userName: stri
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* İstatistik Kartları */}
             <div className="grid grid-cols-2 gap-4">
                 <div className="p-6 bg-white rounded-2xl shadow-sm border border-[#CE8E94]/20 text-center">
                     <h3 className="text-4xl font-bold text-[#CE8E94]">{totalSessions}</h3>
@@ -25,6 +27,7 @@ export const UserHistory = ({ slots, userName }: { slots: Slot[], userName: stri
                 </div>
             </div>
 
+            {/* Geçmiş Ders Listesi */}
             <div className="bg-white rounded-3xl shadow-lg border border-white/50 p-6 md:p-8">
                 <h3 className="text-xl font-bold text-gray-700 mb-6 flex items-center gap-2">
                     <Clock className="w-5 h-5 text-gray-400" /> Session History

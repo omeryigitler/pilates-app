@@ -1,7 +1,7 @@
 "use client";
 
-import React from 'react';
-import { Upload } from 'lucide-react';
+import React from "react";
+import { Upload } from "lucide-react";
 
 export const FileUploadInput = ({ label, onChange, previewUrl }: { label: string, onChange: (file: File) => void, previewUrl: string }) => {
     const inputId = `file-input-${label.replace(/\s/g, '-')}`;
@@ -28,7 +28,6 @@ export const FileUploadInput = ({ label, onChange, previewUrl }: { label: string
                     className="hidden"
                 />
                 {previewUrl && (
-                    /* eslint-disable-next-line @next/next/no-img-element */
                     <img src={previewUrl} alt="Preview" className="w-16 h-16 object-cover rounded-xl border-4 border-[#CE8E94]/30 shadow-md" />
                 )}
             </div>

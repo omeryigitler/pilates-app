@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Upload, Trash2, Plus, X } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera } from 'lucide-react';
+import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -12,6 +13,7 @@ import { formatDateDisplay, getTodayDate } from '../utils/helpers';
 import { BookingCalendar } from './BookingCalendar';
 import { AdminAnalytics } from './AdminAnalytics';
 import { FileUploadInput } from './FileUploadInput';
+import { Modal } from './Modal';
 
 interface AdminPanelProps {
     loggedInUser: UserType;
@@ -45,28 +47,43 @@ export const AdminPanel = ({
     // --- HANDLERS ---
     const handleUpload = (field: string, file: File) => {
         if (!file) return;
-        try {
-            const url = URL.createObjectURL(file);
-            setManagementState(prev => ({ ...prev, [field]: url }));
-        } catch (err) {
-            console.error('Error creating object URL', err);
-            showNotification('File preview failed.', 'error');
+        if (file.size > 800 * 1024) {
+            showNotification('Image is too large! Please use an image under 800KB.', 'error');
+            return;
         }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            // @ts-ignore - dynamic key access
+            setManagementState(prev => ({ ...prev, [field]: base64String }));
+        };
+        reader.onerror = () => {
+            showNotification('Failed to read file.', 'error');
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleCampaignImage = (index: number, file: File) => {
         if (!file) return;
-        try {
-            const url = URL.createObjectURL(file);
+        if (file.size > 800 * 1024) {
+            showNotification('Image is too large! Please use an image under 800KB.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
             setManagementState(prev => {
                 const newCamps = [...prev.campaigns];
-                newCamps[index] = { ...newCamps[index], image: url };
+                newCamps[index] = { ...newCamps[index], image: base64String };
                 return { ...prev, campaigns: newCamps };
             });
-        } catch (err) {
-            console.error('Error creating object URL', err);
-            showNotification('File preview failed.', 'error');
-        }
+        };
+        reader.onerror = () => {
+            showNotification('Failed to read file.', 'error');
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSaveManagement = async () => {
@@ -239,7 +256,6 @@ export const AdminPanel = ({
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10 w-full max-w-4xl mx-auto">
-                    {/* Tabs */}
                     {(['bookings', 'members', 'analytics', 'management'] as const).map(tab => (
                         <button
                             key={tab}
@@ -263,7 +279,6 @@ export const AdminPanel = ({
 
                 {activeTab === 'management' && (
                     <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
-                        {/* Hero Section */}
                         <div>
                             <h3 className="text-2xl font-bold mb-6 text-gray-800 flex items-center gap-3 border-b pb-2"><Edit3 className="w-6 h-6 text-[#CE8E94]" /> Hero Section Content</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -297,7 +312,7 @@ export const AdminPanel = ({
                                 </div>
                             </div>
                         </div>
-                        {/* Trust Signals */}
+
                         <div>
                             <h3 className="text-2xl font-bold my-6 text-gray-800 flex items-center gap-3 border-b pb-2"><Star className="w-6 h-6 text-[#CE8E94]" /> Trust Signals</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -331,7 +346,6 @@ export const AdminPanel = ({
                             </div>
                         </div>
 
-                        {/* Campaigns */}
                         <div>
                             <h3 className="text-2xl font-bold my-6 text-gray-800 flex items-center gap-3 border-b pb-2"><Award className="w-6 h-6 text-[#CE8E94]" /> Campaigns</h3>
                             <div className="space-y-6">
@@ -370,7 +384,6 @@ export const AdminPanel = ({
                             </div>
                         </div>
 
-                        {/* Contact */}
                         <div>
                             <h3 className="text-2xl font-bold my-6 text-gray-800 flex items-center gap-3 border-b pb-2"><Mail className="w-6 h-6 text-[#CE8E94]" /> Contact & Social</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -457,65 +470,80 @@ export const AdminPanel = ({
                                     <label className="text-sm font-bold text-gray-600">Time</label>
                                     <input
                                         type="text"
+                                        placeholder="e.g., 10:30 AM"
                                         value={newSlotTime}
                                         onChange={e => setNewSlotTime(e.target.value)}
-                                        placeholder="09:00 AM or 15:30"
-                                        className="w-full p-4 border border-gray-200 rounded-xl bg-gray-50 text-xl font-medium focus:outline-none focus:border-[#CE8E94] transition"
+                                        className={`${standardInputClass} block text-lg py-4`}
                                     />
-                                    <p className="text-xs text-gray-400">Supported formats: 9:00 AM or 09:00</p>
+                                    <p className="text-xs text-gray-400">Format: HH:MM AM/PM (e.g. 09:30 AM)</p>
                                 </div>
                                 <Button
                                     onClick={handleAddSlot}
-                                    className="w-full py-4 bg-[#CE8E94] text-white rounded-xl font-bold shadow-lg hover:bg-[#B57A80] transition transform active:scale-95"
+                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold shadow-md transition-colors text-lg flex items-center justify-center"
                                 >
-                                    <Plus className="w-5 h-5 mr-2" /> Add Session Slot
+                                    <Plus className="w-6 h-6 mr-2" /> Add Slot
                                 </Button>
                             </div>
                         </div>
 
-                        <h4 className="text-xl font-bold text-[#CE8E94] mt-10 mb-4">Manage Slots</h4>
-                        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 max-h-[600px] overflow-y-auto custom-scrollbar">
-                            <div className="space-y-3">
-                                {slots.length === 0 ? (
-                                    <p className="text-center text-gray-500 py-10">No slots created yet.</p>
-                                ) : (
-                                    slots.map((slot, idx) => (
-                                        <div key={idx} className={`flex flex-col sm:flex-row justify-between items-center p-4 rounded-2xl border transition ${slot.status === 'Booked' ? 'bg-red-50 border-red-100' : 'bg-green-50 border-green-100'}`}>
-                                            <div className="flex items-center gap-4 mb-3 sm:mb-0">
-                                                <div className={`p-3 rounded-full ${slot.status === 'Booked' ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'}`}>
-                                                    <Clock className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <span className="font-bold text-gray-700 block">{formatDateDisplay(slot.date)}</span>
-                                                    <span className="text-sm text-gray-500">{slot.time}</span>
-                                                    {slot.bookedBy && <span className="text-xs font-bold text-[#CE8E94] block mt-1">Booked by: {slot.bookedBy}</span>}
-                                                </div>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Button
-                                                    onClick={() => openEditSlotModal(slot)}
-                                                    className="p-3 bg-blue-100 text-blue-600 rounded-xl hover:bg-blue-200"
-                                                    title="Edit Slot"
-                                                >
-                                                    <Edit3 className="w-4 h-4" />
-                                                </Button>
-
-                                                <Button
-                                                    onClick={() => handleToggleSlotStatus(slot.date, slot.time)}
-                                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition w-24 ${slot.status === 'Available' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}
-                                                >
-                                                    {slot.status}
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleDeleteSlot(slot)}
-                                                    className="p-3 bg-gray-100 text-gray-500 rounded-xl hover:bg-red-100 hover:text-red-500 transition"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
-                                            </div>
+                        <div className="space-y-4">
+                            <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
+                            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_3fr_1.5fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
+                                <div className="col-span-1">Date</div>
+                                <div className="col-span-1">Time</div>
+                                <div className="col-span-1 text-center">Status</div>
+                                <div className="col-span-1">Booked By</div>
+                                <div className="col-span-1 text-right">Actions</div>
+                            </div>
+                            <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
+                                {slots.map((slot, idx) => (
+                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[1.5fr_0.8fr_1fr_3fr_1.5fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 sm:gap-4">
+                                        <div className="col-span-1 w-full sm:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Date:</span>
+                                            <span className="text-base text-gray-800 block">{formatDateDisplay(slot.date)}</span>
                                         </div>
-                                    ))
-                                )}
+                                        <div className="col-span-1 w-full sm:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Time:</span>
+                                            <span className="text-base font-bold text-gray-800 block">{slot.time}</span>
+                                        </div>
+                                        <div className="col-span-1 w-full sm:w-auto flex justify-center">
+                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden mr-2">Status:</span>
+                                            <span className={`text-sm font-bold px-3 py-1 rounded-full min-w-24 text-center ${slot.status === 'Booked' ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'}`}>
+                                                {slot.status}
+                                            </span>
+                                        </div>
+                                        <div className="col-span-1 w-full sm:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Booked By:</span>
+                                            <span className="text-sm text-gray-600 block truncate" title={slot.bookedBy || ''}>{slot.bookedBy || 'N/A'}</span>
+                                        </div>
+                                        <div className="col-span-1 w-full sm:w-auto flex items-center justify-end gap-4 mt-2 sm:mt-0">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-xs font-bold ${slot.status === 'Booked' ? 'text-gray-400' : 'text-green-600'}`}>
+                                                    {slot.status === 'Booked' ? 'Blocked' : 'Active'}
+                                                </span>
+                                                <Switch
+                                                    checked={slot.status === 'Available'}
+                                                    onCheckedChange={() => handleToggleSlotStatus(slot.date, slot.time)}
+                                                    disabled={slot.status === 'Booked' && slot.bookedBy !== `Admin Action - ${loggedInUser?.firstName}`}
+                                                />
+                                            </div>
+                                            <button
+                                                onClick={() => openEditSlotModal(slot)}
+                                                className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded-full hover:bg-blue-50"
+                                                title="Edit Slot"
+                                            >
+                                                <Edit3 className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteSlot(slot)}
+                                                className="p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-red-50"
+                                                title="Delete Slot"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
@@ -523,59 +551,93 @@ export const AdminPanel = ({
 
                 {activeTab === 'members' && (
                     <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
-                        <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Users className="w-6 h-6 text-[#CE8E94]" /> Members Management</h3>
-                        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-                            <table className="w-full text-left">
-                                <thead className="bg-[#CE8E94]/10 text-[#CE8E94] font-bold">
-                                    <tr>
-                                        <th className="p-5">Name</th>
-                                        <th className="p-5">Email</th>
-                                        <th className="p-5">Phone</th>
-                                        <th className="p-5">Role</th>
-                                        <th className="p-5">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-100 text-gray-600">
-                                    {users.map((u, idx) => (
-                                        <tr key={idx} className="hover:bg-gray-50 transition">
-                                            <td className="p-5 font-bold">{u.firstName} {u.lastName}</td>
-                                            <td className="p-5">{u.email}</td>
-                                            <td className="p-5">{u.phone}</td>
-                                            <td className="p-5"><span className={`px-3 py-1 rounded-full text-xs font-bold ${u.role === 'admin' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>{u.role}</span></td>
-                                            <td className="p-5">
-                                                <Button onClick={() => handleDeleteUser(u.email)} className="text-red-400 hover:text-red-600 font-bold text-sm">Delete</Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Users className="w-6 h-6 text-[#CE8E94]" /> Member Management</h3>
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-6 text-sm font-bold uppercase text-gray-500 pb-2 border-b border-gray-200">
+                                <div className="col-span-2">Name / Email</div>
+                                <div className="col-span-1 hidden sm:block">Phone</div>
+                                <div className="col-span-1 hidden sm:block">Role</div>
+                                <div className="col-span-1 hidden md:block">Registered</div>
+                                <div className="col-span-1 text-right">Actions</div>
+                            </div>
+                            {users.map((user, idx) => (
+                                <div key={idx} className="grid grid-cols-6 items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
+                                    <div className="col-span-2 space-y-1">
+                                        <span className="font-bold text-gray-800">{user.firstName} {user.lastName}</span>
+                                        <span className="text-sm text-gray-500 block truncate">{user.email}</span>
+                                    </div>
+                                    <div className="col-span-1 hidden sm:block text-sm text-gray-600">{user.phone || '-'}</div>
+                                    <div className="col-span-1 hidden sm:block">
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${user.role === 'admin' ? 'bg-indigo-100 text-indigo-600' : 'bg-green-100 text-green-600'}`}>
+                                            {user.role.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <div className="col-span-1 hidden md:block text-sm text-gray-500">{user.registered}</div>
+                                    <div className="col-span-1 text-right">
+                                        <Button
+                                            onClick={() => handleDeleteUser(user.email)}
+                                            className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition shadow-sm"
+                                            disabled={user.role === 'admin'}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-700">
+                            Note: Admin users cannot be deleted from this panel.
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Edit Slot Modal */}
-            {editingSlot && (
-                <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md space-y-6">
-                        <div className="flex justify-between items-center border-b pb-4">
-                            <h3 className="text-2xl font-bold text-[#CE8E94]">Edit Slot</h3>
-                            <button onClick={() => setEditingSlot(null)} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200"><X className="w-5 h-5 text-gray-500" /></button>
-                        </div>
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-600 mb-2">New Date</label>
-                                <input type="date" value={editFormData.date} onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))} className={standardInputClass} />
+                {/* Edit Slot Modal */}
+                {editingSlot && (
+                    <Modal onClose={() => setEditingSlot(null)}>
+                        <div className="space-y-6">
+                            <div className="text-center">
+                                <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Edit Slot</h2>
+                                <p className="text-gray-500">Update date and time for this slot.</p>
                             </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-600 mb-2">New Time</label>
-                                <input type="text" value={editFormData.time} onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))} className={standardInputClass} />
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">Date</label>
+                                    <input
+                                        type="date"
+                                        value={editFormData.date}
+                                        onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
+                                        className={standardInputClass}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">Time</label>
+                                    <input
+                                        type="text"
+                                        value={editFormData.time}
+                                        onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
+                                        className={standardInputClass}
+                                        placeholder="e.g. 09:00 AM"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <Button
+                                    onClick={() => setEditingSlot(null)}
+                                    className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleUpdateSlot}
+                                    className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md"
+                                >
+                                    Save Changes
+                                </Button>
                             </div>
                         </div>
-                        <Button onClick={handleUpdateSlot} className="w-full py-4 bg-[#CE8E94] text-white rounded-xl font-bold shadow-lg hover:bg-[#B57A80]">Save Changes</Button>
-                    </div>
-                </div>
-            )}
+                    </Modal>
+                )}
+            </div>
         </div>
     );
 };
