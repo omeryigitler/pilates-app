@@ -26,7 +26,11 @@ export const UserDashboard = ({
 }) => {
     const userName = `${loggedInUser.firstName} ${loggedInUser.lastName}`;
     const { showConfirm } = useConfirm();
-    const [selectedDate, setSelectedDate] = useState(getTodayDate());
+    const [selectedDate, setSelectedDate] = useState('');
+
+    React.useEffect(() => {
+        setSelectedDate(getTodayDate());
+    }, []);
     const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
 
     const futureSlots = slots.filter(slot => !isPastDate(slot.date));

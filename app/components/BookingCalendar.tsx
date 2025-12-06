@@ -7,7 +7,14 @@ import { Slot } from "../types";
 import { getTodayDate, isPastDate } from "../utils/helpers";
 
 export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: Slot[], onSelectDate: (date: string) => void, selectedDate: string }) => {
-    const [currentMonth, setCurrentMonth] = useState(new Date().toISOString().substring(0, 7));
+    const [currentMonth, setCurrentMonth] = useState("");
+    const [todayDate, setTodayDate] = useState("");
+
+    React.useEffect(() => {
+        const maltaToday = getTodayDate();
+        setTodayDate(maltaToday);
+        setCurrentMonth(maltaToday.substring(0, 7));
+    }, []);
 
     const datesWithSlots = useMemo(() => {
         return slots
@@ -15,16 +22,33 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
             .map(slot => slot.date);
     }, [slots]);
 
-    const { year, monthIndex, firstDayOfMonth, daysInMonth } = useMemo(() => {
+    const { year, monthIndex, daysInMonth, startOffset } = useMemo(() => {
+        if (!currentMonth) return { year: 0, monthIndex: 0, daysInMonth: 0, startOffset: 0 };
         const [yearStr, monthStr] = currentMonth.split('-');
-        const year = parseInt(yearStr);
-        const monthIndex = parseInt(monthStr) - 1;
-        const firstDayOfMonth = new Date(year, monthIndex, 1).getDay();
-        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-        return { year, monthIndex, firstDayOfMonth, daysInMonth };
+        const y = parseInt(yearStr);
+        const m = parseInt(monthStr) - 1; // 0-indexed
+
+        // Use UTC to avoid local timezone shifts affecting the "day of week" of the 1st
+        const firstDay = new Date(Date.UTC(y, m, 1));
+        const lastDay = new Date(Date.UTC(y, m + 1, 0));
+
+        // 0=Sun, 1=Mon, ..., 6=Sat (in UTC)
+        const dayOfWeekUTC = firstDay.getUTCDay();
+
+        // Monday Start Logic:
+        // Mon(1) -> 0 offset
+        // ...
+        // Sun(0) -> 6 offset
+        const startOffset = dayOfWeekUTC === 0 ? 6 : dayOfWeekUTC - 1;
+
+        return {
+            year: y,
+            monthIndex: m,
+            daysInMonth: lastDay.getUTCDate(),
+            startOffset
+        };
     }, [currentMonth]);
 
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     const handleMonthChange = (direction: 'prev' | 'next') => {
@@ -47,25 +71,26 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
                 }
             }
 
-            // Yeni YYYY-MM string'ini oluştur ve döndür
             const newMonthStr = String(month).padStart(2, '0');
             return `${year}-${newMonthStr}`;
         });
     };
 
-    const todayDate = getTodayDate();
+    if (!currentMonth) return null;
 
     const renderDays = () => {
         const days = [];
-        const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
-        const offset = startDay;
 
-        for (let i = 0; i < offset; i++) {
+        // Empty slots for offset
+        for (let i = 0; i < startOffset; i++) {
             days.push(<div key={`empty-${i}`} className="text-center p-3 opacity-0 cursor-default"></div>);
         }
 
+        // Days
         for (let day = 1; day <= daysInMonth; day++) {
+            // Construct YYYY-MM-DD
             const dateStr = `${year}-${String(monthIndex + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            // ... rest of logic uses string comparison, safe ...
             const isToday = dateStr === todayDate;
             const hasSlots = datesWithSlots.includes(dateStr);
             const isSelected = dateStr === selectedDate;
@@ -117,13 +142,18 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
                     <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                 </Button>
             </div>
+
+            {/* HARDCODED HEADERS (FORCE RE-RENDER) TO ENSURE MON START */}
             <div className="grid grid-cols-7 gap-1 md:gap-2">
-                {dayNames.map(day => (
-                    <div key={day} className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">
-                        {day}
-                    </div>
-                ))}
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Mon</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Tue</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Wed</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Thu</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Fri</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Sat</div>
+                <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Sun</div>
             </div>
+
             <div className="grid grid-cols-7 gap-1 md:gap-2">
                 {renderDays()}
             </div>
@@ -137,6 +167,10 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
                     <span>Today</span>
                 </div>
             </div>
+            {/* DEBUG INFO - REMOVE AFTER FIX */}
+            {/* <div className="text-[10px] text-center text-gray-300 font-mono">
+                V3-FINAL | Offset: {startOffset} | Mon: {monthIndex + 1} | Yr: {year} | Today: {todayDate}
+            </div> */}
         </div>
     );
 };

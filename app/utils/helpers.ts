@@ -1,6 +1,22 @@
 import { Slot } from "../types";
 
-export const getTodayDate = () => new Date().toISOString().substring(0, 10);
+// NEW: Robust Malta Date without locale hacks
+export const getTodayDate = () => {
+    const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Europe/Malta",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    });
+
+    // formatToParts guarantees we get YYYY, MM, DD regardless of locale delimiters
+    const parts = formatter.formatToParts(new Date());
+    const y = parts.find(p => p.type === "year")?.value;
+    const m = parts.find(p => p.type === "month")?.value;
+    const d = parts.find(p => p.type === "day")?.value;
+
+    return `${y}-${m}-${d}`;
+};
 
 export const sortSlots = (slots: Slot[]) => {
     if (!Array.isArray(slots)) return [];
@@ -22,7 +38,8 @@ export const formatDateDisplay = (dateString: string) => {
 
 export const isPastDate = (dateString: string) => {
     if (!dateString) return false;
-    const today = new Date(getTodayDate()).getTime();
-    const target = new Date(dateString).getTime();
-    return !isNaN(target) && target < today;
+    // Strict string comparison for YYYY-MM-DD format is safe and timezone-independent
+    // provided both are in the same format (which they are, via safe helpers)
+    const today = getTodayDate();
+    return dateString < today;
 }
