@@ -248,31 +248,7 @@ export const AdminPanel = ({
         setEditFormData({ date: slot.date, time: slot.time });
     };
 
-    const handleDeleteAllSlots = async () => {
-        showConfirm(
-            "ARE YOU SURE? This will delete ALL slots forever.",
-            async () => {
-                try {
-                    // This creates a batch to delete all slots
-                    // limited to 500 per batch (firestore limit), simple loop for now
-                    const querySnapshot = await import("firebase/firestore").then(mod => mod.getDocs(mod.collection(db, "slots")));
-                    const batch = import("firebase/firestore").then(mod => mod.writeBatch(db));
 
-                    const batchInst = await batch;
-                    querySnapshot.docs.forEach((doc) => {
-                        batchInst.delete(doc.ref);
-                    });
-
-                    await batchInst.commit();
-                    showNotification('All slots deleted!', 'success');
-                } catch (e) {
-                    console.error(e);
-                    showNotification('Error deleting slots', 'error');
-                }
-            },
-            "Delete EVERYTHING"
-        );
-    };
 
     return (
         <div className="pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]">
@@ -280,9 +256,7 @@ export const AdminPanel = ({
                 {/* ... header ... */}
 
                 {/* Added reset button near header for easy access during debug */}
-                <div className="absolute top-4 right-4 opacity-50 hover:opacity-100">
-                    <Button onClick={handleDeleteAllSlots} className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1">Debug: Delete All Slots</Button>
-                </div>
+
                 <div className="flex justify-between items-start md:items-center border-b border-[#CE8E94]/20 pb-6">
                     <h1 className="text-4xl font-bold text-[#CE8E94] flex items-center gap-3">
                         Admin Panel
