@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageSquareText, Phone, CalendarPlus } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageSquareText, Phone, CalendarPlus, MapPin, ChevronRight, ArrowRight } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -1084,157 +1084,155 @@ export const AdminPanel = ({
                 {/* Member Details CRM Modal */}
                 {selectedMember && (
                     <Modal onClose={() => setSelectedMember(null)}>
-                        <div className="space-y-8 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
+                        <div className="relative w-full overflow-hidden rounded-[2rem] bg-slate-900 text-white shadow-2xl ring-1 ring-white/10">
 
-                            {/* 1. Header & Profile (Centered & Minimal) */}
-                            <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-gray-100">
-                                <h2 className="text-4xl font-bold text-gray-900 font-sans tracking-tight mb-2">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
-                                <div className="flex flex-wrap justify-center gap-2">
-                                    {selectedMember?.role === 'admin' && (
-                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
-                                    )}
-                                    {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
-                                        <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50`}>{b.label}</span>
-                                    ))}
-                                    {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
-                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase">MEMBER</span>
-                                    )}
-                                </div>
+                            {/* Animated Background Blobs */}
+                            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+                                <div className="absolute top-[-20%] left-[-10%] w-72 h-72 bg-[#CE8E94] rounded-full mix-blend-screen filter blur-[80px] opacity-20 animate-pulse"></div>
+                                <div className="absolute bottom-[-10%] right-[-10%] w-72 h-72 bg-pink-600 rounded-full mix-blend-screen filter blur-[80px] opacity-20 animate-pulse duration-1000"></div>
                             </div>
 
-                            {/* 2. Contact Actions Card */}
-                            <div className="bg-gray-50 rounded-2xl p-5 space-y-4 border border-gray-100">
-                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Contact Info</h4>
-
-                                {/* Phone Row */}
-                                <div className="flex justify-between items-center group bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
-                                            <Phone className="w-5 h-5" />
-                                        </div>
-                                        <div className="text-left">
-                                            <div className="text-xs text-gray-400">Phone</div>
-                                            <div className="font-semibold text-gray-800">{selectedMember?.phone || 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                    {selectedMember?.phone && (
-                                        <Button
-                                            onClick={() => selectedMember?.phone && handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
-                                            className="bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
+                            {/* Header Image/Gradient */}
+                            <div className="h-32 bg-gradient-to-r from-[#CE8E94] via-pink-400 to-rose-400 relative">
+                                <div className="absolute inset-0 bg-black/10"></div>
+                                {/* Header Actions */}
+                                <div className="absolute top-4 right-4 flex gap-2">
+                                    {selectedMember?.role !== 'admin' && (
+                                        <button
+                                            onClick={() => {
+                                                if (window.confirm('Delete user?')) {
+                                                    handleDeleteUser(selectedMember?.email || '');
+                                                    setSelectedMember(null);
+                                                }
+                                            }}
+                                            className="p-2 rounded-full bg-black/20 hover:bg-red-500/80 backdrop-blur-md transition-all border border-white/10 text-white/70 hover:text-white"
+                                            title="Delete User"
                                         >
-                                            <MessageSquareText className="w-4 h-4" /> Chat
-                                        </Button>
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
                                     )}
                                 </div>
+                            </div>
 
-                                {/* Email Row */}
-                                <div className="flex justify-between items-center group bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                            <Mail className="w-5 h-5" />
+                            <div className="px-6 pb-8 -mt-16 relative z-10">
+                                <div className="flex justify-between items-end">
+                                    {/* Squircle Avatar */}
+                                    <div className="relative">
+                                        <div className="w-28 h-28 rounded-[2rem] bg-slate-900 p-1.5 shadow-2xl ring-1 ring-white/10">
+                                            <div className="w-full h-full rounded-[1.5rem] bg-gradient-to-br from-[#CE8E94] to-pink-500 flex items-center justify-center text-4xl font-bold text-white shadow-inner">
+                                                {selectedMember?.firstName?.[0]}{selectedMember?.lastName?.[0]}
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <div className="text-xs text-gray-400">Email</div>
-                                            <div className="font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-xs">{selectedMember?.email}</div>
+                                        {/* Online Status Dot */}
+                                        <div className="absolute bottom-1 -right-1 w-7 h-7 bg-slate-900 rounded-full flex items-center justify-center">
+                                            <div className="w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-slate-900"></div>
                                         </div>
                                     </div>
-                                    <Button
-                                        onClick={() => handleSendEmail(selectedMember?.email)}
-                                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
-                                    >
-                                        <Mail className="w-4 h-4" /> Mail
-                                    </Button>
-                                </div>
-                            </div>
 
-                            {/* 3. Primary Action: Book Class */}
-                            <Button
-                                onClick={() => {
-                                    setBookingForMember(selectedMember);
-                                    setSelectedMember(null);
-                                }}
-                                className="w-full bg-[#CE8E94] hover:bg-[#b07278] text-white py-4 text-base rounded-2xl shadow-lg shadow-pink-100 transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 font-bold"
-                            >
-                                <CalendarPlus className="w-5 h-5" />
-                                Book a Class for {selectedMember?.firstName}
-                            </Button>
+                                    {/* Stats Mini Row */}
+                                    <div className="flex gap-2 mb-2">
+                                        <div className="px-4 py-2 rounded-2xl bg-slate-800/80 border border-white/5 backdrop-blur-md text-center">
+                                            <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Bookings</div>
+                                            <div className="text-lg font-bold text-white">{getMemberStats(selectedMember?.email || '').total}</div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                            {/* 4. Stats Grid (Minimalist) */}
-                            <div className="grid grid-cols-3 divide-x divide-gray-100 py-4 border-y border-gray-100">
-                                <div className="text-center px-2">
-                                    <div className="text-3xl font-bold text-gray-900">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
-                                </div>
-                                <div className="text-center px-2">
-                                    <div className="text-3xl font-bold text-black">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
-                                </div>
-                                <div className="text-center px-2">
-                                    <div className="text-3xl font-bold text-gray-400">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
-                                </div>
-                            </div>
-
-                            {/* Admin Notes CRM */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
-                                </label>
-                                <textarea
-                                    value={memberNotes}
-                                    onChange={(e) => setMemberNotes(e.target.value)}
-                                    placeholder="Add private notes about this member (injuries, preferences, payments)..."
-                                    className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm text-gray-900 min-h-[100px] outline-none transition-all placeholder:text-gray-500"
-                                />
-                                <div className="flex justify-end">
-                                    <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
-                                        Save Note
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Booking History */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
-                                <div className="space-y-2 max-h-[150px] overflow-y-auto hide-scrollbar">
-                                    {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
-                                        getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
-                                            <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="w-3 h-3 text-gray-400" />
-                                                    <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
-                                                    <span className="text-gray-500">{slot.time}</span>
-                                                </div>
-                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
-                                                    slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                                                    }`}>
-                                                    {slot.status}
+                                <div className="mt-5">
+                                    <h2 className="text-3xl font-bold text-white tracking-tight font-sans">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                                        {selectedMember?.role === 'admin' ? (
+                                            <span className="px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                                                Admin User
+                                            </span>
+                                        ) : (
+                                            getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
+                                                <span key={i} className="px-3 py-1 rounded-lg bg-[#CE8E94]/20 border border-[#CE8E94]/30 text-pink-200 text-[10px] font-bold uppercase tracking-wider shadow-sm">
+                                                    {b.label}
                                                 </span>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
-                                    )}
+                                            ))
+                                        )}
+                                        {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
+                                            <span className="px-3 py-1 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
+                                                Member
+                                            </span>
+                                        )}
+                                        <span className="text-slate-500 text-xs flex items-center gap-1 ml-auto">
+                                            <MapPin className="w-3 h-3" /> Istanbul, TR
+                                        </span>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div className="pt-2 border-t border-gray-100 flex justify-between items-center gap-4">
-                                {selectedMember?.role !== 'admin' && (
-                                    <Button
-                                        onClick={() => handleDeleteUser(selectedMember?.email || '')}
-                                        className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 py-3 px-6 rounded-xl border border-red-100 flex items-center justify-center gap-2 text-sm font-bold transition-all"
+                                <div className="mt-8 space-y-3">
+                                    {/* Phone Row */}
+                                    <div
+                                        onClick={() => selectedMember?.phone && handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
+                                        className="group flex items-center justify-between p-4 rounded-3xl bg-slate-800/40 border border-white/5 hover:bg-slate-800/80 hover:border-[#CE8E94]/30 transition-all cursor-pointer"
                                     >
-                                        <Trash2 className="w-4 h-4" /> Delete
-                                    </Button>
-                                )}
-                                <Button onClick={() => setSelectedMember(null)} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl font-sans">
-                                    Close Profile
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
+                                                <MessageSquareText className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Mobile</p>
+                                                <p className="text-base font-semibold text-slate-200 font-mono mt-0.5">{selectedMember?.phone || 'No Phone'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all">
+                                            <ChevronRight className="w-4 h-4" />
+                                        </div>
+                                    </div>
+
+                                    {/* Email Row */}
+                                    <div
+                                        onClick={() => handleSendEmail(selectedMember?.email || '')}
+                                        className="group flex items-center justify-between p-4 rounded-3xl bg-slate-800/40 border border-white/5 hover:bg-slate-800/80 hover:border-blue-500/30 transition-all cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
+                                                <Mail className="w-5 h-5" />
+                                            </div>
+                                            <div className="overflow-hidden">
+                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Email Address</p>
+                                                <p className="text-base font-semibold text-slate-200 truncate w-48 sm:w-64 mt-0.5">{selectedMember?.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all">
+                                            <ChevronRight className="w-4 h-4" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Private Notes Section (Dark Theme) */}
+                                <div className="mt-6">
+                                    <textarea
+                                        value={memberNotes}
+                                        onChange={(e) => setMemberNotes(e.target.value)}
+                                        placeholder="Add private notes..."
+                                        className="w-full p-4 rounded-3xl border border-white/5 bg-slate-800/40 focus:bg-slate-800/80 focus:ring-1 focus:ring-[#CE8E94]/50 focus:border-[#CE8E94]/50 text-sm text-slate-300 min-h-[80px] outline-none transition-all placeholder:text-slate-600 resize-none"
+                                    />
+                                    <div className="flex justify-end mt-2">
+                                        <button onClick={handleUpdateAdminNotes} className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
+                                            Save Note
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <Button
+                                    onClick={() => {
+                                        setBookingForMember(selectedMember);
+                                        setSelectedMember(null);
+                                    }}
+                                    className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#CE8E94] to-pink-600 hover:from-[#b07278] hover:to-pink-700 text-white font-bold shadow-lg shadow-pink-900/20 border border-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+                                >
+                                    <span>Book Class for {selectedMember?.firstName}</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </Button>
+
                             </div>
                         </div>
                     </Modal>
-                )
-                }
+                )}
 
                 {/* Edit Slot Modal */}
                 {
