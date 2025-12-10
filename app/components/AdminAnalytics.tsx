@@ -286,15 +286,20 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
                 <div className="flex gap-2 w-full sm:w-auto">
-                    <select
-                        value={reportFilter}
-                        onChange={(e) => setReportFilter(e.target.value as any)}
-                        className="bg-gray-50 border border-gray-200 text-gray-700 text-base rounded-xl focus:ring-[#CE8E94] focus:border-[#CE8E94] block px-4 py-3 min-w-[160px]"
-                    >
-                        <option value="All">All Statuses</option>
-                        <option value="Active">Active Only</option>
-                        <option value="Completed">Completed Only</option>
-                    </select>
+                    <div className="relative">
+                        <select
+                            value={reportFilter}
+                            onChange={(e) => setReportFilter(e.target.value as any)}
+                            className="appearance-none bg-white text-gray-700 font-bold border-none rounded-xl px-6 py-3 pr-10 shadow-md hover:shadow-lg transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 text-base"
+                        >
+                            <option value="All">All Statuses</option>
+                            <option value="Active">Active Only</option>
+                            <option value="Completed">Completed Only</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                        </div>
+                    </div>
                     <Button
                         onClick={handleDownloadPDF}
                         className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold flex-1 sm:flex-initial"
