@@ -430,9 +430,9 @@ function PilatesMaltaByGozde() {
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap justify-center lg:justify-start gap-8 pt-6">
+                            <div className="flex flex-wrap justify-center lg:grid lg:grid-cols-2 gap-8 pt-6">
                                 {managementState.trustSignals.map((signal, idx) => (
-                                    <div key={idx} className="flex items-start gap-3 group cursor-default text-left">
+                                    <div key={idx} className={`flex items-start gap-3 group cursor-default text-left ${idx === 2 ? 'lg:col-span-2 lg:justify-self-center' : ''}`}>
                                         <div className="bg-[#CE8E94]/20 p-3 rounded-full text-[#CE8E94] shadow-sm group-hover:bg-[#CE8E94] group-hover:text-white transition-colors duration-300">
                                             {idx === 0 && <Award className="w-6 h-6" />}
                                             {idx === 1 && <Star className="w-6 h-6" />}
