@@ -951,7 +951,7 @@ export const AdminPanel = ({
                                     const badges = getMemberBadges(user, stats);
 
                                     return (
-                                        <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-50 group gap-4 relative">
+                                        <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all group gap-4 relative">
                                             {/* User Info */}
                                             <div className="col-span-12 md:col-span-5 xl:col-span-4 flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 text-center md:text-center xl:text-left md:justify-center xl:justify-start">
                                                 <div className={`w-14 h-14 xl:w-16 xl:h-16 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
