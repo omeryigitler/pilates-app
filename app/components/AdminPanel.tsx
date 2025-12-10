@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -54,13 +54,57 @@ export const AdminPanel = ({
         }
     }, [slots]);
 
-    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Completed' | 'Available'>('All');
+    // NEW: Date Filter State
+    const [dateFilter, setDateFilter] = useState<'All' | 'Today' | 'Week' | 'Month' | 'Custom'>('All');
+    const [isDateFilterOpen, setIsDateFilterOpen] = useState(false);
+    const [customStartDate, setCustomStartDate] = useState('');
+    const [customEndDate, setCustomEndDate] = useState('');
+    const [showCustomDateModal, setShowCustomDateModal] = useState(false);
 
-    const filteredSlots = slots.filter(slot => {
-        if (statusFilter === 'All') return true;
-        if (statusFilter === 'Active') return slot.status === 'Booked' || slot.status === 'Active';
-        return slot.status === statusFilter;
-    });
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Completed' | 'Available'>('All');
+    const [isStatusFilterOpen, setIsStatusFilterOpen] = useState(false);
+
+    const filteredSlots = React.useMemo(() => {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        return slots.filter(slot => {
+            // 1. Status Filter
+            let statusMatch = true;
+            if (statusFilter === 'All') statusMatch = true;
+            else if (statusFilter === 'Active') statusMatch = slot.status === 'Booked' || slot.status === 'Active';
+            else statusMatch = slot.status === statusFilter;
+
+            // 2. Date Filter
+            let dateMatch = true;
+            const slotDate = slot.date;
+
+            if (dateFilter === 'All') dateMatch = true;
+            else if (dateFilter === 'Today') dateMatch = slotDate === todayStr;
+            else if (dateFilter === 'Week') {
+                const sDate = new Date(slotDate);
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                dateMatch = sDate >= startOfWeek && sDate <= endOfWeek;
+            }
+            else if (dateFilter === 'Month') {
+                dateMatch = slotDate.substring(0, 7) === todayStr.substring(0, 7);
+            }
+            else if (dateFilter === 'Custom') {
+                if (customStartDate && customEndDate) {
+                    dateMatch = slotDate >= customStartDate && slotDate <= customEndDate;
+                }
+            }
+
+            return statusMatch && dateMatch;
+        });
+    }, [slots, statusFilter, dateFilter, customStartDate, customEndDate]);
 
     const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
     const [editFormData, setEditFormData] = useState({ date: '', time: '' });
@@ -593,17 +637,90 @@ export const AdminPanel = ({
 
                         <div className="space-y-6 mt-10">
                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-2">
-                                <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
-                                <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-                                    {(['All', 'Active', 'Available', 'Completed'] as const).map(f => (
+                                <h4 className="text-xl font-bold text-gray-700">Current Slots ({filteredSlots.length})</h4>
+                                <div className="flex flex-col md:flex-row gap-3 w-full sm:w-auto">
+                                    {/* Date Filter Dropdown */}
+                                    <div className="relative w-full sm:w-[200px] group">
                                         <button
-                                            key={f}
-                                            onClick={() => setStatusFilter(f)}
-                                            className={`px-3 py-2 sm:py-1 rounded-full text-sm font-bold transition shadow-sm w-full sm:w-auto sm:min-w-24 text-center flex justify-center items-center ${statusFilter === f ? 'bg-[#CE8E94] text-white ring-2 ring-[#CE8E94]/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                            onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
+                                            className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
                                         >
-                                            {f}
+                                            <span className="text-gray-800 truncate">
+                                                {dateFilter === 'Custom' && customStartDate ? 'Custom Range' : dateFilter === 'All' ? 'All Dates' : dateFilter}
+                                            </span>
+                                            <Calendar className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] flex-shrink-0 ml-2 ${isDateFilterOpen ? 'rotate-180' : ''}`} />
                                         </button>
-                                    ))}
+
+                                        {isDateFilterOpen && (
+                                            <>
+                                                <div className="fixed inset-0 z-10" onClick={() => setIsDateFilterOpen(false)} />
+                                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                                                    {(['All', 'Today', 'Week', 'Month', 'Custom'] as const).map((option) => (
+                                                        <div
+                                                            key={option}
+                                                            onClick={() => {
+                                                                if (option === 'Custom') {
+                                                                    setShowCustomDateModal(true);
+                                                                    setIsDateFilterOpen(false);
+                                                                } else {
+                                                                    setDateFilter(option);
+                                                                    setIsDateFilterOpen(false);
+                                                                }
+                                                            }}
+                                                            className={`px-4 py-3 cursor-pointer flex items-center justify-between transition-colors duration-200
+                                                                ${dateFilter === option && option !== 'Custom'
+                                                                    ? 'bg-[#CE8E94]/10 text-[#CE8E94] font-bold'
+                                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                                }`}
+                                                        >
+                                                            <span className="text-sm">{option === 'All' ? 'All Dates' : option}</span>
+                                                            {dateFilter === option && option !== 'Custom' && <Check className="w-4 h-4 text-[#CE8E94]" />}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Status Filter Dropdown */}
+                                    <div className="relative w-full sm:w-[200px] group">
+                                        <button
+                                            onClick={() => setIsStatusFilterOpen(!isStatusFilterOpen)}
+                                            className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                                        >
+                                            <span className="text-gray-800 truncate">
+                                                {statusFilter === 'All' ? 'All Statuses' : statusFilter === 'Completed' ? 'Completed Only' : statusFilter === 'Active' ? 'Active Only' : 'Available Only'}
+                                            </span>
+                                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] flex-shrink-0 ml-2 ${isStatusFilterOpen ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        {isStatusFilterOpen && (
+                                            <>
+                                                <div className="fixed inset-0 z-10" onClick={() => setIsStatusFilterOpen(false)} />
+                                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                                                    {(['All', 'Active', 'Available', 'Completed'] as const).map((option) => (
+                                                        <div
+                                                            key={option}
+                                                            onClick={() => {
+                                                                setStatusFilter(option);
+                                                                setIsStatusFilterOpen(false);
+                                                            }}
+                                                            className={`px-4 py-3 cursor-pointer flex items-center justify-between transition-colors duration-200
+                                                                ${statusFilter === option
+                                                                    ? 'bg-[#CE8E94]/10 text-[#CE8E94] font-bold'
+                                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                                }`}
+                                                        >
+                                                            <span className="text-sm">
+                                                                {option === 'All' ? 'All Statuses' : option === 'Completed' ? 'Completed Only' : option === 'Active' ? 'Active Only' : 'Available Only'}
+                                                            </span>
+                                                            {statusFilter === option && <Check className="w-4 h-4 text-[#CE8E94]" />}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -827,6 +944,58 @@ export const AdminPanel = ({
                             </div>
                         </div>
                     </Modal>
+                )}
+                )}
+
+                {/* Custom Date Range Modal for Admin Slots Filtering */}
+                {showCustomDateModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+                            <h3 className="text-xl font-bold text-gray-800">Select Date Range</h3>
+                            <div className="space-y-3">
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">Start Date</label>
+                                    <input
+                                        type="date"
+                                        value={customStartDate}
+                                        onChange={(e) => setCustomStartDate(e.target.value)}
+                                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs font-bold text-gray-500 uppercase">End Date</label>
+                                    <input
+                                        type="date"
+                                        value={customEndDate}
+                                        onChange={(e) => setCustomEndDate(e.target.value)}
+                                        className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-2 pt-2">
+                                <Button
+                                    onClick={() => {
+                                        setShowCustomDateModal(false);
+                                        setDateFilter('All');
+                                    }}
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (customStartDate && customEndDate) {
+                                            setDateFilter('Custom');
+                                            setShowCustomDateModal(false);
+                                        }
+                                    }}
+                                    className="flex-1 bg-[#CE8E94] hover:bg-[#B57A80] text-white"
+                                >
+                                    Apply
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 )}
             </div>
         </div >
