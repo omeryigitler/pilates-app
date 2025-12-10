@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageCircle } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageSquareText, Phone } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -962,7 +962,7 @@ export const AdminPanel = ({
                                                     onClick={() => handleSendWhatsApp(user.phone, user.firstName)}
                                                     title="WhatsApp"
                                                 >
-                                                    <MessageCircle className="w-4 h-4" />
+                                                    <MessageSquareText className="w-4 h-4" />
                                                 </Button>
                                                 <Button
                                                     className="hidden sm:flex hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
@@ -1013,7 +1013,7 @@ export const AdminPanel = ({
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
                                     <p className="text-gray-500 flex items-center gap-2 text-sm"><Mail className="w-3 h-3" /> {selectedMember.email}</p>
-                                    {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><MessageCircle className="w-3 h-3" /> {selectedMember.phone}</p>}
+                                    {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><Phone className="w-3 h-3" /> {selectedMember.phone}</p>}
                                 </div>
                             </div>
 
