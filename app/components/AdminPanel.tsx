@@ -1035,7 +1035,7 @@ export const AdminPanel = ({
                                 </div>
                             </div>
 
-                            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 hide-scrollbar">
                                 {slots.filter(s => s.status === 'Available').length === 0 && (
                                     <div className="text-center py-8 text-gray-400">No available slots found.</div>
                                 )}
@@ -1179,7 +1179,7 @@ export const AdminPanel = ({
                                     value={memberNotes}
                                     onChange={(e) => setMemberNotes(e.target.value)}
                                     placeholder="Add private notes about this member (injuries, preferences, payments)..."
-                                    className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
+                                    className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm text-gray-900 min-h-[100px] outline-none transition-all placeholder:text-gray-500"
                                 />
                                 <div className="flex justify-end">
                                     <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
@@ -1191,7 +1191,7 @@ export const AdminPanel = ({
                             {/* Booking History */}
                             <div className="space-y-3">
                                 <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
-                                <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                                <div className="space-y-2 max-h-[150px] overflow-y-auto hide-scrollbar">
                                     {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
                                         getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
                                             <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
