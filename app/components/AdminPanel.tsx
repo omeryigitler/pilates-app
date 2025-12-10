@@ -576,9 +576,6 @@ export const AdminPanel = ({
                                         {/* 4. Actions (Bottom - Centered) */}
                                         <div className="col-span-2 flex items-center justify-center gap-6 mt-2 pt-3 border-t border-gray-100">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-xs font-bold ${slot.status === 'Booked' || slot.status === 'Active' ? 'text-gray-400' : slot.status === 'Completed' ? 'text-gray-400' : 'text-green-600'}`}>
-                                                    {slot.status === 'Available' ? 'Active' : 'Blocked'}
-                                                </span>
                                                 <Switch
                                                     checked={slot.status === 'Available'}
                                                     onCheckedChange={() => handleToggleSlotStatus(slot.date, slot.time)}
