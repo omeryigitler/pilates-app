@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Users, TrendingUp, Download } from "lucide-react";
+import { Calendar, Users, TrendingUp, Download, ChevronDown, Check } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Slot, UserType } from "../types";
@@ -18,6 +18,13 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
     const totalUsers = users.length;
 
     const [reportFilter, setReportFilter] = React.useState<'All' | 'Active' | 'Completed'>('All');
+    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+
+    const filterOptions = [
+        { value: 'All', label: 'All Statuses' },
+        { value: 'Active', label: 'Active Only' },
+        { value: 'Completed', label: 'Completed Only' }
+    ];
 
     // 2. Aylık Dağılım
     const monthlyStats = slots.reduce((acc, slot) => {
@@ -286,19 +293,43 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
                 <div className="flex gap-2 w-full sm:w-auto items-stretch">
-                    <div className="relative flex-1">
-                        <select
-                            value={reportFilter}
-                            onChange={(e) => setReportFilter(e.target.value as any)}
-                            className="w-full appearance-none bg-white text-gray-700 font-bold border-none rounded-xl px-6 py-3 pr-10 shadow-md hover:shadow-lg transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 text-base h-full"
+                    <div className="relative flex-1 group">
+                        {/* Custom Dropdown Trigger */}
+                        <button
+                            onClick={() => setIsFilterOpen(!isFilterOpen)}
+                            className="w-full h-full bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
                         >
-                            <option value="All">All Statuses</option>
-                            <option value="Active">Active Only</option>
-                            <option value="Completed">Completed Only</option>
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
-                        </div>
+                            <span className="text-gray-800">
+                                {filterOptions.find(f => f.value === reportFilter)?.label}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] ${isFilterOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {isFilterOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setIsFilterOpen(false)} />
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                                    {filterOptions.map((option) => (
+                                        <div
+                                            key={option.value}
+                                            onClick={() => {
+                                                setReportFilter(option.value as any);
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className={`px-4 py-3 cursor-pointer flex items-center justify-between transition-colors duration-200
+                                                ${reportFilter === option.value
+                                                    ? 'bg-[#CE8E94]/10 text-[#CE8E94] font-bold'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                }`}
+                                        >
+                                            <span className="text-sm">{option.label}</span>
+                                            {reportFilter === option.value && <Check className="w-4 h-4 text-[#CE8E94]" />}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                     <Button
                         onClick={handleDownloadPDF}
