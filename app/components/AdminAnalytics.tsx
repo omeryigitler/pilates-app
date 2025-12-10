@@ -292,17 +292,17 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             {/* Header & Download Button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
-                <div className="flex gap-2 w-full sm:w-auto items-stretch">
-                    <div className="relative flex-1 group">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <div className="relative w-full sm:w-[200px] group">
                         {/* Custom Dropdown Trigger */}
                         <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
-                            className="w-full h-full bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                            className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
                         >
-                            <span className="text-gray-800">
+                            <span className="text-gray-800 truncate">
                                 {filterOptions.find(f => f.value === reportFilter)?.label}
                             </span>
-                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] ${isFilterOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] flex-shrink-0 ml-2 ${isFilterOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Dropdown Menu */}
@@ -333,9 +333,9 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                     </div>
                     <Button
                         onClick={handleDownloadPDF}
-                        className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold flex-1 sm:flex-initial"
+                        className="bg-[#CE8E94] hover:bg-[#B57A80] text-white h-12 w-full sm:w-[200px] rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold"
                     >
-                        <Download className="w-5 h-5" /> Download Report
+                        <Download className="w-5 h-5" /> <span>Download Report</span>
                     </Button>
                 </div>
             </div>
