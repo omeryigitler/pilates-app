@@ -291,7 +291,7 @@ export const AdminPanel = ({
         // Let's improve: The 'bookedBy' field stores "First Last" or "First Last (Admin)".
         // We should find user by email, get their full name, and match.
         const user = users.find(u => u.email === email);
-        if (!user) return { total: 0, active: 0, completed: 0 };
+        if (!user) return { total: 0, active: 0, completed: 0, history: [] };
 
         const fullName = `${user.firstName} ${user.lastName}`;
         const mySlots = slots.filter(s => s.bookedBy && s.bookedBy.includes(fullName));
@@ -1017,18 +1017,17 @@ export const AdminPanel = ({
                                 </div>
                             </div>
 
-                            {/* Stats Grid */}
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                                    <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember.email).total}</div>
+                                    <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
                                     <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
                                 </div>
                                 <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
-                                    <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember.email).active}</div>
+                                    <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
                                     <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
                                 </div>
                                 <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
-                                    <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember.email).completed}</div>
+                                    <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
                                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
                                 </div>
                             </div>
@@ -1055,8 +1054,8 @@ export const AdminPanel = ({
                             <div className="space-y-3">
                                 <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
                                 <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                                    {selectedMember && getMemberStats(selectedMember.email).history.length > 0 ? (
-                                        getMemberStats(selectedMember.email).history.map((slot, i) => (
+                                    {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
+                                        getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
                                             <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
                                                 <div className="flex items-center gap-2">
                                                     <Calendar className="w-3 h-3 text-gray-400" />
