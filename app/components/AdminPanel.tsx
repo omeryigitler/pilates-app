@@ -118,7 +118,7 @@ export const AdminPanel = ({
     const [selectedMember, setSelectedMember] = useState<UserType | null>(null);
     const [memberNotes, setMemberNotes] = useState('');
     const [bookingForMember, setBookingForMember] = useState<UserType | null>(null);
-    const [bookingDateFilter, setBookingDateFilter] = useState<'all' | 'today' | 'week'>('all');
+    const [bookingDateFilter, setBookingDateFilter] = useState<'all' | 'today' | 'week'>('today');
 
     const standardInputClass = "w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700 shadow-sm";
 
@@ -1041,7 +1041,7 @@ export const AdminPanel = ({
                                 <p className="text-xs text-gray-400 mb-3">Select an available slot below</p>
 
                                 <div className="flex justify-center gap-2">
-                                    {['all', 'today', 'week'].map((filter) => (
+                                    {['today', 'week', 'all'].map((filter) => (
                                         <button
                                             key={filter}
                                             onClick={() => setBookingDateFilter(filter as any)}
