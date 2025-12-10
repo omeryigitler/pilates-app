@@ -953,18 +953,18 @@ export const AdminPanel = ({
                                     return (
                                         <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
-                                            <div className="col-span-12 md:col-span-4 lg:col-span-4 flex items-center gap-4 min-w-0">
+                                            <div className="col-span-12 md:col-span-4 lg:col-span-4 flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 text-center md:text-left">
                                                 <div className={`w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
                                                     <User className="w-7 h-7" />
                                                 </div>
-                                                <div className="min-w-0 flex-1">
-                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                <div className="min-w-0 flex-1 w-full md:w-auto">
+                                                    <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 mb-0.5 justify-center md:justify-start">
                                                         <h4 className="font-bold text-gray-800 truncate text-base font-sans">{user.firstName} {user.lastName}</h4>
                                                         {user.role === 'admin' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
                                                     </div>
                                                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
                                                     {/* Mobile Badges */}
-                                                    <div className="flex md:hidden flex-wrap gap-1 mt-2">
+                                                    <div className="flex md:hidden flex-wrap justify-center gap-1 mt-2">
                                                         {badges.map((b, i) => (
                                                             <span key={i} className={`text-[10px] font-bold px-2 py-0.5 rounded border border-transparent ${b.color}`}>{b.label}</span>
                                                         ))}
@@ -973,7 +973,7 @@ export const AdminPanel = ({
                                             </div>
 
                                             {/* Status / Badges (Desktop) */}
-                                            <div className="hidden md:flex md:col-span-3 lg:col-span-3 flex-wrap gap-2 items-center">
+                                            <div className="hidden md:flex md:col-span-3 lg:col-span-3 flex-wrap gap-2 items-center justify-center">
                                                 {badges.map((b, i) => (
                                                     <span key={i} className={`text-xs font-bold px-4 py-1.5 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
                                                 ))}
@@ -989,7 +989,7 @@ export const AdminPanel = ({
                                             </div>
 
                                             {/* Actions */}
-                                            <div className="col-span-12 md:col-span-2 lg:col-span-2 flex justify-end mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
+                                            <div className="col-span-12 md:col-span-2 lg:col-span-2 flex justify-center md:justify-end mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
                                                 <Button
                                                     onClick={() => {
                                                         setSelectedMember(user);
