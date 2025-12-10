@@ -939,10 +939,10 @@ export const AdminPanel = ({
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-12 text-xs font-bold uppercase text-gray-400 pb-2 px-4 gap-4">
-                                <div className="col-span-12 md:col-span-4 lg:col-span-4 text-center lg:text-left md:pl-0 lg:pl-2">User info</div>
+                                <div className="col-span-12 md:col-span-4 lg:col-span-4 text-center xl:text-left md:pl-0 xl:pl-2">User info</div>
                                 <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center">Status</div>
                                 <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center">Stats</div>
-                                <div className="hidden md:block md:col-span-2 lg:col-span-2 text-center lg:text-right pr-0 lg:pr-2">Actions</div>
+                                <div className="hidden md:block md:col-span-2 lg:col-span-2 text-center xl:text-right pr-0 xl:pr-2">Actions</div>
                             </div>
 
                             <div className="space-y-3">
@@ -953,12 +953,12 @@ export const AdminPanel = ({
                                     return (
                                         <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
-                                            <div className="col-span-12 md:col-span-4 lg:col-span-4 flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 text-center md:text-center lg:text-left md:justify-center lg:justify-start">
+                                            <div className="col-span-12 md:col-span-4 lg:col-span-4 flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 text-center md:text-center xl:text-left md:justify-center xl:justify-start">
                                                 <div className={`w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
                                                     <User className="w-7 h-7" />
                                                 </div>
                                                 <div className="min-w-0 flex-1 w-full md:w-auto">
-                                                    <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 mb-0.5 justify-center md:justify-center lg:justify-start">
+                                                    <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 mb-0.5 justify-center md:justify-center xl:justify-start">
                                                         <h4 className="font-bold text-gray-800 truncate text-base font-sans">{user.firstName} {user.lastName}</h4>
                                                         {user.role === 'admin' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
                                                     </div>
@@ -989,7 +989,7 @@ export const AdminPanel = ({
                                             </div>
 
                                             {/* Actions */}
-                                            <div className="col-span-12 md:col-span-2 lg:col-span-2 flex justify-center md:justify-center lg:justify-end mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
+                                            <div className="col-span-12 md:col-span-2 lg:col-span-2 flex justify-center md:justify-center xl:justify-end mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
                                                 <Button
                                                     onClick={() => {
                                                         setSelectedMember(user);
