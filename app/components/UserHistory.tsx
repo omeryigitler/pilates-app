@@ -8,7 +8,7 @@ import { isPastDate, formatDateDisplay } from "../utils/helpers";
 export const UserHistory = ({ slots, userName }: { slots: Slot[], userName: string }) => {
     // Geçmiş dersleri bul ve sırala (En yeniden eskiye)
     const pastBookings = slots
-        .filter(slot => slot.bookedBy === userName && (isPastDate(slot.date) || slot.status === 'Completed'))
+        .filter(slot => (slot.bookedBy === userName || slot.bookedBy === `${userName} (Admin)`) && (isPastDate(slot.date) || slot.status === 'Completed'))
         .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
 
     const totalSessions = pastBookings.length;

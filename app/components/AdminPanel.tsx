@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -86,7 +86,7 @@ export const AdminPanel = ({
             await setDoc(doc(db, 'slots', slotId), {
                 ...assigningSlot,
                 status: 'Booked',
-                bookedBy: fullName
+                bookedBy: `${fullName} (Admin)`
             });
 
             // 2. Send Email Notification
@@ -618,7 +618,18 @@ export const AdminPanel = ({
                                         <div className="col-span-1 text-right">
                                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Booked By</span>
                                             <div className="flex items-center justify-end gap-2">
-                                                <span className="text-sm font-medium text-gray-700 block truncate" title={slot.bookedBy || ''}>{slot.bookedBy || 'Available'}</span>
+                                                {slot.bookedBy && slot.bookedBy.includes('(Admin)') ? (
+                                                    <div className="flex items-center gap-1 text-blue-600" title="Assigned by Admin">
+                                                        <span className="text-sm font-bold block truncate">
+                                                            {slot.bookedBy.replace(' (Admin)', '')}
+                                                        </span>
+                                                        <ShieldCheck className="w-4 h-4" />
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-sm font-medium text-gray-700 block truncate" title={slot.bookedBy || ''}>
+                                                        {slot.bookedBy || 'Available'}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
 
