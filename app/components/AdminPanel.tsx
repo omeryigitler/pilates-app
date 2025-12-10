@@ -1408,12 +1408,12 @@ export const AdminPanel = ({
                                         return true;
                                     })
                                     .map((slot, i) => (
-                                        <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <div key={i} className="flex justify-between items-center py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors px-2">
                                             <div className="flex flex-col">
-                                                <span className="font-bold text-gray-900">{new Date(slot.date).toLocaleDateString()}</span>
-                                                <span className="text-xs text-gray-500 font-bold uppercase">{slot.status}</span>
+                                                <span className="font-bold text-gray-900 text-lg">{new Date(slot.date).toLocaleDateString('en-US', { weekday: 'long' })}</span>
+                                                <span className="text-sm text-gray-500">{new Date(slot.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} • <span className="uppercase text-xs font-bold tracking-wider">{slot.status}</span></span>
                                             </div>
-                                            <div className="text-lg font-mono font-bold text-[#CE8E94]">
+                                            <div className="text-xl font-black text-[#CE8E94] tracking-tight">
                                                 {slot.time}
                                             </div>
                                         </div>
