@@ -1062,16 +1062,17 @@ export const AdminPanel = ({
                                     })
                                     .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
                                     .map((slot, i) => (
-                                        <div key={i} className="flex justify-between items-center p-4 bg-green-50/50 hover:bg-green-100/50 border border-green-100 rounded-xl transition-all group">
+                                        <div key={i} className="flex justify-between items-center p-5 bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl transition-all shadow-sm hover:shadow-md group">
                                             <div>
-                                                <div className="font-bold text-gray-800">{formatDateDisplay(slot.date)}</div>
-                                                <div className="text-sm text-gray-600 flex items-center gap-2">
-                                                    <Clock className="w-3 h-3 text-green-600" /> {slot.time}
+                                                <div className="font-bold text-gray-800 text-base">{formatDateDisplay(slot.date)}</div>
+                                                <div className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                                                    <Clock className="w-4 h-4 text-[#CE8E94]" />
+                                                    <span className="font-medium">{slot.time}</span>
                                                 </div>
                                             </div>
                                             <Button
                                                 onClick={() => handleBookForMember(slot)}
-                                                className="bg-green-600 hover:bg-green-700 text-white shadow-md rounded-lg h-auto py-2 px-4 text-xs font-bold"
+                                                className="bg-[#CE8E94] hover:bg-[#b07278] text-white shadow-lg shadow-pink-100 rounded-xl h-auto py-2.5 px-6 text-xs font-bold transition-transform active:scale-95"
                                             >
                                                 Book
                                             </Button>
@@ -1088,13 +1089,20 @@ export const AdminPanel = ({
                     <Modal onClose={() => setSelectedMember(null)}>
                         <div className="space-y-8 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
 
-                            {/* 1. Header & Profile */}
-                            <div className="flex flex-col items-center justify-center text-center">
-                                <div className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center text-white font-bold text-3xl bg-gradient-to-br ${selectedMember?.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-xl ring-4 ring-white`}>
-                                    {selectedMember?.firstName?.[0]}{selectedMember?.lastName?.[0]}
+                            {/* 1. Header & Profile (Modern, No Avatar) */}
+                            <div className="text-left pb-4 border-b border-gray-100">
+                                <h2 className="text-3xl font-bold text-gray-900 font-sans tracking-tight">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <div className="flex flex-wrap gap-2 mt-3">
+                                    {selectedMember?.role === 'admin' && (
+                                        <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 tracking-wider">ADMIN</span>
+                                    )}
+                                    {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
+                                        <span key={i} className={`text-[10px] font-bold px-2 py-1 rounded-md border border-transparent tracking-wider ${b.color}`}>{b.label}</span>
+                                    ))}
+                                    {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
+                                        <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-100 tracking-wider">MEMBER</span>
+                                    )}
                                 </div>
-                                <h2 className="text-3xl font-bold text-gray-800">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
-                                <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mt-1">{selectedMember?.role}</p>
                             </div>
 
                             {/* 2. Contact Actions Card */}
