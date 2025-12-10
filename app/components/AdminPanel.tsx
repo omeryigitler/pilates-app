@@ -1062,17 +1062,14 @@ export const AdminPanel = ({
                                     })
                                     .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
                                     .map((slot, i) => (
-                                        <div key={i} className="flex justify-between items-center p-5 bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl transition-all shadow-sm hover:shadow-md group">
-                                            <div>
-                                                <div className="font-bold text-gray-800 text-base">{formatDateDisplay(slot.date)}</div>
-                                                <div className="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                                                    <Clock className="w-4 h-4 text-[#CE8E94]" />
-                                                    <span className="font-medium">{slot.time}</span>
-                                                </div>
+                                        <div key={i} className="flex justify-between items-center py-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors px-2">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-gray-900 text-lg">{new Date(slot.date).toLocaleDateString('en-US', { weekday: 'long' })}</span>
+                                                <span className="text-sm text-gray-500">{new Date(slot.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} • {slot.time}</span>
                                             </div>
                                             <Button
                                                 onClick={() => handleBookForMember(slot)}
-                                                className="bg-[#CE8E94] hover:bg-[#b07278] text-white shadow-lg shadow-pink-100 rounded-xl h-auto py-2.5 px-6 text-xs font-bold transition-transform active:scale-95"
+                                                className="bg-black text-white hover:bg-gray-800 rounded-full px-6 py-2 text-xs font-bold transition-transform active:scale-95"
                                             >
                                                 Book
                                             </Button>
@@ -1089,18 +1086,18 @@ export const AdminPanel = ({
                     <Modal onClose={() => setSelectedMember(null)}>
                         <div className="space-y-8 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
 
-                            {/* 1. Header & Profile (Modern, No Avatar) */}
-                            <div className="text-left pb-4 border-b border-gray-100">
-                                <h2 className="text-3xl font-bold text-gray-900 font-sans tracking-tight">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
-                                <div className="flex flex-wrap gap-2 mt-3">
+                            {/* 1. Header & Profile (Centered & Minimal) */}
+                            <div className="flex flex-col items-center justify-center text-center pb-6 border-b border-gray-100">
+                                <h2 className="text-4xl font-bold text-gray-900 font-sans tracking-tight mb-2">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <div className="flex flex-wrap justify-center gap-2">
                                     {selectedMember?.role === 'admin' && (
-                                        <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 tracking-wider">ADMIN</span>
+                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
                                     )}
                                     {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
-                                        <span key={i} className={`text-[10px] font-bold px-2 py-1 rounded-md border border-transparent tracking-wider ${b.color}`}>{b.label}</span>
+                                        <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50`}>{b.label}</span>
                                     ))}
                                     {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
-                                        <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-gray-50 text-gray-500 border border-gray-100 tracking-wider">MEMBER</span>
+                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase">MEMBER</span>
                                     )}
                                 </div>
                             </div>
@@ -1162,19 +1159,19 @@ export const AdminPanel = ({
                                 Book a Class for {selectedMember?.firstName}
                             </Button>
 
-                            {/* 4. Stats Grid */}
-                            <div className="grid grid-cols-3 gap-3">
-                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                                    <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
+                            {/* 4. Stats Grid (Minimalist) */}
+                            <div className="grid grid-cols-3 divide-x divide-gray-100 py-4 border-y border-gray-100">
+                                <div className="text-center px-2">
+                                    <div className="text-3xl font-bold text-gray-900">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
                                 </div>
-                                <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
-                                    <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                    <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
+                                <div className="text-center px-2">
+                                    <div className="text-3xl font-bold text-black">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
                                 </div>
-                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
-                                    <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
+                                <div className="text-center px-2">
+                                    <div className="text-3xl font-bold text-gray-400">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
                                 </div>
                             </div>
 
@@ -1390,6 +1387,6 @@ export const AdminPanel = ({
                     )
                 }
             </div>
-        </div>
+        </div >
     );
 };
