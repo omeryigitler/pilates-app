@@ -265,6 +265,9 @@ export const AdminPanel = ({
                 try {
                     await deleteDoc(doc(db, "users", email));
                     showNotification(`User ${email} deleted.`, 'success');
+                    if (selectedMember?.email === email) {
+                        setSelectedMember(null);
+                    }
                 } catch (e) {
                     showNotification('Error deleting user', 'error');
                 }
@@ -1191,12 +1194,7 @@ export const AdminPanel = ({
                             {selectedMember?.role !== 'admin' && (
                                 <div className="flex justify-center pt-2">
                                     <button
-                                        onClick={() => {
-                                            if (window.confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
-                                                handleDeleteUser(selectedMember?.email || '');
-                                                setSelectedMember(null);
-                                            }
-                                        }}
+                                        onClick={() => handleDeleteUser(selectedMember?.email || '')}
                                         className="text-xs font-bold text-gray-300 hover:text-red-500 flex items-center gap-1 transition-colors py-2 px-4 rounded-lg hover:bg-red-50"
                                     >
                                         <Trash2 className="w-3 h-3" /> Delete Member
