@@ -1055,7 +1055,7 @@ export const AdminPanel = ({
                             <div className="space-y-3">
                                 <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
                                 <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                                    {getMemberStats(selectedMember.email).history.length > 0 ? (
+                                    {selectedMember && getMemberStats(selectedMember.email).history.length > 0 ? (
                                         getMemberStats(selectedMember.email).history.map((slot, i) => (
                                             <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
                                                 <div className="flex items-center gap-2">
