@@ -9,14 +9,19 @@ import { Slot, UserType } from "../types";
 
 export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: UserType[], currentLogo: string }) => {
     // 1. Genel İstatistikler
-    const totalBookings = slots.filter(s => s.status === 'Booked').length;
+    const activeBookings = slots.filter(s => s.status === 'Booked' || s.status === 'Active').length;
+    const completedBookings = slots.filter(s => s.status === 'Completed').length;
+    const totalBookings = activeBookings + completedBookings;
+
     const totalSlots = slots.length;
     const occupancyRate = totalSlots > 0 ? Math.round((totalBookings / totalSlots) * 100) : 0;
     const totalUsers = users.length;
 
+    const [reportFilter, setReportFilter] = React.useState<'All' | 'Active' | 'Completed'>('All');
+
     // 2. Aylık Dağılım
     const monthlyStats = slots.reduce((acc, slot) => {
-        if (slot.status === 'Booked') {
+        if (slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed') {
             const monthKey = slot.date.substring(0, 7); // YYYY-MM
             acc[monthKey] = (acc[monthKey] || 0) + 1;
         }
@@ -25,6 +30,31 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
 
     // Sıralı aylar
     const sortedMonths = Object.keys(monthlyStats).sort().reverse();
+
+    // Filtered months logic for table could be more complex if we want to filter specific months,
+    // but here we filter the breakdown inside the table rows potentially on status?
+    // Actually the table shows aggregate data per month.
+    // So let's add a "Status Breakdown" per month or just filter the aggregate calculation.
+
+    const filteredMonthlyStats = slots.reduce((acc, slot) => {
+        // Filter based on reportFilter
+        const isActive = slot.status === 'Booked' || slot.status === 'Active';
+        const isCompleted = slot.status === 'Completed';
+
+        const matchesFilter =
+            (reportFilter === 'All' && (isActive || isCompleted)) ||
+            (reportFilter === 'Active' && isActive) ||
+            (reportFilter === 'Completed' && isCompleted);
+
+        if (matchesFilter) {
+            const monthKey = slot.date.substring(0, 7);
+            acc[monthKey] = (acc[monthKey] || 0) + 1;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+
+    // Use filtered stats for the table
+    const tableMonths = Object.keys(filteredMonthlyStats).sort().reverse();
 
     const handleDownloadPDF = async () => {
         const doc = new jsPDF();
@@ -81,7 +111,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
         doc.setTextColor(100);
-        doc.text("Monthly Performance & Analytics Report", 42, 29);
+        doc.text(`Monthly Performance & Analytics Report (${reportFilter})`, 42, 29);
 
         // Sağ Üst Tarih
         doc.setFontSize(10);
@@ -140,12 +170,12 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
         doc.text(`%${occupancyRate}`, 14 + (boxWidth + 5) * 2 + 5, statY + 18);
 
         // 4. Tablo Verisi Hazırlama
-        const tableData = sortedMonths.map(month => [
+        const tableData = tableMonths.map(month => [
             new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-            `${monthlyStats[month]} sessions`,
-            'Active',
+            `${filteredMonthlyStats[month]} sessions`,
+            reportFilter === 'All' ? 'Mixed' : reportFilter,
             // Basit bir bar grafik temsili (text olarak)
-            '|'.repeat(Math.min(monthlyStats[month], 20))
+            '|'.repeat(Math.min(filteredMonthlyStats[month], 20))
         ]);
 
         // 5. Tabloyu Çiz
@@ -204,12 +234,23 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             {/* Header & Download Button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
-                <Button
-                    onClick={handleDownloadPDF}
-                    className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-3 w-full sm:w-auto rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold"
-                >
-                    <Download className="w-5 h-5" /> Download Report
-                </Button>
+                <div className="flex gap-2 w-full sm:w-auto">
+                    <select
+                        value={reportFilter}
+                        onChange={(e) => setReportFilter(e.target.value as any)}
+                        className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-[#CE8E94] focus:border-[#CE8E94] block p-2.5"
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="Active">Active Only</option>
+                        <option value="Completed">Completed Only</option>
+                    </select>
+                    <Button
+                        onClick={handleDownloadPDF}
+                        className="bg-[#CE8E94] hover:bg-[#B57A80] text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg transition transform active:scale-95 text-base font-semibold flex-1 sm:flex-initial"
+                    >
+                        <Download className="w-5 h-5" /> Download Report
+                    </Button>
+                </div>
             </div>
 
             {/* Üst Kartlar */}
@@ -253,8 +294,8 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
 
             {/* Aylık Tablo */}
             <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                    <h3 className="text-xl font-bold text-gray-800">Monthly Performance</h3>
+                <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="text-xl font-bold text-gray-800">Monthly Performance ({reportFilter})</h3>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
@@ -266,7 +307,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {sortedMonths.map(month => (
+                            {tableMonths.map(month => (
                                 <tr key={month} className="hover:bg-gray-50 transition">
                                     <td className="p-4 pl-6 font-bold text-gray-700">
                                         {new Date(month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}

@@ -35,8 +35,9 @@ export const UserDashboard = ({
 
     const futureSlots = slots.filter(slot => !isPastDate(slot.date));
 
+    // Filter out Completed slots from active bookings even if date is today/future
     const userBookings = futureSlots
-        .filter(slot => slot.bookedBy === userName)
+        .filter(slot => slot.bookedBy === userName && slot.status !== 'Completed')
         .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
 
     const availableSlotsForSelectedDate = futureSlots

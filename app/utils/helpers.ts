@@ -43,3 +43,29 @@ export const isPastDate = (dateString: string) => {
     const today = getTodayDate();
     return dateString < today;
 }
+
+export const convertTime12to24 = (timeStr: string): string => {
+    if (!timeStr) return "00:00";
+
+    // If already 24h format (no AM/PM)
+    if (!timeStr.toUpperCase().includes('AM') && !timeStr.toUpperCase().includes('PM')) {
+        const parts = timeStr.trim().split(':');
+        if (parts.length < 2) return timeStr; // Fallback
+        const h = parts[0];
+        const m = parts[1];
+        return `${h.padStart(2, '0')}:${m}`;
+    }
+
+    const [time, modifier] = timeStr.trim().split(' ');
+    let [hours, minutes] = time.split(':');
+
+    if (hours === '12') {
+        hours = '00';
+    }
+
+    if (modifier?.toUpperCase() === 'PM') {
+        hours = String(parseInt(hours, 10) + 12);
+    }
+
+    return `${hours.padStart(2, '0')}:${minutes}`;
+};

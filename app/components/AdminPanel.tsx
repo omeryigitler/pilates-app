@@ -9,8 +9,9 @@ import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { useNotification } from '../context/NotificationContext';
 import { useConfirm } from '../context/ConfirmContext';
-import { formatDateDisplay, getTodayDate } from '../utils/helpers';
+import { formatDateDisplay, getTodayDate, convertTime12to24 } from '../utils/helpers';
 import { BookingCalendar } from './BookingCalendar';
+import { updateExpiredSlots } from '../services/pilatesService';
 import { AdminAnalytics } from './AdminAnalytics';
 import { FileUploadInput } from './FileUploadInput';
 import { Modal } from './Modal';
@@ -44,6 +45,21 @@ export const AdminPanel = ({
     React.useEffect(() => {
         setNewSlotDate(getTodayDate());
     }, []);
+
+    // NEW: Auto-update expired slots
+    React.useEffect(() => {
+        if (slots.length > 0) {
+            updateExpiredSlots(slots);
+        }
+    }, [slots]);
+
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Completed' | 'Available'>('All');
+
+    const filteredSlots = slots.filter(slot => {
+        if (statusFilter === 'All') return true;
+        if (statusFilter === 'Active') return slot.status === 'Booked' || slot.status === 'Active';
+        return slot.status === statusFilter;
+    });
 
     const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
     const [editFormData, setEditFormData] = useState({ date: '', time: '' });
@@ -124,8 +140,9 @@ export const AdminPanel = ({
         const slot = slots.find(s => s.date === slotDate && s.time === slotTime);
         if (!slot) return;
 
-        const newStatus = slot.status === 'Booked' ? 'Available' : 'Booked';
-        const newBookedBy = newStatus === 'Booked' ? `Admin Action - ${loggedInUser?.firstName}` : null;
+        const isOccupied = slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed';
+        const newStatus = isOccupied ? 'Available' : 'Active';
+        const newBookedBy = !isOccupied ? `Admin Action - ${loggedInUser?.firstName}` : null;
 
         try {
             await updateDoc(doc(db, "slots", `${slotDate}_${slotTime}`), {
@@ -509,7 +526,20 @@ export const AdminPanel = ({
                         </div>
 
                         <div className="space-y-4">
-                            <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
+                            <div className="flex justify-between items-end">
+                                <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
+                                <div className="space-x-2">
+                                    {(['All', 'Active', 'Available', 'Completed'] as const).map(f => (
+                                        <button
+                                            key={f}
+                                            onClick={() => setStatusFilter(f)}
+                                            className={`px-3 py-1 rounded-full text-xs font-bold transition ${statusFilter === f ? 'bg-[#CE8E94] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                                        >
+                                            {f}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                             <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_3fr_1.5fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
                                 <div className="col-span-1">Date</div>
                                 <div className="col-span-1">Time</div>
@@ -518,7 +548,7 @@ export const AdminPanel = ({
                                 <div className="col-span-1 text-right">Actions</div>
                             </div>
                             <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
-                                {slots.map((slot, idx) => (
+                                {filteredSlots.map((slot, idx) => (
                                     <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[1.5fr_0.8fr_1fr_3fr_1.5fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 sm:gap-4">
                                         <div className="col-span-1 w-full sm:w-auto">
                                             <span className="text-sm font-semibold text-gray-800 block sm:hidden">Date:</span>
@@ -530,8 +560,8 @@ export const AdminPanel = ({
                                         </div>
                                         <div className="col-span-1 w-full sm:w-auto flex justify-center">
                                             <span className="text-sm font-semibold text-gray-800 block sm:hidden mr-2">Status:</span>
-                                            <span className={`text-sm font-bold px-3 py-1 rounded-full min-w-24 text-center ${slot.status === 'Booked' ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-600'}`}>
-                                                {slot.status}
+                                            <span className={`text-sm font-bold px-3 py-1 rounded-full min-w-24 text-center ${slot.status === 'Booked' || slot.status === 'Active' ? 'bg-red-100 text-red-500' : slot.status === 'Completed' ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
+                                                {slot.status === 'Booked' ? 'Active' : slot.status}
                                             </span>
                                         </div>
                                         <div className="col-span-1 w-full sm:w-auto">
@@ -540,13 +570,13 @@ export const AdminPanel = ({
                                         </div>
                                         <div className="col-span-1 w-full sm:w-auto flex items-center justify-end gap-4 mt-2 sm:mt-0">
                                             <div className="flex items-center gap-2">
-                                                <span className={`text-xs font-bold ${slot.status === 'Booked' ? 'text-gray-400' : 'text-green-600'}`}>
-                                                    {slot.status === 'Booked' ? 'Blocked' : 'Active'}
+                                                <span className={`text-xs font-bold ${slot.status === 'Booked' || slot.status === 'Active' ? 'text-gray-400' : slot.status === 'Completed' ? 'text-gray-400' : 'text-green-600'}`}>
+                                                    {slot.status === 'Available' ? 'Active' : 'Blocked'}
                                                 </span>
                                                 <Switch
                                                     checked={slot.status === 'Available'}
                                                     onCheckedChange={() => handleToggleSlotStatus(slot.date, slot.time)}
-                                                    disabled={slot.status === 'Booked' && slot.bookedBy !== `Admin Action - ${loggedInUser?.firstName}`}
+                                                    disabled={(slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed') && slot.bookedBy !== `Admin Action - ${loggedInUser?.firstName}`}
                                                 />
                                             </div>
                                             <button

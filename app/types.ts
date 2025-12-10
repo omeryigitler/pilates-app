@@ -1,7 +1,7 @@
 export type Slot = {
     date: string; // YYYY-MM-DD format
     time: string;
-    status: 'Available' | 'Booked';
+    status: 'Available' | 'Booked' | 'Active' | 'Completed';
     bookedBy: string | null;
 }
 

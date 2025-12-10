@@ -10,6 +10,53 @@ import {
     getDoc
 } from "firebase/firestore";
 import { Slot, UserType } from "../types";
+import { convertTime12to24 } from "../utils/helpers";
+
+// --- X. GEÇMİŞ REZERVASYONLARI GÜNCELLEME ---
+export const updateExpiredSlots = async (slots: Slot[]) => {
+    const now = new Date();
+
+    // Geçmiş "Booked" veya "Active" olanları bul
+    const expiredSlots = slots.filter(slot => {
+        if (slot.status !== 'Booked' && slot.status !== 'Active') return false;
+
+        // Tarih ve saat kontrolü
+        // Slot.date: YYYY-MM-DD
+        // Slot.time: HH:MM AM/PM
+        // Basit kıyaslama için ISO string oluşturmaya çalışalım
+        // Ancak time formatı tutarsız olabilir, o yüzden helper kullanmak lazım veya basit split
+
+        // Slot zamanını Date objesine çevir
+        let time24 = slot.time;
+        if (slot.time.includes('AM') || slot.time.includes('PM')) {
+            time24 = convertTime12to24(slot.time);
+        }
+
+        const slotDateObj = new Date(`${slot.date}T${time24}:00`);
+
+        // Eğer slot zamanı şu andan eskiyse
+        return slotDateObj < now;
+    });
+
+    if (expiredSlots.length === 0) return;
+
+    console.log(`${expiredSlots.length} geçmiş booking 'Completed' statüsüne çekiliyor...`);
+
+    // Hepsini güncelle (Batch kullanılabilir ama şimdilik Promise.all basit)
+    // Transaction gerekmez çünkü bu sadece durum güncellemesi, race condition riski düşük.
+    // Ancak kullanıcı iptal etmeye çalışırsa çakışma olabilir, ama geçmiş tarih olduğu için iptal edilemez zaten.
+    const promises = expiredSlots.map(slot => {
+        const slotRef = doc(db, "slots", `${slot.date}_${slot.time}`);
+        return updateDoc(slotRef, { status: 'Completed' });
+    });
+
+    try {
+        await Promise.all(promises);
+        console.log("Geçmiş bookingler güncellendi.");
+    } catch (e) {
+        console.error("Geçmiş bookingleri güncelleme hatası:", e);
+    }
+};
 
 // --- 1. DERSLERİ CANLI TAKİP ETME (REAL-TIME SYNC) ---
 export const listenToSlots = (callback: (slots: Slot[]) => void) => {
@@ -57,13 +104,13 @@ export const bookSlotTransaction = async (slotDate: string, slotTime: string, us
             const slotData = slotDoc.data() as Slot;
 
             // Kontrol: Yer dolu mu?
-            if (slotData.status === 'Booked') {
-                throw "Bu ders az önce başkası tarafından alındı!";
+            if (slotData.status === 'Booked' || slotData.status === 'Active' || slotData.status === 'Completed') {
+                throw "Bu ders az önce başkası tarafından alındı veya doldu!";
             }
 
             // İşlem: Durumu güncelle ve kullanıcıyı yaz
             transaction.update(slotRef, {
-                status: 'Booked',
+                status: 'Active', // Yeni status: Active
                 bookedBy: userName
             });
         });
