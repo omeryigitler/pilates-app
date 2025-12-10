@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -64,9 +64,36 @@ export const AdminPanel = ({
     const [editingSlot, setEditingSlot] = useState<Slot | null>(null);
     const [editFormData, setEditFormData] = useState({ date: '', time: '' });
 
+    // NEW state for Assigning Slot
+    const [assigningSlot, setAssigningSlot] = useState<Slot | null>(null);
+    const [selectedUserEmailToAssign, setSelectedUserEmailToAssign] = useState('');
+
     const standardInputClass = "w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700 shadow-sm";
 
     // --- HANDLERS ---
+    const handleAssignSlot = async () => {
+        if (!assigningSlot || !selectedUserEmailToAssign) return;
+
+        const userToAssign = users.find(u => u.email === selectedUserEmailToAssign);
+        if (!userToAssign) return;
+
+        const fullName = `${userToAssign.firstName} ${userToAssign.lastName}`;
+        const slotId = `${assigningSlot.date}-${assigningSlot.time}`;
+
+        try {
+            await setDoc(doc(db, 'slots', slotId), {
+                ...assigningSlot,
+                status: 'Booked',
+                bookedBy: fullName
+            });
+            showNotification(`Slot assigned to ${fullName} successfully!`, 'success');
+            setAssigningSlot(null);
+            setSelectedUserEmailToAssign('');
+        } catch (error) {
+            console.error(error);
+            showNotification('Failed to assign slot.', 'error');
+        }
+    };
     const handleUpload = (field: string, file: File) => {
         if (!file) return;
         if (file.size > 800 * 1024) {
@@ -584,6 +611,15 @@ export const AdminPanel = ({
                                             </div>
                                             <div className="h-4 w-px bg-gray-300"></div>
                                             <div className="flex items-center gap-2">
+                                                {slot.status === 'Available' && (
+                                                    <button
+                                                        onClick={() => setAssigningSlot(slot)}
+                                                        className="p-2 text-gray-400 hover:text-green-600 transition-colors rounded-full hover:bg-green-50"
+                                                        title="Assign to Member"
+                                                    >
+                                                        <UserPlus className="w-5 h-5" />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => openEditSlotModal(slot)}
                                                     className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded-full hover:bg-blue-50"
@@ -691,6 +727,52 @@ export const AdminPanel = ({
                                     className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md"
                                 >
                                     Save Changes
+                                </Button>
+                            </div>
+                        </div>
+                    </Modal>
+                )}
+
+                {/* Assign Slot Modal */}
+                {assigningSlot && (
+                    <Modal onClose={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}>
+                        <div className="space-y-6">
+                            <div className="text-center">
+                                <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Assign Slot</h2>
+                                <p className="text-gray-500">
+                                    Assign <strong>{formatDateDisplay(assigningSlot.date)}</strong> at <strong>{assigningSlot.time}</strong> to a member.
+                                </p>
+                            </div>
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-600 mb-1">Select Member</label>
+                                    <select
+                                        value={selectedUserEmailToAssign}
+                                        onChange={(e) => setSelectedUserEmailToAssign(e.target.value)}
+                                        className={standardInputClass}
+                                    >
+                                        <option value="">-- Choose a Member --</option>
+                                        {users.filter(u => u.role !== 'admin').map((user) => (
+                                            <option key={user.email} value={user.email}>
+                                                {user.firstName} {user.lastName} ({user.email})
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex gap-3 pt-2">
+                                <Button
+                                    onClick={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}
+                                    className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleAssignSlot}
+                                    disabled={!selectedUserEmailToAssign}
+                                    className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Assign Member
                                 </Button>
                             </div>
                         </div>
