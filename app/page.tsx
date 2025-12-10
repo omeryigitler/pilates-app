@@ -479,19 +479,19 @@ function PilatesMaltaByGozde() {
                         {managementState.socialLinks.facebook && (
                             <a href={managementState.socialLinks.facebook} className="flex items-center space-x-3 text-gray-600 font-medium hover:text-[#CE8E94] transition group bg-white/50 px-4 py-3 rounded-full shadow-sm hover:shadow-md">
                                 <Facebook className="w-5 h-5 text-[#CE8E94]" />
-                                <span className="hidden sm:inline">Facebook</span>
+                                <span className="hidden lg:inline">Facebook</span>
                             </a>
                         )}
                         {managementState.socialLinks.instagram && (
                             <a href={managementState.socialLinks.instagram} className="flex items-center space-x-3 text-gray-600 font-medium hover:text-[#CE8E94] transition group bg-white/50 px-4 py-3 rounded-full shadow-sm hover:shadow-md">
                                 <Instagram className="w-5 h-5 text-[#CE8E94]" />
-                                <span className="hidden sm:inline">Instagram</span>
+                                <span className="hidden lg:inline">Instagram</span>
                             </a>
                         )}
                         {managementState.socialLinks.x && (
                             <a href={managementState.socialLinks.x} className="flex items-center space-x-3 text-gray-600 font-medium hover:text-[#CE8E94] transition group bg-white/50 px-4 py-3 rounded-full shadow-sm hover:shadow-md">
                                 <Twitter className="w-5 h-5 text-[#CE8E94]" />
-                                <span className="hidden sm:inline">X</span>
+                                <span className="hidden lg:inline">X</span>
                             </a>
                         )}
                     </div>
