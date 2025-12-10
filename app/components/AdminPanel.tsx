@@ -348,7 +348,8 @@ export const AdminPanel = ({
         const isCollision = slots.some(s =>
             s.date === editFormData.date &&
             s.time.toLowerCase() === editFormData.time.trim().toLowerCase() &&
-            !(s.date === editingSlot.date && s.time === editingSlot.time)
+            !(s.date === editingSlot.date && s.time === editingSlot.time) &&
+            (s.status === 'Booked' || s.status === 'Active' || s.status === 'Completed')
         );
 
         if (isCollision) {
