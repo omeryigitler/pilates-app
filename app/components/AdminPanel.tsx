@@ -122,6 +122,8 @@ export const AdminPanel = ({
 
     const standardInputClass = "w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700 shadow-sm";
 
+    const [historyViewer, setHistoryViewer] = useState<{ type: 'Total' | 'Active' | 'Done', user: UserType } | null>(null);
+
     // --- HANDLERS ---
     // Unified Booking Logic
     const performBooking = async (slot: Slot, user: UserType) => {
@@ -487,7 +489,7 @@ export const AdminPanel = ({
     const rootClasses = "pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]";
     return (
         <div className={rootClasses}>
-            <div className="w-full max-w-6xl px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
+            <div className="w-full max-w-[90rem] px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
                 {/* ... header ... */}
 
                 {/* Added reset button near header for easy access during debug */}
@@ -929,7 +931,7 @@ export const AdminPanel = ({
                                     placeholder="Search by name or email..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 shadow-sm"
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 text-gray-900 placeholder:text-gray-400 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 shadow-sm"
                                 />
                                 <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             </div>
@@ -952,7 +954,7 @@ export const AdminPanel = ({
                                         <div key={idx} className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
                                             <div className="col-span-12 md:col-span-4 lg:col-span-4 flex items-center gap-4 min-w-0">
-                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
+                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-600 to-indigo-600' : 'from-[#CE8E94] to-pink-500'} shadow-md`}>
                                                     {user.firstName[0]}{user.lastName[0]}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
@@ -1091,7 +1093,11 @@ export const AdminPanel = ({
 
                             {/* 1. Header & Profile (Clean Centered) */}
                             <div className="flex flex-col items-center justify-center text-center pb-4">
-                                <h2 className="text-3xl font-bold text-gray-900 font-sans tracking-tight mb-2">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <h2 className="text-4xl font-serif font-bold text-gray-900 tracking-tight mb-1">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <div className="text-sm text-gray-500 font-medium mb-3 flex flex-col gap-0.5">
+                                    <span>{selectedMember?.email}</span>
+                                    <span>{selectedMember?.phone}</span>
+                                </div>
                                 <div className="flex flex-wrap justify-center gap-2">
                                     {selectedMember?.role === 'admin' && (
                                         <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
@@ -1105,20 +1111,29 @@ export const AdminPanel = ({
                                 </div>
                             </div>
 
-                            {/* 2. Stats Row */}
+                            {/* 2. Stats Row (Interactive) */}
                             <div className="flex justify-center items-center divide-x divide-gray-100 py-4 border-y border-gray-100">
-                                <div className="px-6 text-center">
-                                    <div className="text-2xl font-bold text-gray-900">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
-                                </div>
-                                <div className="px-6 text-center">
-                                    <div className="text-2xl font-bold text-black">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
-                                </div>
-                                <div className="px-6 text-center">
-                                    <div className="text-2xl font-bold text-gray-400">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
-                                </div>
+                                <button
+                                    onClick={() => setHistoryViewer({ type: 'Total', user: selectedMember! })}
+                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                >
+                                    <div className="text-3xl font-bold text-gray-900 group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
+                                </button>
+                                <button
+                                    onClick={() => setHistoryViewer({ type: 'Active', user: selectedMember! })}
+                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                >
+                                    <div className="text-3xl font-bold text-black group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
+                                </button>
+                                <button
+                                    onClick={() => setHistoryViewer({ type: 'Done', user: selectedMember! })}
+                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                >
+                                    <div className="text-3xl font-bold text-gray-400 group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
+                                </button>
                             </div>
 
                             {/* 3. Action Cards Grid */}
@@ -1356,6 +1371,51 @@ export const AdminPanel = ({
                         </div>
                     )
                 }
+                {/* History Modal */}
+                {historyViewer && (
+                    <Modal onClose={() => setHistoryViewer(null)}>
+                        <div className="space-y-4">
+                            <div className="text-center border-b border-gray-100 pb-4">
+                                <h2 className="text-2xl font-bold text-gray-900">{historyViewer.type} Bookings</h2>
+                                <p className="text-sm text-gray-500">History for {historyViewer.user.firstName}</p>
+                            </div>
+                            <div className="max-h-[60vh] overflow-y-auto pr-2 hide-scrollbar space-y-2">
+                                {getMemberStats(historyViewer.user.email).history
+                                    .filter(s => {
+                                        if (historyViewer.type === 'Total') return true;
+                                        if (historyViewer.type === 'Active') return s.status === 'Booked' || s.status === 'Active';
+                                        if (historyViewer.type === 'Done') return s.status === 'Completed';
+                                        return true;
+                                    })
+                                    .map((slot, i) => (
+                                        <div key={i} className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-gray-900">{new Date(slot.date).toLocaleDateString()}</span>
+                                                <span className="text-xs text-gray-500 font-bold uppercase">{slot.status}</span>
+                                            </div>
+                                            <div className="text-lg font-mono font-bold text-[#CE8E94]">
+                                                {slot.time}
+                                            </div>
+                                        </div>
+                                    ))}
+                                {getMemberStats(historyViewer.user.email).history.filter(s => {
+                                    if (historyViewer.type === 'Total') return true;
+                                    if (historyViewer.type === 'Active') return s.status === 'Booked' || s.status === 'Active';
+                                    if (historyViewer.type === 'Done') return s.status === 'Completed';
+                                    return true;
+                                }).length === 0 && (
+                                        <div className="text-center py-8 text-gray-400">No {historyViewer.type.toLowerCase()} bookings found.</div>
+                                    )}
+                            </div>
+                            <Button
+                                onClick={() => setHistoryViewer(null)}
+                                className="w-full py-4 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-xl font-bold"
+                            >
+                                Close
+                            </Button>
+                        </div>
+                    </Modal>
+                )}
             </div>
         </div >
     );
