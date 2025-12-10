@@ -309,6 +309,13 @@ function PilatesMaltaByGozde() {
             return;
         }
 
+        // DOUBLE CHECK: Is the slot actually available? (Prevent race condition with Admin)
+        const targetSlot = slots.find(s => s.date === slotDate && s.time === slotTime);
+        if (targetSlot && (targetSlot.status === 'Booked' || targetSlot.status === 'Active')) {
+            showNotification('Sorry, this slot was just booked by someone else (or Admin). Please choose another.', 'error');
+            return;
+        }
+
         try {
             // Use Transaction Service
             await bookSlotTransaction(slotDate, slotTime, loggedInUser);
