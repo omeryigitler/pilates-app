@@ -1106,14 +1106,14 @@ export const AdminPanel = ({
                 {/* Member Details CRM Modal */}
                 {selectedMember && (
                     <Modal onClose={() => setSelectedMember(null)}>
-                        <div className="space-y-8 pr-1">
+                        <div className="space-y-4 md:space-y-5 pr-1">
 
                             {/* 1. Header & Profile (Clean Centered) */}
                             <div className="flex flex-col items-center justify-center text-center pb-2">
-                                <h2 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} <br className="md:hidden" /> {selectedMember?.lastName}</h2>
+                                <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase mb-2 md:mb-4 font-sans leading-none">{selectedMember?.firstName} <br className="md:hidden" /> {selectedMember?.lastName}</h2>
 
                                 {/* Badge Row */}
-                                <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
+                                <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-4 md:mb-6">
                                     {selectedMember?.role === 'admin' && (
                                         <span className="text-xs font-bold px-3 py-1 md:px-5 md:py-2 rounded-full bg-black text-white tracking-widest uppercase shadow-sm">ADMIN</span>
                                     )}
@@ -1127,11 +1127,11 @@ export const AdminPanel = ({
 
                                 {/* Symmetrical Contact Info Grid (Compact Mobile & Desktop) */}
                                 <div className="grid grid-cols-2 gap-2 md:gap-3 w-full px-1 md:px-2">
-                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-2 md:p-3 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
                                         <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Email</span>
                                         <span className="text-xs md:text-sm font-bold text-gray-900 break-all font-sans line-clamp-1">{selectedMember?.email}</span>
                                     </div>
-                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-2 md:p-3 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
                                         <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Phone</span>
                                         <span className="text-xs md:text-sm font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
                                     </div>
@@ -1141,27 +1141,29 @@ export const AdminPanel = ({
                             <div className="w-full h-px bg-gray-100"></div>
 
                             {/* 2. Stats Row (Interactive & Large) */}
-                            <div className="flex justify-around items-center py-2">
+                            <div className="flex justify-around items-center py-0">
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Total', user: selectedMember! })}
-                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-2 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-5xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Total</div>
+                                    <div className="text-4xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-[10px] font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-1 group-hover:opacity-100">Total</div>
                                 </button>
+                                <div className="w-px h-12 bg-gray-100"></div>
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Active', user: selectedMember! })}
-                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-2 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-5xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Active</div>
+                                    <div className="text-4xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-[10px] font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-1 group-hover:opacity-100">Active</div>
                                 </button>
+                                <div className="w-px h-12 bg-gray-100"></div>
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Done', user: selectedMember! })}
-                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-2 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-5xl font-black text-gray-300 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Done</div>
+                                    <div className="text-4xl font-black text-gray-300 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-[10px] font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-1 group-hover:opacity-100">Done</div>
                                 </button>
                             </div>
 
