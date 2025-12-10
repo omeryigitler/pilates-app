@@ -11,11 +11,15 @@ interface UserPanelProps {
     existingUsers: UserType[];
     addUser: (user: UserType) => Promise<void>;
     onLogin: (user: UserType) => void;
+    activePanel: string | null;
+    setActivePanel: (panel: string | null) => void;
 }
 
-export const UserPanel = ({ existingUsers, addUser, onLogin }: UserPanelProps) => {
+export const UserPanel = ({ existingUsers, addUser, onLogin, activePanel, setActivePanel }: UserPanelProps) => {
     const { showNotification } = useNotification();
-    const [activeUserPanel, setActiveUserPanel] = useState<string | null>(null);
+    // activePanel state is now managed by parent
+    const setActiveUserPanel = setActivePanel; // Alias for minimal code change below, or just replace usages.
+    const activeUserPanel = activePanel;
     const [userForm, setUserForm] = useState({ firstName: '', lastName: '', phone: '', email: '', password: '', confirmPassword: '' });
     const [loginForm, setLoginForm] = useState({ email: '', password: '' });
     const [forgotEmail, setForgotEmail] = useState('');

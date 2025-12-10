@@ -99,6 +99,7 @@ function PilatesMaltaByGozde() {
     const [isClient, setIsClient] = useState(false);
 
     const [loggedInUser, setLoggedInUser] = useState<UserType | null>(null);
+    const [authModal, setAuthModal] = useState<string | null>(null); // Lifted state for UserPanel
 
     const [managementState, setManagementState] = useState(initialData);
     const [users, setUsers] = useState<UserType[]>([]);
@@ -396,7 +397,13 @@ function PilatesMaltaByGozde() {
                                 </Button>
                             </div>
                         ) : (
-                            <UserPanel existingUsers={users} addUser={addUser} onLogin={handleSetLoggedInUser} />
+                            <UserPanel
+                                existingUsers={users}
+                                addUser={addUser}
+                                onLogin={handleSetLoggedInUser}
+                                activePanel={authModal}
+                                setActivePanel={setAuthModal}
+                            />
                         )}
                     </div>
                 </div>
@@ -455,7 +462,18 @@ function PilatesMaltaByGozde() {
                 <div className="mt-24">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         {managementState.campaigns.map((camp, idx) => (
-                            <Card key={idx} className="rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white border border-gray-100 overflow-hidden group h-full">
+                            <Card
+                                key={idx}
+                                className="rounded-3xl shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 bg-white border border-gray-100 overflow-hidden group h-full cursor-pointer relative"
+                                onClick={() => {
+                                    if (!loggedInUser) {
+                                        setAuthModal('register');
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    } else if (loggedInUser.role === 'user') {
+                                        setCurrentView('user-dashboard');
+                                    }
+                                }}
+                            >
                                 <CardContent className="p-10 flex flex-col h-full justify-between">
                                     <div>
                                         <div className="flex justify-between items-start mb-6">
@@ -467,6 +485,12 @@ function PilatesMaltaByGozde() {
                                         {camp.image && <img src={camp.image} alt={camp.title} className="w-full h-56 object-cover rounded-2xl mb-6 shadow-md" />}
                                         <p className="text-gray-600 text-xl leading-relaxed">{camp.description}</p>
                                     </div>
+                                    {!loggedInUser && (
+                                        <div className="mt-6 flex items-center text-[#CE8E94] font-bold group-hover:translate-x-2 transition-transform">
+                                            <span>Register to Claim</span>
+                                            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                                        </div>
+                                    )}
                                 </CardContent>
                             </Card>
                         ))}
