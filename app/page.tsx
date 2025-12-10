@@ -23,6 +23,8 @@ import {
     Info,
     AlertCircle,
     Calendar,
+    Tag,
+    Sparkles,
 } from "lucide-react";
 import { db, auth } from "./firebase";
 import {
@@ -459,7 +461,7 @@ function PilatesMaltaByGozde() {
                                         <div className="flex justify-between items-start mb-6">
                                             <h2 className="text-3xl font-bold text-[#CE8E94] group-hover:text-[#B57A80] transition-colors">{camp.title}</h2>
                                             <div className="bg-[#FFF0E5] p-3 rounded-full text-[#CE8E94] group-hover:bg-[#CE8E94] group-hover:text-white transition-colors">
-                                                <Calendar className="w-8 h-8" />
+                                                {idx === 0 ? <Tag className="w-8 h-8" /> : <Sparkles className="w-8 h-8" />}
                                             </div>
                                         </div>
                                         {camp.image && <img src={camp.image} alt={camp.title} className="w-full h-56 object-cover rounded-2xl mb-6 shadow-md" />}
