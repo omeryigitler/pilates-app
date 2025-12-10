@@ -1108,15 +1108,15 @@ export const AdminPanel = ({
                                     )}
                                 </div>
 
-                                {/* Symmetrical Contact Info Grid (Like Reference) */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-                                    <div className="bg-white border-2 border-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
-                                        <span className="text-xs font-bold text-[#CE8E94] uppercase tracking-widest mb-1">Email</span>
-                                        <span className="text-lg font-bold text-gray-900 break-all font-sans">{selectedMember?.email}</span>
+                                {/* Symmetrical Contact Info Grid (Compact) */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full px-2">
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                        <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Email</span>
+                                        <span className="text-sm font-bold text-gray-900 break-all font-sans">{selectedMember?.email}</span>
                                     </div>
-                                    <div className="bg-white border-2 border-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
-                                        <span className="text-xs font-bold text-[#CE8E94] uppercase tracking-widest mb-1">Phone</span>
-                                        <span className="text-lg font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                        <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Phone</span>
+                                        <span className="text-sm font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -1148,73 +1148,64 @@ export const AdminPanel = ({
                                 </button>
                             </div>
 
-                            {/* 3. Action Cards Grid */}
-                            <div className="grid grid-cols-2 gap-4">
-                                {/* Book Action (Primary) */}
+                            {/* 3. Compact Action Grid */}
+                            <div className="grid grid-cols-4 gap-3 px-2">
+                                {/* Book Action (Primary - Wide) */}
                                 <div
                                     onClick={() => {
                                         setBookingForMember(selectedMember);
                                         setSelectedMember(null);
                                     }}
-                                    className="col-span-2 bg-white p-6 rounded-3xl border-2 border-[#CE8E94]/20 ring-4 ring-[#CE8E94]/5 hover:ring-[#CE8E94]/10 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 group shadow-sm hover:shadow-md"
+                                    className="col-span-4 bg-[#CE8E94] text-white p-4 rounded-2xl shadow-lg shadow-[#CE8E94]/20 cursor-pointer flex items-center justify-center gap-3 hover:bg-[#b07278] hover:scale-[1.02] active:scale-[0.98] transition-all"
                                 >
-                                    <div className="w-14 h-14 rounded-full bg-[#CE8E94] flex items-center justify-center text-white shadow-lg shadow-[#CE8E94]/30 group-hover:scale-110 transition-transform">
-                                        <CalendarPlus className="w-6 h-6" />
-                                    </div>
-                                    <div className="text-center">
-                                        <div className="font-bold text-[#CE8E94] text-lg">Book Class</div>
-                                        <div className="text-xs text-[#CE8E94]/60 font-medium">Schedule a new session</div>
+                                    <CalendarPlus className="w-6 h-6" />
+                                    <div>
+                                        <div className="font-bold text-lg">Book Class</div>
                                     </div>
                                 </div>
 
-                                {/* WhatsApp Action */}
+                                {/* WhatsApp (Icon Button) */}
                                 {selectedMember?.phone ? (
                                     <div
                                         onClick={() => handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
-                                        className="bg-white p-5 rounded-3xl border border-gray-100 hover:border-green-200 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group hover:shadow-lg hover:shadow-green-50"
+                                        className="col-span-2 bg-green-50 text-green-700 p-3 rounded-xl border border-green-100 hover:bg-green-100 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
                                     >
-                                        <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors">
-                                            <MessageSquareText className="w-5 h-5" />
-                                        </div>
-                                        <div className="font-bold text-gray-600 text-sm group-hover:text-green-600">WhatsApp</div>
+                                        <MessageSquareText className="w-5 h-5" />
+                                        <span className="text-xs font-bold">WhatsApp</span>
                                     </div>
                                 ) : (
-                                    <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-2 opacity-50 cursor-not-allowed">
-                                        <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center">
-                                            <MessageSquareText className="w-5 h-5" />
-                                        </div>
-                                        <div className="font-bold text-gray-400 text-sm">No Phone</div>
+                                    <div className="col-span-2 bg-gray-50 text-gray-300 p-3 rounded-xl border border-gray-100 flex flex-col items-center justify-center gap-1 cursor-not-allowed">
+                                        <MessageSquareText className="w-5 h-5" />
+                                        <span className="text-xs font-bold">No Phone</span>
                                     </div>
                                 )}
 
-                                {/* Email Action */}
+                                {/* Email (Icon Button) */}
                                 <div
                                     onClick={() => handleSendEmail(selectedMember?.email || '')}
-                                    className="bg-white p-5 rounded-3xl border border-gray-100 hover:border-blue-200 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group hover:shadow-lg hover:shadow-blue-50"
+                                    className="col-span-2 bg-blue-50 text-blue-700 p-3 rounded-xl border border-blue-100 hover:bg-blue-100 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
                                 >
-                                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                        <Mail className="w-5 h-5" />
-                                    </div>
-                                    <div className="font-bold text-gray-600 text-sm group-hover:text-blue-600">Email</div>
+                                    <Mail className="w-5 h-5" />
+                                    <span className="text-xs font-bold">Email</span>
                                 </div>
                             </div>
 
-                            {/* Admin Notes CRM */}
-                            <div className="bg-yellow-50/50 p-4 rounded-2xl border border-yellow-100/50">
-                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <FileText className="w-3 h-3" /> Private Notes
-                                </label>
+                            {/* Admin Notes CRM (Condensed) */}
+                            <div className="mx-2 bg-yellow-50/50 p-3 rounded-xl border border-yellow-100/50">
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                                        <FileText className="w-3 h-3" /> Notes
+                                    </label>
+                                    <button onClick={handleUpdateAdminNotes} className="text-[10px] font-bold text-[#CE8E94] hover:text-[#b07278]">
+                                        Save
+                                    </button>
+                                </div>
                                 <textarea
                                     value={memberNotes}
                                     onChange={(e) => setMemberNotes(e.target.value)}
-                                    placeholder="Add private notes..."
-                                    className="w-full bg-transparent border-0 focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 min-h-[60px] resize-none"
+                                    placeholder="Private admin notes..."
+                                    className="w-full bg-transparent border-0 focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] resize-none leading-tight"
                                 />
-                                <div className="flex justify-end mt-2">
-                                    <button onClick={handleUpdateAdminNotes} className="text-xs font-bold text-[#CE8E94] hover:text-[#b07278]">
-                                        Save Note
-                                    </button>
-                                </div>
                             </div>
 
                             {/* Delete Action (Subtle) */}
