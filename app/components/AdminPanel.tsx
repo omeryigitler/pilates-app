@@ -958,14 +958,14 @@ export const AdminPanel = ({
                                             {/* Actions */}
                                             <div className="col-span-8 sm:col-span-5 md:col-span-5 flex items-center justify-end gap-2">
                                                 <Button
-                                                    className="hidden sm:flex hover:bg-green-50 hover:text-green-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
+                                                    className="hidden sm:flex hover:bg-green-50 text-gray-400 hover:text-green-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
                                                     onClick={() => handleSendWhatsApp(user.phone, user.firstName)}
                                                     title="WhatsApp"
                                                 >
                                                     <MessageCircle className="w-4 h-4" />
                                                 </Button>
                                                 <Button
-                                                    className="hidden sm:flex hover:bg-blue-50 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
+                                                    className="hidden sm:flex hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
                                                     onClick={() => handleSendEmail(user.email)}
                                                     title="Email"
                                                 >
