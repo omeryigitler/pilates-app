@@ -285,7 +285,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             {/* Header & Download Button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex gap-2 w-full sm:w-auto items-stretch">
                     <div className="relative flex-1">
                         <select
                             value={reportFilter}
