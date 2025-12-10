@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageCircle } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -112,6 +112,11 @@ export const AdminPanel = ({
     // NEW state for Assigning Slot
     const [assigningSlot, setAssigningSlot] = useState<Slot | null>(null);
     const [selectedUserEmailToAssign, setSelectedUserEmailToAssign] = useState('');
+
+    // NEW CRM States
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedMember, setSelectedMember] = useState<UserType | null>(null);
+    const [memberNotes, setMemberNotes] = useState('');
 
     const standardInputClass = "w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700 shadow-sm";
 
@@ -245,6 +250,81 @@ export const AdminPanel = ({
             `Confirm User Deletion`
         );
     };
+
+    // CRM HANDLERS
+    const handleUpdateAdminNotes = async () => {
+        if (!selectedMember) return;
+        try {
+            await updateDoc(doc(db, 'users', selectedMember.email), {
+                adminNotes: memberNotes
+            });
+            // Update local state to reflect change immediately without reload if needed, 
+            // though listener might handle it. For now, manual update ensures UI feels snappy.
+            // Actually, since we are using 'users' prop which comes from a listener in parent, 
+            // it WILL update automatically. We just need to wait.
+            showNotification('Notes saved successfully!', 'success');
+        } catch (error) {
+            console.error(error);
+            showNotification('Error saving notes', 'error');
+        }
+    };
+
+    const handleSendWhatsApp = (phone: string, firstName: string) => {
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        if (!cleanPhone) {
+            showNotification('Invalid phone number', 'error');
+            return;
+        }
+        const message = `Hi ${firstName}, regarding your Pilates sessions...`;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
+    };
+
+    const handleSendEmail = (email: string) => {
+        window.open(`mailto:${email}`, '_blank');
+    };
+
+    // CRM HELPERS
+    const getMemberStats = (email: string) => {
+        const userSlots = slots.filter(s => s.bookedBy && s.bookedBy.includes(users.find(u => u.email === email)?.firstName || ''));
+        // A more robust check might be needed if names are not unique, but ID logic isn't fully there yet for 'bookedBy'.
+        // Current logic relies on string containing Name.
+        // Let's improve: The 'bookedBy' field stores "First Last" or "First Last (Admin)".
+        // We should find user by email, get their full name, and match.
+        const user = users.find(u => u.email === email);
+        if (!user) return { total: 0, active: 0, completed: 0 };
+
+        const fullName = `${user.firstName} ${user.lastName}`;
+        const mySlots = slots.filter(s => s.bookedBy && s.bookedBy.includes(fullName));
+
+        return {
+            total: mySlots.length,
+            active: mySlots.filter(s => s.status === 'Booked' || s.status === 'Active').length,
+            completed: mySlots.filter(s => s.status === 'Completed').length,
+            history: mySlots.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Newest first
+        };
+    };
+
+    const getMemberBadges = (user: UserType, stats: { total: number }) => {
+        const badges = [];
+        const regDate = new Date(user.registered);
+        const daysSinceReg = (new Date().getTime() - regDate.getTime()) / (1000 * 3600 * 24);
+
+        if (daysSinceReg < 7) badges.push({ label: 'New', color: 'bg-blue-100 text-blue-600' });
+        if (stats.total > 10) badges.push({ label: 'VIP', color: 'bg-yellow-100 text-yellow-700' });
+        if (stats.total === 0 && daysSinceReg > 30) badges.push({ label: 'Inactive', color: 'bg-gray-100 text-gray-500' });
+
+        return badges;
+    };
+
+    // Filter Users
+    const filteredUsers = users.filter(user => {
+        const search = searchTerm.toLowerCase();
+        return (
+            user.firstName.toLowerCase().includes(search) ||
+            user.lastName.toLowerCase().includes(search) ||
+            user.email.toLowerCase().includes(search)
+        );
+    });
 
     const handleToggleSlotStatus = async (slotDate: string, slotTime: string) => {
         const slot = slots.find(s => s.date === slotDate && s.time === slotTime);
@@ -817,45 +897,192 @@ export const AdminPanel = ({
                 )}
 
                 {activeTab === 'members' && (
-                    <div className="space-y-10 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
-                        <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3 border-b pb-2"><Users className="w-6 h-6 text-[#CE8E94]" /> Member Management</h3>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-6 text-sm font-bold uppercase text-gray-500 pb-2 border-b border-gray-200">
-                                <div className="col-span-2">Name / Email</div>
-                                <div className="col-span-1 hidden sm:block">Phone</div>
-                                <div className="col-span-1 hidden sm:block">Role</div>
-                                <div className="col-span-1 hidden md:block">Registered</div>
-                                <div className="col-span-1 text-right">Actions</div>
+                    <div className="space-y-6 p-6 md:p-8 rounded-[2rem] bg-white/50 border border-white/40">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-200/50 pb-6">
+                            <h3 className="text-2xl font-bold text-gray-800 flex items-center gap-3"><Users className="w-6 h-6 text-[#CE8E94]" /> Member Management</h3>
+                            <div className="relative w-full md:w-72">
+                                <input
+                                    type="text"
+                                    placeholder="Search by name or email..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 shadow-sm"
+                                />
+                                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                             </div>
-                            {users.map((user, idx) => (
-                                <div key={idx} className="grid grid-cols-6 items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
-                                    <div className="col-span-2 space-y-1">
-                                        <span className="font-bold text-gray-800">{user.firstName} {user.lastName}</span>
-                                        <span className="text-sm text-gray-500 block truncate">{user.email}</span>
-                                    </div>
-                                    <div className="col-span-1 hidden sm:block text-sm text-gray-600">{user.phone || '-'}</div>
-                                    <div className="col-span-1 hidden sm:block">
-                                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${user.role === 'admin' ? 'bg-indigo-100 text-indigo-600' : 'bg-green-100 text-green-600'}`}>
-                                            {user.role.toUpperCase()}
-                                        </span>
-                                    </div>
-                                    <div className="col-span-1 hidden md:block text-sm text-gray-500">{user.registered}</div>
-                                    <div className="col-span-1 text-right">
-                                        <Button
-                                            onClick={() => handleDeleteUser(user.email)}
-                                            className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition shadow-sm"
-                                            disabled={user.role === 'admin'}
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                </div>
-                            ))}
                         </div>
-                        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-700">
-                            Note: Admin users cannot be deleted from this panel.
+
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-12 text-xs font-bold uppercase text-gray-400 pb-2 px-4">
+                                <div className="col-span-4 md:col-span-3">User info</div>
+                                <div className="col-span-3 md:col-span-2 hidden sm:block">Status</div>
+                                <div className="col-span-2 hidden md:block text-center">Stats</div>
+                                <div className="col-span-5 md:col-span-5 text-right">Actions</div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {filteredUsers.map((user, idx) => {
+                                    const stats = getMemberStats(user.email);
+                                    const badges = getMemberBadges(user, stats);
+
+                                    return (
+                                        <div key={idx} className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 group">
+                                            {/* User Info */}
+                                            <div className="col-span-4 md:col-span-3 flex items-center gap-3 overflow-hidden">
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
+                                                    {user.firstName[0]}{user.lastName[0]}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-bold text-gray-800 truncate text-sm md:text-base">{user.firstName} {user.lastName}</h4>
+                                                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                                </div>
+                                            </div>
+
+                                            {/* Status / Badges */}
+                                            <div className="col-span-3 md:col-span-2 hidden sm:flex flex-wrap gap-2">
+                                                {user.role === 'admin' && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
+                                                {badges.map((b, i) => (
+                                                    <span key={i} className={`text-[10px] font-bold px-2 py-0.5 rounded border border-transparent ${b.color}`}>{b.label}</span>
+                                                ))}
+                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-gray-50 text-gray-400">Member</span>}
+                                            </div>
+
+                                            {/* Stats */}
+                                            <div className="col-span-2 hidden md:block text-center">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-sm font-bold text-gray-700">{stats.total}</span>
+                                                    <span className="text-[10px] text-gray-400 uppercase">Bookings</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Actions */}
+                                            <div className="col-span-8 sm:col-span-5 md:col-span-5 flex items-center justify-end gap-2">
+                                                <Button
+                                                    className="hidden sm:flex hover:bg-green-50 hover:text-green-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
+                                                    onClick={() => handleSendWhatsApp(user.phone, user.firstName)}
+                                                    title="WhatsApp"
+                                                >
+                                                    <MessageCircle className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    className="hidden sm:flex hover:bg-blue-50 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
+                                                    onClick={() => handleSendEmail(user.email)}
+                                                    title="Email"
+                                                >
+                                                    <Mail className="w-4 h-4" />
+                                                </Button>
+                                                <Button
+                                                    onClick={() => {
+                                                        setSelectedMember(user);
+                                                        setMemberNotes(user.adminNotes || '');
+                                                    }}
+                                                    className="bg-gray-800 hover:bg-gray-900 text-white text-xs px-3 py-1.5 h-auto rounded-lg shadow-sm"
+                                                >
+                                                    Details
+                                                </Button>
+                                                <Button
+                                                    onClick={() => handleDeleteUser(user.email)}
+                                                    className={`hover:bg-red-50 text-red-500 hover:text-red-600 h-8 w-8 p-0 rounded-full bg-transparent shadow-none ${user.role === 'admin' ? 'opacity-20 pointer-events-none' : ''}`}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )
+                                })}
+
+                                {filteredUsers.length === 0 && (
+                                    <div className="text-center py-12 text-gray-400">
+                                        No members found matching "{searchTerm}"
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
+                )}
+
+                {/* Member Details CRM Modal */}
+                {selectedMember && (
+                    <Modal onClose={() => setSelectedMember(null)}>
+                        <div className="space-y-6 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {/* Header Profile */}
+                            <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
+                                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-lg`}>
+                                    {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
+                                    <p className="text-gray-500 flex items-center gap-2 text-sm"><Mail className="w-3 h-3" /> {selectedMember.email}</p>
+                                    {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><MessageCircle className="w-3 h-3" /> {selectedMember.phone}</p>}
+                                </div>
+                            </div>
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-3 gap-3">
+                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                                    <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember.email).total}</div>
+                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
+                                </div>
+                                <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
+                                    <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember.email).active}</div>
+                                    <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
+                                    <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember.email).completed}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
+                                </div>
+                            </div>
+
+                            {/* Admin Notes CRM */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
+                                </label>
+                                <textarea
+                                    value={memberNotes}
+                                    onChange={(e) => setMemberNotes(e.target.value)}
+                                    placeholder="Add private notes about this member (injuries, preferences, payments)..."
+                                    className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
+                                />
+                                <div className="flex justify-end">
+                                    <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
+                                        Save Note
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Booking History */}
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
+                                <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                                    {getMemberStats(selectedMember.email).history.length > 0 ? (
+                                        getMemberStats(selectedMember.email).history.map((slot, i) => (
+                                            <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="w-3 h-3 text-gray-400" />
+                                                    <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
+                                                    <span className="text-gray-500">{slot.time}</span>
+                                                </div>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
+                                                    slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                                    }`}>
+                                                    {slot.status}
+                                                </span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
+                                    Close Profile
+                                </Button>
+                            </div>
+                        </div>
+                    </Modal>
                 )}
 
                 {/* Edit Slot Modal */}

@@ -14,6 +14,7 @@ export type UserType = {
     phone: string;
     registered: string;
     uid?: string;
+    adminNotes?: string;
 }
 
 export type NotificationType = 'success' | 'error' | 'info';
