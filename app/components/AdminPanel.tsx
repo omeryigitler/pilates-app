@@ -540,7 +540,7 @@ export const AdminPanel = ({
                                     ))}
                                 </div>
                             </div>
-                            <div className="hidden sm:grid grid-cols-[1.5fr_1fr_1fr_3fr_1.5fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
+                            <div className="hidden sm:grid grid-cols-[2fr_0.8fr_1fr_2fr_2fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
                                 <div className="col-span-1">Date</div>
                                 <div className="col-span-1">Time</div>
                                 <div className="col-span-1 text-center">Status</div>
@@ -549,7 +549,7 @@ export const AdminPanel = ({
                             </div>
                             <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                                 {filteredSlots.map((slot, idx) => (
-                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[1.5fr_0.8fr_1fr_3fr_1.5fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 sm:gap-4">
+                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[2fr_0.8fr_1fr_2fr_2fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 sm:gap-4">
                                         <div className="col-span-1 w-full sm:w-auto">
                                             <span className="text-sm font-semibold text-gray-800 block sm:hidden">Date:</span>
                                             <span className="text-base text-gray-800 block">{formatDateDisplay(slot.date)}</span>
