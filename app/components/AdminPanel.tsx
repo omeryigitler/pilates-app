@@ -1224,7 +1224,7 @@ export const AdminPanel = ({
                                     value={memberNotes}
                                     onChange={(e) => setMemberNotes(e.target.value)}
                                     placeholder="Private admin notes..."
-                                    className="w-full bg-transparent border-0 focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] resize-none leading-tight"
+                                    className="w-full bg-transparent border-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none p-0 text-sm text-gray-700 placeholder:text-gray-400 min-h-[40px] resize-none leading-tight shadow-none ring-0 outline-none"
                                 />
                             </div>
 
