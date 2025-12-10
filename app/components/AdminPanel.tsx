@@ -15,6 +15,7 @@ import { updateExpiredSlots } from '../services/pilatesService';
 import { AdminAnalytics } from './AdminAnalytics';
 import { FileUploadInput } from './FileUploadInput';
 import { Modal } from './Modal';
+import emailjs from '@emailjs/browser';
 
 interface AdminPanelProps {
     loggedInUser: UserType;
@@ -81,17 +82,38 @@ export const AdminPanel = ({
         const slotId = `${assigningSlot.date}-${assigningSlot.time}`;
 
         try {
+            // 1. Assign in Firestore
             await setDoc(doc(db, 'slots', slotId), {
                 ...assigningSlot,
                 status: 'Booked',
                 bookedBy: fullName
             });
-            showNotification(`Slot assigned to ${fullName} successfully!`, 'success');
+
+            // 2. Send Email Notification
+            showNotification('Slot assigned! Sending email...', 'info');
+
+            await emailjs.send(
+                'service_335c8mj',   // Service ID
+                'template_lsuq5bc',  // Template ID
+                {
+                    to_name: fullName,
+                    to_email: userToAssign.email,
+                    date: assigningSlot.date,
+                    time: assigningSlot.time,
+                    message: `A new workout session has been booked for you on ${assigningSlot.date} at ${assigningSlot.time}.`
+                },
+                'pqtdmtV_1xQxlCa0T'  // Public Key
+            );
+
+            showNotification(`Slot assigned and email sent to ${userToAssign.firstName}!`, 'success');
             setAssigningSlot(null);
             setSelectedUserEmailToAssign('');
         } catch (error) {
             console.error(error);
-            showNotification('Failed to assign slot.', 'error');
+            showNotification('Slot assigned, but failed to send email.', 'error');
+            // We still close the modal as the slot IS assigned locally/firebase
+            setAssigningSlot(null);
+            setSelectedUserEmailToAssign('');
         }
     };
     const handleUpload = (field: string, file: File) => {
