@@ -418,19 +418,19 @@ function PilatesMaltaByGozde() {
                         </div>
                     </div>
 
-                    <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start h-full justify-center py-4 text-center lg:text-left">
+                    <div className="w-full lg:w-1/2 flex flex-col items-center md:items-start h-full justify-center py-4 text-center md:text-left">
 
                         <div className="space-y-8 w-full">
                             <div>
                                 <h1 className={`text-6xl lg:text-8xl ${managementState.heroFont} text-[#CE8E94] mb-4 leading-none tracking-tight drop-shadow-sm`}>
                                     {managementState.heroTitle}
                                 </h1>
-                                <p className={`text-xl text-gray-600 ${managementState.heroFont} leading-relaxed font-light max-w-md mx-auto lg:mx-0`}>
+                                <p className={`text-xl text-gray-600 ${managementState.heroFont} leading-relaxed font-light max-w-md mx-auto md:mx-0`}>
                                     {managementState.heroSubtitle}
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap justify-center lg:justify-start gap-8 pt-6">
+                            <div className="flex flex-wrap justify-center md:justify-start gap-8 pt-6">
                                 {managementState.trustSignals.map((signal, idx) => (
                                     <div key={idx} className="flex items-start gap-3 group cursor-default text-left">
                                         <div className="bg-[#CE8E94]/20 p-3 rounded-full text-[#CE8E94] shadow-sm group-hover:bg-[#CE8E94] group-hover:text-white transition-colors duration-300">
