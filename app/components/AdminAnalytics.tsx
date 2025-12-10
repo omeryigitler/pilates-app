@@ -8,14 +8,12 @@ import autoTable from "jspdf-autotable";
 import { Slot, UserType } from "../types";
 
 export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], users: UserType[], currentLogo: string }) => {
-    // 1. Genel İstatistikler
-    const activeBookings = slots.filter(s => s.status === 'Booked' || s.status === 'Active').length;
-    const completedBookings = slots.filter(s => s.status === 'Completed').length;
-    const totalBookings = activeBookings + completedBookings;
-
-    const totalSlots = slots.length;
-    const occupancyRate = totalSlots > 0 ? Math.round((totalBookings / totalSlots) * 100) : 0;
-    const totalUsers = users.length;
+    // State Declarations (Must be at top)
+    const [dateFilter, setDateFilter] = React.useState<'All' | 'Today' | 'Week' | 'Month' | 'Custom'>('All');
+    const [isDateFilterOpen, setIsDateFilterOpen] = React.useState(false);
+    const [customStartDate, setCustomStartDate] = React.useState('');
+    const [customEndDate, setCustomEndDate] = React.useState('');
+    const [showCustomDateModal, setShowCustomDateModal] = React.useState(false);
 
     const [reportFilter, setReportFilter] = React.useState<'All' | 'Active' | 'Completed'>('All');
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
@@ -26,8 +24,63 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
         { value: 'Completed', label: 'Completed Only' }
     ];
 
-    // 2. Aylık Dağılım
-    const monthlyStats = slots.reduce((acc, slot) => {
+    // Date Filtering Logic
+    const dateFilteredSlots = React.useMemo(() => {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+
+        return slots.filter(slot => {
+            const slotDate = slot.date; // YYYY-MM-DD format assumed
+
+            if (dateFilter === 'All') return true;
+            if (dateFilter === 'Today') return slotDate === todayStr;
+            if (dateFilter === 'Week') {
+                const d = new Date(slotDate);
+                const day = now.getDay();
+                const diff = now.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+                const monday = new Date(now.setDate(diff));
+                monday.setHours(0, 0, 0, 0);
+                // Simple last 7 days might be easier or 'This Week' (Mon-Sun)
+                // Let's use "Last 7 Days" for robustness or standard week check?
+                // User said "hafta bir gün" (a day in the week) implies granular, but "time interval" implies range.
+                // Let's do ISO week check or just +/- 7 days.
+                // Simpler: Current Week (Mon-Sun).
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Monday
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                const sDate = new Date(slotDate);
+                // Reset now for safety if modified above (it was modified!)
+                return sDate >= startOfWeek && sDate <= endOfWeek;
+            }
+            if (dateFilter === 'Month') {
+                return slotDate.substring(0, 7) === todayStr.substring(0, 7);
+            }
+            if (dateFilter === 'Custom') {
+                if (!customStartDate || !customEndDate) return true;
+                return slotDate >= customStartDate && slotDate <= customEndDate;
+            }
+            return true;
+        });
+    }, [slots, dateFilter, customStartDate, customEndDate]);
+
+    // 1. Genel İstatistikler (Filter applied)
+    const activeBookings = dateFilteredSlots.filter(s => s.status === 'Booked' || s.status === 'Active').length;
+    const completedBookings = dateFilteredSlots.filter(s => s.status === 'Completed').length;
+    const totalBookings = activeBookings + completedBookings;
+
+    const totalSlots = dateFilteredSlots.length;
+    const occupancyRate = totalSlots > 0 ? Math.round((totalBookings / totalSlots) * 100) : 0;
+    const totalUsers = users.length;
+
+
+
+    // 2. Aylık Dağılım (Filtered by Date Range too - if 'Today' selected, only show this month with 1 day data? Yes)
+    const monthlyStats = dateFilteredSlots.reduce((acc, slot) => {
         if (slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed') {
             const monthKey = slot.date.substring(0, 7); // YYYY-MM
             acc[monthKey] = (acc[monthKey] || 0) + 1;
@@ -43,7 +96,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
     // Actually the table shows aggregate data per month.
     // So let's add a "Status Breakdown" per month or just filter the aggregate calculation.
 
-    const filteredMonthlyStats = slots.reduce((acc, slot) => {
+    const filteredMonthlyStats = dateFilteredSlots.reduce((acc, slot) => {
         // Filter based on reportFilter
         const isActive = slot.status === 'Booked' || slot.status === 'Active';
         const isCompleted = slot.status === 'Completed';
@@ -118,7 +171,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
         doc.setFont("helvetica", "normal");
         doc.setFontSize(12);
         doc.setTextColor(100);
-        doc.text(`Monthly Performance & Analytics Report (${reportFilter})`, 42, 29);
+        doc.text(`Performance Report (${dateFilter === 'Custom' ? `${customStartDate} - ${customEndDate}` : dateFilter}) - Status: ${reportFilter}`, 42, 29);
 
         // Sağ Üst Tarih
         doc.setFontSize(10);
@@ -223,7 +276,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
         doc.text("Detailed Session Breakdown", 14, finalY);
 
         // Filter and sort bookings for the detailed list
-        const detailedBookings = slots
+        const detailedBookings = dateFilteredSlots
             .filter(slot => {
                 const isActive = slot.status === 'Booked' || slot.status === 'Active';
                 const isCompleted = slot.status === 'Completed';
@@ -292,9 +345,52 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             {/* Header & Download Button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
-                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div className="flex flex-col xl:flex-row gap-3 w-full xl:w-auto">
+                    {/* Date Filter Dropdown */}
                     <div className="relative w-full sm:w-[200px] group">
-                        {/* Custom Dropdown Trigger */}
+                        <button
+                            onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
+                            className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                        >
+                            <span className="text-gray-800 truncate">
+                                {dateFilter === 'Custom' && customStartDate ? 'Custom Range' : dateFilter}
+                            </span>
+                            <Calendar className={`w-4 h-4 text-gray-400 transition-transform duration-300 group-hover:text-[#CE8E94] flex-shrink-0 ml-2 ${isDateFilterOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {isDateFilterOpen && (
+                            <>
+                                <div className="fixed inset-0 z-10" onClick={() => setIsDateFilterOpen(false)} />
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                                    {(['All', 'Today', 'Week', 'Month', 'Custom'] as const).map((option) => (
+                                        <div
+                                            key={option}
+                                            onClick={() => {
+                                                if (option === 'Custom') {
+                                                    setShowCustomDateModal(true);
+                                                    setIsDateFilterOpen(false);
+                                                } else {
+                                                    setDateFilter(option);
+                                                    setIsDateFilterOpen(false);
+                                                }
+                                            }}
+                                            className={`px-4 py-3 cursor-pointer flex items-center justify-between transition-colors duration-200
+                                                ${dateFilter === option && option !== 'Custom'
+                                                    ? 'bg-[#CE8E94]/10 text-[#CE8E94] font-bold'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                }`}
+                                        >
+                                            <span className="text-sm">{option}</span>
+                                            {dateFilter === option && option !== 'Custom' && <Check className="w-4 h-4 text-[#CE8E94]" />}
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="relative w-full sm:w-[200px] group">
+                        {/* Status Filter Trigger */}
                         <button
                             onClick={() => setIsFilterOpen(!isFilterOpen)}
                             className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-100 rounded-xl px-4 flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
@@ -414,6 +510,66 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                     </table>
                 </div>
             </div>
-        </div>
+
+
+            {/* Custom Date Range Modal */}
+            {
+                showCustomDateModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+                            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
+                                <h3 className="text-lg font-bold text-gray-800">Select Date Range</h3>
+                                <button onClick={() => setShowCustomDateModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <span className="sr-only">Close</span>
+                                    ✕
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">Start Date</label>
+                                    <input
+                                        type="date"
+                                        value={customStartDate}
+                                        onChange={(e) => setCustomStartDate(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-gray-700">End Date</label>
+                                    <input
+                                        type="date"
+                                        value={customEndDate}
+                                        onChange={(e) => setCustomEndDate(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                                    />
+                                </div>
+                            </div>
+                            <div className="pt-2 flex gap-3">
+                                <Button
+                                    onClick={() => {
+                                        setDateFilter('All');
+                                        setShowCustomDateModal(false);
+                                    }}
+                                    className="flex-1 rounded-xl h-10 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={() => {
+                                        if (customStartDate && customEndDate) {
+                                            setDateFilter('Custom');
+                                            setShowCustomDateModal(false);
+                                        }
+                                    }}
+                                    className="flex-1 bg-[#CE8E94] hover:bg-[#B57A80] text-white rounded-xl h-10"
+                                >
+                                    Apply
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     );
 };
