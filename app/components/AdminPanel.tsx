@@ -945,7 +945,7 @@ export const AdminPanel = ({
                         </div>
                     </Modal>
                 )}
-                )}
+
 
                 {/* Custom Date Range Modal for Admin Slots Filtering */}
                 {showCustomDateModal && (
