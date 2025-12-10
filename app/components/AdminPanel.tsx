@@ -123,7 +123,7 @@ export const AdminPanel = ({
         if (!userToAssign) return;
 
         const fullName = `${userToAssign.firstName} ${userToAssign.lastName}`;
-        const slotId = `${assigningSlot.date}-${assigningSlot.time}`;
+        const slotId = `${assigningSlot.date}_${assigningSlot.time}`;
 
         // CHECK: Prevent Double Booking
         const isSlotTaken = slots.some(s =>
@@ -358,7 +358,11 @@ export const AdminPanel = ({
 
         try {
             if (editingSlot.date !== editFormData.date || editingSlot.time !== editFormData.time.trim()) {
+                // Attempt to delete with standard underscore format
                 await deleteDoc(doc(db, "slots", `${editingSlot.date}_${editingSlot.time}`));
+                // Attempt to delete with hyphen format (legacy/bug fix)
+                await deleteDoc(doc(db, "slots", `${editingSlot.date}-${editingSlot.time}`));
+
                 const newSlot: Slot = { ...editingSlot, date: editFormData.date, time: editFormData.time.trim() };
                 await setDoc(doc(db, "slots", `${newSlot.date}_${newSlot.time}`), newSlot);
             }
