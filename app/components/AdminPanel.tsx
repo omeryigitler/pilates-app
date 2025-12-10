@@ -526,14 +526,14 @@ export const AdminPanel = ({
                         </div>
 
                         <div className="space-y-6 mt-10">
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-2">
+                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-2">
                                 <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
-                                <div className="grid grid-cols-2 md:flex gap-2 w-full md:w-auto">
+                                <div className="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
                                     {(['All', 'Active', 'Available', 'Completed'] as const).map(f => (
                                         <button
                                             key={f}
                                             onClick={() => setStatusFilter(f)}
-                                            className={`px-3 py-2 md:py-1 rounded-full text-sm font-bold transition shadow-sm w-full md:w-auto md:min-w-24 text-center flex justify-center items-center ${statusFilter === f ? 'bg-[#CE8E94] text-white ring-2 ring-[#CE8E94]/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                            className={`px-3 py-2 sm:py-1 rounded-full text-sm font-bold transition shadow-sm w-full sm:w-auto sm:min-w-24 text-center flex justify-center items-center ${statusFilter === f ? 'bg-[#CE8E94] text-white ring-2 ring-[#CE8E94]/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                                         >
                                             {f}
                                         </button>
