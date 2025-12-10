@@ -1185,7 +1185,7 @@ export const AdminPanel = ({
                                 {selectedMember?.phone ? (
                                     <div
                                         onClick={() => handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
-                                        className="col-span-2 bg-green-50 text-green-700 p-3 rounded-xl border border-green-100 hover:bg-green-100 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
+                                        className="col-span-2 bg-[#CE8E94]/5 text-[#CE8E94] p-3 rounded-xl border border-[#CE8E94]/20 hover:bg-[#CE8E94]/10 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
                                     >
                                         <MessageSquareText className="w-5 h-5" />
                                         <span className="text-xs font-bold">WhatsApp</span>
@@ -1200,7 +1200,7 @@ export const AdminPanel = ({
                                 {/* Email (Icon Button) */}
                                 <div
                                     onClick={() => handleSendEmail(selectedMember?.email || '')}
-                                    className="col-span-2 bg-blue-50 text-blue-700 p-3 rounded-xl border border-blue-100 hover:bg-blue-100 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
+                                    className="col-span-2 bg-[#CE8E94]/5 text-[#CE8E94] p-3 rounded-xl border border-[#CE8E94]/20 hover:bg-[#CE8E94]/10 cursor-pointer flex flex-col items-center justify-center gap-1 transition-all"
                                 >
                                     <Mail className="w-5 h-5" />
                                     <span className="text-xs font-bold">Email</span>
@@ -1208,7 +1208,7 @@ export const AdminPanel = ({
                             </div>
 
                             {/* Admin Notes CRM (Condensed) */}
-                            <div className="mx-2 bg-yellow-50/50 p-3 rounded-xl border border-yellow-100/50">
+                            <div className="mx-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
                                 <div className="flex justify-between items-center mb-1">
                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                                         <FileText className="w-3 h-3" /> Notes
