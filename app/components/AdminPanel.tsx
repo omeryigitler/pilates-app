@@ -954,8 +954,8 @@ export const AdminPanel = ({
                                         <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
                                             <div className="col-span-12 md:col-span-4 lg:col-span-4 flex items-center gap-4 min-w-0">
-                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gray-100 border border-gray-200 shadow-sm text-gray-400`}>
-                                                    <User className="w-6 h-6" />
+                                                <div className={`w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
+                                                    <User className="w-7 h-7" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-center gap-2 mb-0.5">
@@ -975,9 +975,9 @@ export const AdminPanel = ({
                                             {/* Status / Badges (Desktop) */}
                                             <div className="hidden md:flex md:col-span-3 lg:col-span-3 flex-wrap gap-2 items-center">
                                                 {badges.map((b, i) => (
-                                                    <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
+                                                    <span key={i} className={`text-xs font-bold px-4 py-1.5 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
                                                 ))}
-                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100">Member</span>}
+                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-xs font-bold px-4 py-1.5 rounded-full bg-gray-50 text-gray-400 border border-gray-100">Member</span>}
                                             </div>
 
                                             {/* Stats (Desktop) */}
@@ -1092,57 +1092,59 @@ export const AdminPanel = ({
                         <div className="space-y-8 pr-1">
 
                             {/* 1. Header & Profile (Clean Centered) */}
-                            <div className="flex flex-col items-center justify-center text-center pb-4">
-                                <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                            <div className="flex flex-col items-center justify-center text-center pb-2">
+                                <h2 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} <br className="md:hidden" /> {selectedMember?.lastName}</h2>
 
                                 {/* Badge Row */}
-                                <div className="flex flex-wrap justify-center gap-2 mb-6">
+                                <div className="flex flex-wrap justify-center gap-3 mb-8">
                                     {selectedMember?.role === 'admin' && (
-                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
+                                        <span className="text-xs font-bold px-5 py-2 rounded-full bg-black text-white tracking-widest uppercase shadow-sm">ADMIN</span>
                                     )}
                                     {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
-                                        <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50`}>{b.label}</span>
+                                        <span key={i} className={`text-xs font-bold px-4 py-2 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50 shadow-sm`}>{b.label}</span>
                                     ))}
                                     {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
-                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase">MEMBER</span>
+                                        <span className="text-xs font-bold px-4 py-2 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase shadow-sm">MEMBER</span>
                                     )}
                                 </div>
 
-                                {/* Symmetrical Contact Info Grid */}
-                                <div className="grid grid-cols-2 gap-4 w-full">
-                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col items-center justify-center gap-1 group hover:border-gray-200 transition-colors">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email</span>
-                                        <span className="text-sm font-bold text-gray-800 break-all">{selectedMember?.email}</span>
+                                {/* Symmetrical Contact Info Grid (Like Reference) */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                    <div className="bg-white border-2 border-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                        <span className="text-xs font-bold text-[#CE8E94] uppercase tracking-widest mb-1">Email</span>
+                                        <span className="text-lg font-bold text-gray-900 break-all font-sans">{selectedMember?.email}</span>
                                     </div>
-                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col items-center justify-center gap-1 group hover:border-gray-200 transition-colors">
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone</span>
-                                        <span className="text-sm font-bold text-gray-800">{selectedMember?.phone || 'N/A'}</span>
+                                    <div className="bg-white border-2 border-gray-50 rounded-3xl p-6 flex flex-col items-center justify-center gap-1 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                        <span className="text-xs font-bold text-[#CE8E94] uppercase tracking-widest mb-1">Phone</span>
+                                        <span className="text-lg font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 2. Stats Row (Interactive) */}
-                            <div className="flex justify-center items-center divide-x divide-gray-100 py-4 border-y border-gray-100">
+                            <div className="w-full h-px bg-gray-100"></div>
+
+                            {/* 2. Stats Row (Interactive & Large) */}
+                            <div className="flex justify-around items-center py-2">
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Total', user: selectedMember! })}
-                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-3xl font-bold text-gray-900 group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
+                                    <div className="text-5xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Total</div>
                                 </button>
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Active', user: selectedMember! })}
-                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-3xl font-bold text-black group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
+                                    <div className="text-5xl font-black text-gray-900 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Active</div>
                                 </button>
                                 <button
                                     onClick={() => setHistoryViewer({ type: 'Done', user: selectedMember! })}
-                                    className="px-8 py-2 text-center group hover:bg-gray-50 rounded-xl transition-colors"
+                                    className="flex flex-col items-center group cursor-pointer p-4 rounded-2xl hover:bg-gray-50 transition-colors"
                                 >
-                                    <div className="text-3xl font-bold text-gray-400 group-hover:text-[#CE8E94] transition-colors">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
+                                    <div className="text-5xl font-black text-gray-300 group-hover:text-[#CE8E94] transition-colors tracking-tight">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-xs font-bold text-[#CE8E94] opacity-60 uppercase tracking-widest mt-2 group-hover:opacity-100">Done</div>
                                 </button>
                             </div>
 
