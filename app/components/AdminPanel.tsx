@@ -525,8 +525,8 @@ export const AdminPanel = ({
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-end">
+                        <div className="space-y-6 mt-10">
+                            <div className="flex justify-between items-end pb-2">
                                 <h4 className="text-xl font-bold text-gray-700">Current Slots ({slots.length})</h4>
                                 <div className="flex flex-wrap gap-2 justify-end">
                                     {(['All', 'Active', 'Available', 'Completed'] as const).map(f => (
