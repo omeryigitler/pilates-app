@@ -540,7 +540,7 @@ export const AdminPanel = ({
                                     ))}
                                 </div>
                             </div>
-                            <div className="hidden sm:grid grid-cols-[2fr_0.8fr_1fr_2fr_2fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
+                            <div className="hidden lg:grid grid-cols-[2fr_0.8fr_1fr_2fr_2fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
                                 <div className="col-span-1">Date</div>
                                 <div className="col-span-1">Time</div>
                                 <div className="col-span-1 text-center">Status</div>
@@ -549,26 +549,26 @@ export const AdminPanel = ({
                             </div>
                             <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                                 {filteredSlots.map((slot, idx) => (
-                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[2fr_0.8fr_1fr_2fr_2fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 sm:gap-4">
-                                        <div className="col-span-1 w-full sm:w-auto">
-                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Date:</span>
+                                    <div key={idx} className="flex flex-col lg:grid lg:grid-cols-[2fr_0.8fr_1fr_2fr_2fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-3 lg:gap-4">
+                                        <div className="col-span-1 w-full lg:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block lg:hidden">Date:</span>
                                             <span className="text-base text-gray-800 block">{formatDateDisplay(slot.date)}</span>
                                         </div>
-                                        <div className="col-span-1 w-full sm:w-auto">
-                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Time:</span>
+                                        <div className="col-span-1 w-full lg:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block lg:hidden">Time:</span>
                                             <span className="text-base font-bold text-gray-800 block">{slot.time}</span>
                                         </div>
-                                        <div className="col-span-1 w-full sm:w-auto flex justify-center">
-                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden mr-2">Status:</span>
+                                        <div className="col-span-1 w-full lg:w-auto flex justify-center">
+                                            <span className="text-sm font-semibold text-gray-800 block lg:hidden mr-2">Status:</span>
                                             <span className={`text-sm font-bold px-3 py-1 rounded-full min-w-24 text-center ${slot.status === 'Booked' || slot.status === 'Active' ? 'bg-red-100 text-red-500' : slot.status === 'Completed' ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
                                                 {slot.status === 'Booked' ? 'Active' : slot.status}
                                             </span>
                                         </div>
-                                        <div className="col-span-1 w-full sm:w-auto">
-                                            <span className="text-sm font-semibold text-gray-800 block sm:hidden">Booked By:</span>
+                                        <div className="col-span-1 w-full lg:w-auto">
+                                            <span className="text-sm font-semibold text-gray-800 block lg:hidden">Booked By:</span>
                                             <span className="text-sm text-gray-600 block truncate" title={slot.bookedBy || ''}>{slot.bookedBy || 'N/A'}</span>
                                         </div>
-                                        <div className="col-span-1 w-full sm:w-auto flex items-center justify-end gap-4 mt-2 sm:mt-0">
+                                        <div className="col-span-1 w-full lg:w-auto flex items-center justify-end gap-4 mt-2 lg:mt-0">
                                             <div className="flex items-center gap-2">
                                                 <span className={`text-xs font-bold ${slot.status === 'Booked' || slot.status === 'Active' ? 'text-gray-400' : slot.status === 'Completed' ? 'text-gray-400' : 'text-green-600'}`}>
                                                     {slot.status === 'Available' ? 'Active' : 'Blocked'}
