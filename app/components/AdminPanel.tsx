@@ -285,10 +285,10 @@ export const AdminPanel = ({
             await updateDoc(doc(db, 'users', selectedMember.email), {
                 adminNotes: memberNotes
             });
-            // Update local state to reflect change immediately without reload if needed, 
-            // though listener might handle it. For now, manual update ensures UI feels snappy.
-            // Actually, since we are using 'users' prop which comes from a listener in parent, 
-            // it WILL update automatically. We just need to wait.
+
+            // Force update local state to reflect change immediately
+            setSelectedMember({ ...selectedMember, adminNotes: memberNotes });
+
             showNotification('Notes saved successfully!', 'success');
         } catch (error) {
             console.error(error);
