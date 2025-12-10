@@ -929,7 +929,7 @@ export const AdminPanel = ({
                                         <div key={idx} className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-gray-100 group">
                                             {/* User Info */}
                                             <div className="col-span-4 md:col-span-3 flex items-center gap-3 overflow-hidden">
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
+                                                <div className={`hidden md:flex w-10 h-10 rounded-full items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
                                                     {user.firstName[0]}{user.lastName[0]}
                                                 </div>
                                                 <div className="min-w-0">
