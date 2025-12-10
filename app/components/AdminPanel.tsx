@@ -1084,152 +1084,126 @@ export const AdminPanel = ({
                 {/* Member Details CRM Modal */}
                 {selectedMember && (
                     <Modal onClose={() => setSelectedMember(null)}>
-                        <div className="relative w-full overflow-hidden rounded-[2rem] bg-slate-900 text-white shadow-2xl ring-1 ring-white/10">
+                        <div className="space-y-6 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
 
-                            {/* Animated Background Blobs */}
-                            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-                                <div className="absolute top-[-20%] left-[-10%] w-72 h-72 bg-[#CE8E94] rounded-full mix-blend-screen filter blur-[80px] opacity-20 animate-pulse"></div>
-                                <div className="absolute bottom-[-10%] right-[-10%] w-72 h-72 bg-pink-600 rounded-full mix-blend-screen filter blur-[80px] opacity-20 animate-pulse duration-1000"></div>
-                            </div>
-
-                            {/* Header Image/Gradient */}
-                            <div className="h-32 bg-gradient-to-r from-[#CE8E94] via-pink-400 to-rose-400 relative">
-                                <div className="absolute inset-0 bg-black/10"></div>
-                                {/* Header Actions */}
-                                <div className="absolute top-4 right-4 flex gap-2">
-                                    {selectedMember?.role !== 'admin' && (
-                                        <button
-                                            onClick={() => {
-                                                if (window.confirm('Delete user?')) {
-                                                    handleDeleteUser(selectedMember?.email || '');
-                                                    setSelectedMember(null);
-                                                }
-                                            }}
-                                            className="p-2 rounded-full bg-black/20 hover:bg-red-500/80 backdrop-blur-md transition-all border border-white/10 text-white/70 hover:text-white"
-                                            title="Delete User"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
+                            {/* 1. Header & Profile (Clean Centered) */}
+                            <div className="flex flex-col items-center justify-center text-center pb-4">
+                                <h2 className="text-3xl font-bold text-gray-900 font-sans tracking-tight mb-2">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <div className="flex flex-wrap justify-center gap-2">
+                                    {selectedMember?.role === 'admin' && (
+                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
+                                    )}
+                                    {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
+                                        <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50`}>{b.label}</span>
+                                    ))}
+                                    {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
+                                        <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase">MEMBER</span>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="px-6 pb-8 -mt-16 relative z-10">
-                                <div className="flex justify-between items-end">
-                                    {/* Squircle Avatar */}
-                                    <div className="relative">
-                                        <div className="w-28 h-28 rounded-[2rem] bg-slate-900 p-1.5 shadow-2xl ring-1 ring-white/10">
-                                            <div className="w-full h-full rounded-[1.5rem] bg-gradient-to-br from-[#CE8E94] to-pink-500 flex items-center justify-center text-4xl font-bold text-white shadow-inner">
-                                                {selectedMember?.firstName?.[0]}{selectedMember?.lastName?.[0]}
-                                            </div>
-                                        </div>
-                                        {/* Online Status Dot */}
-                                        <div className="absolute bottom-1 -right-1 w-7 h-7 bg-slate-900 rounded-full flex items-center justify-center">
-                                            <div className="w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-slate-900"></div>
-                                        </div>
-                                    </div>
-
-                                    {/* Stats Mini Row */}
-                                    <div className="flex gap-2 mb-2">
-                                        <div className="px-4 py-2 rounded-2xl bg-slate-800/80 border border-white/5 backdrop-blur-md text-center">
-                                            <div className="text-xs text-slate-400 uppercase tracking-wider font-bold">Bookings</div>
-                                            <div className="text-lg font-bold text-white">{getMemberStats(selectedMember?.email || '').total}</div>
-                                        </div>
-                                    </div>
+                            {/* 2. Stats Row */}
+                            <div className="flex justify-center items-center divide-x divide-gray-100 py-4 border-y border-gray-100">
+                                <div className="px-6 text-center">
+                                    <div className="text-2xl font-bold text-gray-900">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Total</div>
                                 </div>
-
-                                <div className="mt-5">
-                                    <h2 className="text-3xl font-bold text-white tracking-tight font-sans">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
-                                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                                        {selectedMember?.role === 'admin' ? (
-                                            <span className="px-3 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                                Admin User
-                                            </span>
-                                        ) : (
-                                            getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
-                                                <span key={i} className="px-3 py-1 rounded-lg bg-[#CE8E94]/20 border border-[#CE8E94]/30 text-pink-200 text-[10px] font-bold uppercase tracking-wider shadow-sm">
-                                                    {b.label}
-                                                </span>
-                                            ))
-                                        )}
-                                        {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
-                                            <span className="px-3 py-1 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-300 text-[10px] font-bold uppercase tracking-wider">
-                                                Member
-                                            </span>
-                                        )}
-                                        <span className="text-slate-500 text-xs flex items-center gap-1 ml-auto">
-                                            <MapPin className="w-3 h-3" /> Istanbul, TR
-                                        </span>
-                                    </div>
+                                <div className="px-6 text-center">
+                                    <div className="text-2xl font-bold text-black">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Active</div>
                                 </div>
-
-                                <div className="mt-8 space-y-3">
-                                    {/* Phone Row */}
-                                    <div
-                                        onClick={() => selectedMember?.phone && handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
-                                        className="group flex items-center justify-between p-4 rounded-3xl bg-slate-800/40 border border-white/5 hover:bg-slate-800/80 hover:border-[#CE8E94]/30 transition-all cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
-                                                <MessageSquareText className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Mobile</p>
-                                                <p className="text-base font-semibold text-slate-200 font-mono mt-0.5">{selectedMember?.phone || 'No Phone'}</p>
-                                            </div>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all">
-                                            <ChevronRight className="w-4 h-4" />
-                                        </div>
-                                    </div>
-
-                                    {/* Email Row */}
-                                    <div
-                                        onClick={() => handleSendEmail(selectedMember?.email || '')}
-                                        className="group flex items-center justify-between p-4 rounded-3xl bg-slate-800/40 border border-white/5 hover:bg-slate-800/80 hover:border-blue-500/30 transition-all cursor-pointer"
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-300">
-                                                <Mail className="w-5 h-5" />
-                                            </div>
-                                            <div className="overflow-hidden">
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Email Address</p>
-                                                <p className="text-base font-semibold text-slate-200 truncate w-48 sm:w-64 mt-0.5">{selectedMember?.email}</p>
-                                            </div>
-                                        </div>
-                                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all">
-                                            <ChevronRight className="w-4 h-4" />
-                                        </div>
-                                    </div>
+                                <div className="px-6 text-center">
+                                    <div className="text-2xl font-bold text-gray-400">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Done</div>
                                 </div>
+                            </div>
 
-                                {/* Private Notes Section (Dark Theme) */}
-                                <div className="mt-6">
-                                    <textarea
-                                        value={memberNotes}
-                                        onChange={(e) => setMemberNotes(e.target.value)}
-                                        placeholder="Add private notes..."
-                                        className="w-full p-4 rounded-3xl border border-white/5 bg-slate-800/40 focus:bg-slate-800/80 focus:ring-1 focus:ring-[#CE8E94]/50 focus:border-[#CE8E94]/50 text-sm text-slate-300 min-h-[80px] outline-none transition-all placeholder:text-slate-600 resize-none"
-                                    />
-                                    <div className="flex justify-end mt-2">
-                                        <button onClick={handleUpdateAdminNotes} className="text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-white transition-colors">
-                                            Save Note
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <Button
+                            {/* 3. Action Cards Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Book Action (Primary) */}
+                                <div
                                     onClick={() => {
                                         setBookingForMember(selectedMember);
                                         setSelectedMember(null);
                                     }}
-                                    className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-[#CE8E94] to-pink-600 hover:from-[#b07278] hover:to-pink-700 text-white font-bold shadow-lg shadow-pink-900/20 border border-white/10 active:scale-[0.98] transition-all flex items-center justify-center gap-2 group"
+                                    className="col-span-2 bg-white p-6 rounded-3xl border-2 border-[#CE8E94]/20 ring-4 ring-[#CE8E94]/5 hover:ring-[#CE8E94]/10 transition-all cursor-pointer flex flex-col items-center justify-center gap-3 group shadow-sm hover:shadow-md"
                                 >
-                                    <span>Book Class for {selectedMember?.firstName}</span>
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </Button>
+                                    <div className="w-14 h-14 rounded-full bg-[#CE8E94] flex items-center justify-center text-white shadow-lg shadow-[#CE8E94]/30 group-hover:scale-110 transition-transform">
+                                        <CalendarPlus className="w-6 h-6" />
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="font-bold text-[#CE8E94] text-lg">Book Class</div>
+                                        <div className="text-xs text-[#CE8E94]/60 font-medium">Schedule a new session</div>
+                                    </div>
+                                </div>
 
+                                {/* WhatsApp Action */}
+                                {selectedMember?.phone ? (
+                                    <div
+                                        onClick={() => handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
+                                        className="bg-white p-5 rounded-3xl border border-gray-100 hover:border-green-200 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group hover:shadow-lg hover:shadow-green-50"
+                                    >
+                                        <div className="w-12 h-12 rounded-full bg-green-50 text-green-600 flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                            <MessageSquareText className="w-5 h-5" />
+                                        </div>
+                                        <div className="font-bold text-gray-600 text-sm group-hover:text-green-600">WhatsApp</div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-50 p-5 rounded-3xl border border-gray-100 flex flex-col items-center justify-center gap-2 opacity-50 cursor-not-allowed">
+                                        <div className="w-12 h-12 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center">
+                                            <MessageSquareText className="w-5 h-5" />
+                                        </div>
+                                        <div className="font-bold text-gray-400 text-sm">No Phone</div>
+                                    </div>
+                                )}
+
+                                {/* Email Action */}
+                                <div
+                                    onClick={() => handleSendEmail(selectedMember?.email || '')}
+                                    className="bg-white p-5 rounded-3xl border border-gray-100 hover:border-blue-200 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 group hover:shadow-lg hover:shadow-blue-50"
+                                >
+                                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                        <Mail className="w-5 h-5" />
+                                    </div>
+                                    <div className="font-bold text-gray-600 text-sm group-hover:text-blue-600">Email</div>
+                                </div>
                             </div>
+
+                            {/* Admin Notes CRM */}
+                            <div className="bg-yellow-50/50 p-4 rounded-2xl border border-yellow-100/50">
+                                <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <FileText className="w-3 h-3" /> Private Notes
+                                </label>
+                                <textarea
+                                    value={memberNotes}
+                                    onChange={(e) => setMemberNotes(e.target.value)}
+                                    placeholder="Add private notes..."
+                                    className="w-full bg-transparent border-0 focus:ring-0 p-0 text-sm text-gray-700 placeholder:text-gray-400 min-h-[60px] resize-none"
+                                />
+                                <div className="flex justify-end mt-2">
+                                    <button onClick={handleUpdateAdminNotes} className="text-xs font-bold text-[#CE8E94] hover:text-[#b07278]">
+                                        Save Note
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Delete Action (Subtle) */}
+                            {selectedMember?.role !== 'admin' && (
+                                <div className="flex justify-center pt-2">
+                                    <button
+                                        onClick={() => {
+                                            if (window.confirm('Are you sure you want to delete this member? This action cannot be undone.')) {
+                                                handleDeleteUser(selectedMember?.email || '');
+                                                setSelectedMember(null);
+                                            }
+                                        }}
+                                        className="text-xs font-bold text-gray-300 hover:text-red-500 flex items-center gap-1 transition-colors py-2 px-4 rounded-lg hover:bg-red-50"
+                                    >
+                                        <Trash2 className="w-3 h-3" /> Delete Member
+                                    </button>
+                                </div>
+                            )}
+
                         </div>
                     </Modal>
                 )}
