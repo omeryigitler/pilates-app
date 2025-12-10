@@ -978,43 +978,15 @@ export const AdminPanel = ({
                                             </div>
 
                                             {/* Actions */}
-                                            <div className="col-span-8 sm:col-span-5 md:col-span-5 flex items-center justify-end gap-2">
-                                                <Button
-                                                    className="hidden sm:flex hover:bg-green-50 text-gray-400 hover:text-green-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
-                                                    onClick={() => handleSendWhatsApp(user.phone, user.firstName)}
-                                                    title="WhatsApp"
-                                                >
-                                                    <MessageSquareText className="w-4 h-4" />
-                                                </Button>
-                                                <Button
-                                                    className="hidden sm:flex hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
-                                                    onClick={() => handleSendEmail(user.email)}
-                                                    title="Email"
-                                                >
-                                                    <Mail className="w-4 h-4" />
-                                                </Button>
-
-                                                <Button
-                                                    className="hidden sm:flex hover:bg-purple-50 text-gray-400 hover:text-purple-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
-                                                    onClick={() => setBookingForMember(user)}
-                                                    title="Book Class"
-                                                >
-                                                    <CalendarPlus className="w-4 h-4" />
-                                                </Button>
+                                            <div className="col-span-12 md:col-span-2 flex justify-end">
                                                 <Button
                                                     onClick={() => {
                                                         setSelectedMember(user);
                                                         setMemberNotes(user.adminNotes || '');
                                                     }}
-                                                    className="bg-gray-800 hover:bg-gray-900 text-white text-xs px-3 py-1.5 h-auto rounded-lg shadow-sm"
+                                                    className="bg-gray-900 hover:bg-gray-800 text-white text-xs px-5 py-2 rounded-xl shadow-sm transition-all hover:scale-105"
                                                 >
-                                                    Details
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleDeleteUser(user.email)}
-                                                    className={`hover:bg-red-50 text-red-500 hover:text-red-600 h-8 w-8 p-0 rounded-full bg-transparent shadow-none ${user.role === 'admin' ? 'opacity-20 pointer-events-none' : ''}`}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    Manage
                                                 </Button>
                                             </div>
                                         </div>
@@ -1098,94 +1070,165 @@ export const AdminPanel = ({
                                             </Button>
                                         </div>
                                     ))}
+                                {/* 7. Delete Actions (Danger Zone) */}
+                                {selectedMember.role !== 'admin' && (
+                                    <div className="pt-6 border-t border-gray-100 mt-4">
+                                        <Button
+                                            onClick={() => {
+                                                if (window.confirm('Are you sure you want to delete this user? This cannot be undone.')) {
+                                                    handleDeleteUser(selectedMember.email);
+                                                    setSelectedMember(null);
+                                                }
+                                            }}
+                                            className="w-full bg-transparent hover:bg-red-50 text-red-500 hover:text-red-700 py-3 rounded-xl border border-transparent hover:border-red-100 flex items-center justify-center gap-2 text-sm transition-all"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                            Delete Member
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
-                        </div>
                     </Modal>
                 )}
 
                 {/* Member Details CRM Modal */}
-                {
-                    selectedMember && (
-                        <Modal onClose={() => setSelectedMember(null)}>
-                            <div className="space-y-6 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
-                                {/* Header Profile */}
-                                <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-lg`}>
-                                        {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
-                                        <p className="text-gray-500 flex items-center gap-2 text-sm"><Mail className="w-3 h-3" /> {selectedMember.email}</p>
-                                        {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><Phone className="w-3 h-3" /> {selectedMember.phone}</p>}
-                                    </div>
-                                </div>
+                {selectedMember && (
+                    <Modal onClose={() => setSelectedMember(null)}>
+                        <div className="space-y-8 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar">
 
-                                <div className="grid grid-cols-3 gap-3">
-                                    <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                                        <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                                        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
-                                    </div>
-                                    <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
-                                        <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                                        <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
-                                    </div>
-                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
-                                        <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
-                                    </div>
+                            {/* 1. Header & Profile */}
+                            <div className="flex flex-col items-center justify-center text-center">
+                                <div className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center text-white font-bold text-3xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-xl ring-4 ring-white`}>
+                                    {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
                                 </div>
+                                <h2 className="text-3xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
+                                <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mt-1">{selectedMember.role}</p>
+                            </div>
 
-                                {/* Admin Notes CRM */}
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                        <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
-                                    </label>
-                                    <textarea
-                                        value={memberNotes}
-                                        onChange={(e) => setMemberNotes(e.target.value)}
-                                        placeholder="Add private notes about this member (injuries, preferences, payments)..."
-                                        className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
-                                    />
-                                    <div className="flex justify-end">
-                                        <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
-                                            Save Note
+                            {/* 2. Contact Actions Card */}
+                            <div className="bg-gray-50 rounded-2xl p-5 space-y-4 border border-gray-100">
+                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Contact Info</h4>
+
+                                {/* Phone Row */}
+                                <div className="flex justify-between items-center group bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                            <Phone className="w-5 h-5" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="text-xs text-gray-400">Phone</div>
+                                            <div className="font-semibold text-gray-800">{selectedMember.phone || 'N/A'}</div>
+                                        </div>
+                                    </div>
+                                    {selectedMember.phone && (
+                                        <Button
+                                            onClick={() => handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
+                                            className="bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
+                                        >
+                                            <MessageSquareText className="w-4 h-4" /> Chat
                                         </Button>
-                                    </div>
+                                    )}
                                 </div>
 
-                                {/* Booking History */}
-                                <div className="space-y-3">
-                                    <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
-                                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                                        {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
-                                            getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
-                                                <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
-                                                    <div className="flex items-center gap-2">
-                                                        <Calendar className="w-3 h-3 text-gray-400" />
-                                                        <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
-                                                        <span className="text-gray-500">{slot.time}</span>
-                                                    </div>
-                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
-                                                        slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                                                        }`}>
-                                                        {slot.status}
-                                                    </span>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
-                                        )}
+                                {/* Email Row */}
+                                <div className="flex justify-between items-center group bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                            <Mail className="w-5 h-5" />
+                                        </div>
+                                        <div className="text-left">
+                                            <div className="text-xs text-gray-400">Email</div>
+                                            <div className="font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-xs">{selectedMember.email}</div>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div className="pt-2">
-                                    <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
-                                        Close Profile
+                                    <Button
+                                        onClick={() => handleSendEmail(selectedMember.email)}
+                                        className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
+                                    >
+                                        <Mail className="w-4 h-4" /> Mail
                                     </Button>
                                 </div>
                             </div>
-                        </Modal>
-                    )
+
+                            {/* 3. Primary Action: Book Class */}
+                            <Button
+                                onClick={() => {
+                                    setBookingForMember(selectedMember);
+                                    setSelectedMember(null);
+                                }}
+                                className="w-full bg-[#CE8E94] hover:bg-[#b07278] text-white py-4 text-base rounded-2xl shadow-lg shadow-pink-100 transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 font-bold"
+                            >
+                                <CalendarPlus className="w-5 h-5" />
+                                Book a Class for {selectedMember.firstName}
+                            </Button>
+
+                            {/* 4. Stats Grid (Keep clean) */}
+                            <div className="grid grid-cols-3 gap-3">
+                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                                    <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                    <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
+                                </div>
+                                <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
+                                    <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                    <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
+                                    <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
+                                </div>
+                            </div>
+
+                            {/* Admin Notes CRM */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                    <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
+                                </label>
+                                <textarea
+                                    value={memberNotes}
+                                    onChange={(e) => setMemberNotes(e.target.value)}
+                                    placeholder="Add private notes about this member (injuries, preferences, payments)..."
+                                    className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
+                                />
+                                <div className="flex justify-end">
+                                    <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
+                                        Save Note
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Booking History */}
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
+                                <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                                    {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
+                                        getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
+                                            <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
+                                                <div className="flex items-center gap-2">
+                                                    <Calendar className="w-3 h-3 text-gray-400" />
+                                                    <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
+                                                    <span className="text-gray-500">{slot.time}</span>
+                                                </div>
+                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
+                                                    slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                                    }`}>
+                                                    {slot.status}
+                                                </span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
+                                    Close Profile
+                                </Button>
+                            </div>
+                        </div>
+                    </Modal>
+                )
                 }
 
                 {/* Edit Slot Modal */}
