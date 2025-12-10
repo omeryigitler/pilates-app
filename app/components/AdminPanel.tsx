@@ -933,11 +933,11 @@ export const AdminPanel = ({
                         </div>
 
                         <div className="space-y-4">
-                            <div className="grid grid-cols-12 text-xs font-bold uppercase text-gray-400 pb-2 px-4">
-                                <div className="col-span-4 md:col-span-3">User info</div>
-                                <div className="col-span-3 md:col-span-2 hidden sm:block">Status</div>
-                                <div className="col-span-2 hidden md:block text-center">Stats</div>
-                                <div className="col-span-5 md:col-span-5 text-right">Actions</div>
+                            <div className="grid grid-cols-12 text-xs font-bold uppercase text-gray-400 pb-2 px-4 gap-4">
+                                <div className="col-span-12 md:col-span-4 lg:col-span-4">User info</div>
+                                <div className="hidden md:block md:col-span-3 lg:col-span-3">Status</div>
+                                <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center">Stats</div>
+                                <div className="hidden md:block md:col-span-2 lg:col-span-2 text-right">Actions</div>
                             </div>
 
                             <div className="space-y-3">
@@ -946,15 +946,15 @@ export const AdminPanel = ({
                                     const badges = getMemberBadges(user, stats);
 
                                     return (
-                                        <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4">
-                                            {/* Left: User Info */}
-                                            <div className="flex items-center gap-4 flex-1 min-w-0">
-                                                <div className={`w-12 h-12 md:w-10 md:h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
+                                        <div key={idx} className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
+                                            {/* User Info */}
+                                            <div className="col-span-12 md:col-span-4 lg:col-span-4 flex items-center gap-4 min-w-0">
+                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'}`}>
                                                     {user.firstName[0]}{user.lastName[0]}
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-center gap-2 mb-0.5">
-                                                        <h4 className="font-bold text-gray-800 truncate text-base md:text-sm">{user.firstName} {user.lastName}</h4>
+                                                        <h4 className="font-bold text-gray-800 truncate text-base font-sans">{user.firstName} {user.lastName}</h4>
                                                         {user.role === 'admin' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
                                                     </div>
                                                     <p className="text-xs text-gray-500 truncate">{user.email}</p>
@@ -967,30 +967,33 @@ export const AdminPanel = ({
                                                 </div>
                                             </div>
 
-                                            {/* Middle: Badges & Stats (Desktop Only) */}
-                                            <div className="hidden md:flex items-center gap-6">
-                                                <div className="flex gap-2">
-                                                    {badges.map((b, i) => (
-                                                        <span key={i} className={`text-[10px] font-bold px-2 py-0.5 rounded border border-transparent ${b.color}`}>{b.label}</span>
-                                                    ))}
-                                                </div>
-                                                <div className="text-center px-4 border-l border-gray-100">
-                                                    <div className="text-sm font-bold text-gray-700">{stats.total}</div>
-                                                    <div className="text-[10px] text-gray-400 uppercase tracking-widest">Bookings</div>
+                                            {/* Status / Badges (Desktop) */}
+                                            <div className="hidden md:flex md:col-span-3 lg:col-span-3 flex-wrap gap-2 items-center">
+                                                {badges.map((b, i) => (
+                                                    <span key={i} className={`text-[10px] font-bold px-3 py-1 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
+                                                ))}
+                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100">Member</span>}
+                                            </div>
+
+                                            {/* Stats (Desktop) */}
+                                            <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center border-l border-gray-100">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="text-lg font-bold text-gray-700 font-sans">{stats.total}</span>
+                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wider">Bookings</span>
                                                 </div>
                                             </div>
 
-                                            {/* Right: Action */}
-                                            <div className="w-full md:w-auto">
+                                            {/* Actions */}
+                                            <div className="col-span-12 md:col-span-2 lg:col-span-2 flex justify-end mt-4 md:mt-0 pt-4 md:pt-0 border-t md:border-t-0 border-gray-100">
                                                 <Button
                                                     onClick={() => {
                                                         setSelectedMember(user);
                                                         setMemberNotes(user.adminNotes || '');
                                                     }}
-                                                    className="w-full md:w-auto bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold px-6 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+                                                    className="w-full md:w-auto bg-[#CE8E94] hover:bg-[#b57a80] text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-sans"
                                                 >
                                                     Manage
-                                                    <ChevronDown className="w-3 h-3 rotate-[-90deg]" />
+                                                    <ChevronDown className="w-3 h-3" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -1083,7 +1086,7 @@ export const AdminPanel = ({
                 {/* Member Details CRM Modal */}
                 {selectedMember && (
                     <Modal onClose={() => setSelectedMember(null)}>
-                        <div className="space-y-8 pr-1">
+                        <div className="space-y-8 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
 
                             {/* 1. Header & Profile */}
                             <div className="flex flex-col items-center justify-center text-center">
@@ -1210,8 +1213,16 @@ export const AdminPanel = ({
                                 </div>
                             </div>
 
-                            <div className="pt-2">
-                                <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
+                            <div className="pt-2 border-t border-gray-100 flex justify-between items-center gap-4">
+                                {selectedMember?.role !== 'admin' && (
+                                    <Button
+                                        onClick={() => handleDeleteUser(selectedMember?.email || '')}
+                                        className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 py-3 px-6 rounded-xl border border-red-100 flex items-center justify-center gap-2 text-sm font-bold transition-all"
+                                    >
+                                        <Trash2 className="w-4 h-4" /> Delete
+                                    </Button>
+                                )}
+                                <Button onClick={() => setSelectedMember(null)} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl font-sans">
                                     Close Profile
                                 </Button>
                             </div>
