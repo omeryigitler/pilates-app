@@ -992,13 +992,7 @@ export const AdminPanel = ({
                                                 >
                                                     <Mail className="w-4 h-4" />
                                                 </Button>
-                                                <Button
-                                                    className="hidden sm:flex hover:bg-blue-50 text-gray-400 hover:text-blue-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
-                                                    onClick={() => handleSendEmail(user.email)}
-                                                    title="Email"
-                                                >
-                                                    <Mail className="w-4 h-4" />
-                                                </Button>
+
                                                 <Button
                                                     className="hidden sm:flex hover:bg-purple-50 text-gray-400 hover:text-purple-600 rounded-full h-8 w-8 p-0 bg-transparent shadow-none"
                                                     onClick={() => setBookingForMember(user)}
@@ -1031,292 +1025,285 @@ export const AdminPanel = ({
                                         No members found matching "{searchTerm}"
                                     </div>
                                 )}
+
                             </div>
                         </div>
                     </div>
                 )}
 
-            </div>
-        </Modal>
-    )
-}
+                {/* Book For Member Modal (Reverse Flow) */}
+                {bookingForMember && (
+                    <Modal onClose={() => setBookingForMember(null)}>
+                        <div className="space-y-6">
+                            <div className="text-center border-b border-gray-100 pb-4">
+                                <h2 className="text-xl font-bold text-gray-800">Book for {bookingForMember.firstName}</h2>
+                                <p className="text-xs text-gray-400">Select an available slot below</p>
+                            </div>
+
+                            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                {slots.filter(s => s.status === 'Available').length === 0 && (
+                                    <div className="text-center py-8 text-gray-400">No available slots found.</div>
+                                )}
+
+                                {slots
+                                    .filter(s => s.status === 'Available')
+                                    .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
+                                    .map((slot, i) => (
+                                        <div key={i} className="flex justify-between items-center p-4 bg-green-50/50 hover:bg-green-100/50 border border-green-100 rounded-xl transition-all group">
+                                            <div>
+                                                <div className="font-bold text-gray-800">{formatDateDisplay(slot.date)}</div>
+                                                <div className="text-sm text-gray-600 flex items-center gap-2">
+                                                    <Clock className="w-3 h-3 text-green-600" /> {slot.time}
+                                                </div>
+                                            </div>
+                                            <Button
+                                                onClick={() => handleBookForMember(slot)}
+                                                className="bg-green-600 hover:bg-green-700 text-white shadow-md rounded-lg h-auto py-2 px-4 text-xs font-bold"
+                                            >
+                                                Book
+                                            </Button>
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    </Modal>
                 )}
 
-{/* Book For Member Modal (Reverse Flow) */ }
-{
-    bookingForMember && (
-        <Modal onClose={() => setBookingForMember(null)}>
-            <div className="space-y-6">
-                <div className="text-center border-b border-gray-100 pb-4">
-                    <h2 className="text-xl font-bold text-gray-800">Book for {bookingForMember.firstName}</h2>
-                    <p className="text-xs text-gray-400">Select an available slot below</p>
-                </div>
-
-                <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                    {slots.filter(s => s.status === 'Available').length === 0 && (
-                        <div className="text-center py-8 text-gray-400">No available slots found.</div>
-                    )}
-
-                    {slots
-                        .filter(s => s.status === 'Available')
-                        .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
-                        .map((slot, i) => (
-                            <div key={i} className="flex justify-between items-center p-4 bg-green-50/50 hover:bg-green-100/50 border border-green-100 rounded-xl transition-all group">
-                                <div>
-                                    <div className="font-bold text-gray-800">{formatDateDisplay(slot.date)}</div>
-                                    <div className="text-sm text-gray-600 flex items-center gap-2">
-                                        <Clock className="w-3 h-3 text-green-600" /> {slot.time}
+                {/* Member Details CRM Modal */}
+                {
+                    selectedMember && (
+                        <Modal onClose={() => setSelectedMember(null)}>
+                            <div className="space-y-6 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
+                                {/* Header Profile */}
+                                <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
+                                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-lg`}>
+                                        {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
+                                        <p className="text-gray-500 flex items-center gap-2 text-sm"><Mail className="w-3 h-3" /> {selectedMember.email}</p>
+                                        {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><Phone className="w-3 h-3" /> {selectedMember.phone}</p>}
                                     </div>
                                 </div>
-                                <Button
-                                    onClick={() => handleBookForMember(slot)}
-                                    className="bg-green-600 hover:bg-green-700 text-white shadow-md rounded-lg h-auto py-2 px-4 text-xs font-bold"
-                                >
-                                    Book
-                                </Button>
+
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
+                                        <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
+                                        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
+                                    </div>
+                                    <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
+                                        <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
+                                        <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
+                                        <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
+                                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
+                                    </div>
+                                </div>
+
+                                {/* Admin Notes CRM */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                        <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
+                                    </label>
+                                    <textarea
+                                        value={memberNotes}
+                                        onChange={(e) => setMemberNotes(e.target.value)}
+                                        placeholder="Add private notes about this member (injuries, preferences, payments)..."
+                                        className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
+                                    />
+                                    <div className="flex justify-end">
+                                        <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
+                                            Save Note
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Booking History */}
+                                <div className="space-y-3">
+                                    <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
+                                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                                        {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
+                                            getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
+                                                <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                        <Calendar className="w-3 h-3 text-gray-400" />
+                                                        <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
+                                                        <span className="text-gray-500">{slot.time}</span>
+                                                    </div>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
+                                                        slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                                                        }`}>
+                                                        {slot.status}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="pt-2">
+                                    <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
+                                        Close Profile
+                                    </Button>
+                                </div>
                             </div>
-                        ))}
-                </div>
-            </div>
-        </Modal>
-    )
-}
+                        </Modal>
+                    )
+                }
 
-{/* Member Details CRM Modal */ }
-{
-    selectedMember && (
-        <Modal onClose={() => setSelectedMember(null)}>
-            <div className="space-y-6 max-h-[80vh] overflow-y-auto pr-2 custom-scrollbar">
-                {/* Header Profile */}
-                <div className="flex items-center gap-4 pb-4 border-b border-gray-100">
-                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-lg`}>
-                        {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
-                        <p className="text-gray-500 flex items-center gap-2 text-sm"><Mail className="w-3 h-3" /> {selectedMember.email}</p>
-                        {selectedMember.phone && <p className="text-gray-500 flex items-center gap-2 text-sm"><Phone className="w-3 h-3" /> {selectedMember.phone}</p>}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
-                        <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
-                        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Total</div>
-                    </div>
-                    <div className="bg-green-50 p-3 rounded-xl border border-green-100 text-center">
-                        <div className="text-2xl font-bold text-green-600">{getMemberStats(selectedMember?.email ?? '').active}</div>
-                        <div className="text-[10px] font-bold text-green-400 uppercase tracking-wide">Active</div>
-                    </div>
-                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 text-center">
-                        <div className="text-2xl font-bold text-gray-600">{getMemberStats(selectedMember?.email ?? '').completed}</div>
-                        <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Done</div>
-                    </div>
-                </div>
-
-                {/* Admin Notes CRM */}
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-[#CE8E94]" /> Private Notes
-                    </label>
-                    <textarea
-                        value={memberNotes}
-                        onChange={(e) => setMemberNotes(e.target.value)}
-                        placeholder="Add private notes about this member (injuries, preferences, payments)..."
-                        className="w-full p-3 rounded-xl border border-gray-200 bg-yellow-50/50 focus:bg-white focus:ring-2 focus:ring-[#CE8E94]/20 focus:border-[#CE8E94] text-sm min-h-[100px] outline-none transition-all placeholder:text-gray-400"
-                    />
-                    <div className="flex justify-end">
-                        <Button onClick={handleUpdateAdminNotes} className="bg-[#CE8E94] hover:bg-[#B57A80] text-white py-2 px-4 text-xs h-auto rounded-lg">
-                            Save Note
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Booking History */}
-                <div className="space-y-3">
-                    <h4 className="text-sm font-bold text-gray-700 border-b pb-2">Recent Activity</h4>
-                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
-                        {getMemberStats(selectedMember?.email ?? '').history.length > 0 ? (
-                            getMemberStats(selectedMember?.email ?? '').history.map((slot, i) => (
-                                <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg text-sm">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-3 h-3 text-gray-400" />
-                                        <span className="font-bold text-gray-700">{formatDateDisplay(slot.date)}</span>
-                                        <span className="text-gray-500">{slot.time}</span>
-                                    </div>
-                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${slot.status === 'Completed' ? 'bg-gray-200 text-gray-600' :
-                                        slot.status === 'Booked' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
-                                        }`}>
-                                        {slot.status}
-                                    </span>
+                {/* Edit Slot Modal */}
+                {
+                    editingSlot && (
+                        <Modal onClose={() => setEditingSlot(null)}>
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Edit Slot</h2>
+                                    <p className="text-gray-500">Update date and time for this slot.</p>
                                 </div>
-                            ))
-                        ) : (
-                            <p className="text-xs text-gray-400 italic text-center py-4">No booking history available.</p>
-                        )}
-                    </div>
-                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-600 mb-1">Date</label>
+                                        <input
+                                            type="date"
+                                            value={editFormData.date}
+                                            onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
+                                            className={standardInputClass}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-600 mb-1">Time</label>
+                                        <input
+                                            type="text"
+                                            value={editFormData.time}
+                                            onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
+                                            className={standardInputClass}
+                                            placeholder="e.g. 09:00 AM"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <Button
+                                        onClick={() => setEditingSlot(null)}
+                                        className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={handleUpdateSlot}
+                                        className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md"
+                                    >
+                                        Save Changes
+                                    </Button>
+                                </div>
+                            </div>
+                        </Modal>
+                    )
+                }
 
-                <div className="pt-2">
-                    <Button onClick={() => setSelectedMember(null)} className="w-full py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl">
-                        Close Profile
-                    </Button>
-                </div>
-            </div>
-        </Modal>
-    )
-}
-
-{/* Edit Slot Modal */ }
-{
-    editingSlot && (
-        <Modal onClose={() => setEditingSlot(null)}>
-            <div className="space-y-6">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Edit Slot</h2>
-                    <p className="text-gray-500">Update date and time for this slot.</p>
-                </div>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-1">Date</label>
-                        <input
-                            type="date"
-                            value={editFormData.date}
-                            onChange={e => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
-                            className={standardInputClass}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-1">Time</label>
-                        <input
-                            type="text"
-                            value={editFormData.time}
-                            onChange={e => setEditFormData(prev => ({ ...prev, time: e.target.value }))}
-                            className={standardInputClass}
-                            placeholder="e.g. 09:00 AM"
-                        />
-                    </div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                    <Button
-                        onClick={() => setEditingSlot(null)}
-                        className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleUpdateSlot}
-                        className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md"
-                    >
-                        Save Changes
-                    </Button>
-                </div>
-            </div>
-        </Modal>
-    )
-}
-
-{/* Assign Slot Modal */ }
-{
-    assigningSlot && (
-        <Modal onClose={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}>
-            <div className="space-y-6">
-                <div className="text-center">
-                    <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Assign Slot</h2>
-                    <p className="text-gray-500">
-                        Assign <strong>{formatDateDisplay(assigningSlot.date)}</strong> at <strong>{assigningSlot.time}</strong> to a member.
-                    </p>
-                </div>
-                <div className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-bold text-gray-600 mb-1">Select Member</label>
-                        <select
-                            value={selectedUserEmailToAssign}
-                            onChange={(e) => setSelectedUserEmailToAssign(e.target.value)}
-                            className={standardInputClass}
-                        >
-                            <option value="">-- Choose a Member --</option>
-                            {users.filter(u => u.role !== 'admin').map((user) => (
-                                <option key={user.email} value={user.email}>
-                                    {user.firstName} {user.lastName} ({user.email})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-                <div className="flex gap-3 pt-2">
-                    <Button
-                        onClick={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}
-                        className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleAssignSlot}
-                        disabled={!selectedUserEmailToAssign}
-                        className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        Assign Member
-                    </Button>
-                </div>
-            </div>
-        </Modal>
-    )
-}
+                {/* Assign Slot Modal */}
+                {
+                    assigningSlot && (
+                        <Modal onClose={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}>
+                            <div className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-bold text-[#CE8E94] mb-2">Assign Slot</h2>
+                                    <p className="text-gray-500">
+                                        Assign <strong>{formatDateDisplay(assigningSlot.date)}</strong> at <strong>{assigningSlot.time}</strong> to a member.
+                                    </p>
+                                </div>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-600 mb-1">Select Member</label>
+                                        <select
+                                            value={selectedUserEmailToAssign}
+                                            onChange={(e) => setSelectedUserEmailToAssign(e.target.value)}
+                                            className={standardInputClass}
+                                        >
+                                            <option value="">-- Choose a Member --</option>
+                                            {users.filter(u => u.role !== 'admin').map((user) => (
+                                                <option key={user.email} value={user.email}>
+                                                    {user.firstName} {user.lastName} ({user.email})
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3 pt-2">
+                                    <Button
+                                        onClick={() => { setAssigningSlot(null); setSelectedUserEmailToAssign(''); }}
+                                        className="flex-1 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={handleAssignSlot}
+                                        disabled={!selectedUserEmailToAssign}
+                                        className="flex-1 py-3 bg-[#CE8E94] text-white rounded-xl font-bold hover:bg-[#B57A80] transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        Assign Member
+                                    </Button>
+                                </div>
+                            </div>
+                        </Modal>
+                    )
+                }
 
 
-{/* Custom Date Range Modal for Admin Slots Filtering */ }
-{
-    showCustomDateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
-                <h3 className="text-xl font-bold text-gray-800">Select Date Range</h3>
-                <div className="space-y-3">
-                    <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase">Start Date</label>
-                        <input
-                            type="date"
-                            value={customStartDate}
-                            onChange={(e) => setCustomStartDate(e.target.value)}
-                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
-                        />
-                    </div>
-                    <div>
-                        <label className="text-xs font-bold text-gray-500 uppercase">End Date</label>
-                        <input
-                            type="date"
-                            value={customEndDate}
-                            onChange={(e) => setCustomEndDate(e.target.value)}
-                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
-                        />
-                    </div>
-                </div>
-                <div className="flex gap-2 pt-2">
-                    <Button
-                        onClick={() => {
-                            setShowCustomDateModal(false);
-                            setDateFilter('All');
-                        }}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={() => {
-                            if (customStartDate && customEndDate) {
-                                setDateFilter('Custom');
-                                setShowCustomDateModal(false);
-                            }
-                        }}
-                        className="flex-1 bg-[#CE8E94] hover:bg-[#B57A80] text-white"
-                    >
-                        Apply
-                    </Button>
-                </div>
-            </div>
-        </div>
-    )
-}
+                {/* Custom Date Range Modal for Admin Slots Filtering */}
+                {
+                    showCustomDateModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
+                                <h3 className="text-xl font-bold text-gray-800">Select Date Range</h3>
+                                <div className="space-y-3">
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase">Start Date</label>
+                                        <input
+                                            type="date"
+                                            value={customStartDate}
+                                            onChange={(e) => setCustomStartDate(e.target.value)}
+                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-gray-500 uppercase">End Date</label>
+                                        <input
+                                            type="date"
+                                            value={customEndDate}
+                                            onChange={(e) => setCustomEndDate(e.target.value)}
+                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                    <Button
+                                        onClick={() => {
+                                            setShowCustomDateModal(false);
+                                            setDateFilter('All');
+                                        }}
+                                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            if (customStartDate && customEndDate) {
+                                                setDateFilter('Custom');
+                                                setShowCustomDateModal(false);
+                                            }
+                                        }}
+                                        className="flex-1 bg-[#CE8E94] hover:bg-[#B57A80] text-white"
+                                    >
+                                        Apply
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </div >
         </div >
     );
