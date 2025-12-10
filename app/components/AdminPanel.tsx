@@ -939,10 +939,10 @@ export const AdminPanel = ({
 
                         <div className="space-y-4">
                             <div className="grid grid-cols-12 text-xs font-bold uppercase text-gray-400 pb-2 px-4 gap-4">
-                                <div className="col-span-12 md:col-span-4 lg:col-span-4">User info</div>
-                                <div className="hidden md:block md:col-span-3 lg:col-span-3">Status</div>
+                                <div className="col-span-12 md:col-span-4 lg:col-span-4 md:pl-2">User info</div>
+                                <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center">Status</div>
                                 <div className="hidden md:block md:col-span-3 lg:col-span-3 text-center">Stats</div>
-                                <div className="hidden md:block md:col-span-2 lg:col-span-2 text-right">Actions</div>
+                                <div className="hidden md:block md:col-span-2 lg:col-span-2 text-right pr-2">Actions</div>
                             </div>
 
                             <div className="space-y-3">
@@ -1110,30 +1110,30 @@ export const AdminPanel = ({
 
                             {/* 1. Header & Profile (Clean Centered) */}
                             <div className="flex flex-col items-center justify-center text-center pb-2">
-                                <h2 className="text-5xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} <br className="md:hidden" /> {selectedMember?.lastName}</h2>
+                                <h2 className="text-4xl md:text-6xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} <br className="md:hidden" /> {selectedMember?.lastName}</h2>
 
                                 {/* Badge Row */}
-                                <div className="flex flex-wrap justify-center gap-3 mb-8">
+                                <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-6 md:mb-8">
                                     {selectedMember?.role === 'admin' && (
-                                        <span className="text-xs font-bold px-5 py-2 rounded-full bg-black text-white tracking-widest uppercase shadow-sm">ADMIN</span>
+                                        <span className="text-xs font-bold px-3 py-1 md:px-5 md:py-2 rounded-full bg-black text-white tracking-widest uppercase shadow-sm">ADMIN</span>
                                     )}
                                     {getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).map((b, i) => (
-                                        <span key={i} className={`text-xs font-bold px-4 py-2 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50 shadow-sm`}>{b.label}</span>
+                                        <span key={i} className={`text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-2 rounded-full border border-gray-200 text-gray-600 tracking-widest uppercase bg-gray-50 shadow-sm`}>{b.label}</span>
                                     ))}
                                     {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
-                                        <span className="text-xs font-bold px-4 py-2 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase shadow-sm">MEMBER</span>
+                                        <span className="text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-2 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase shadow-sm">MEMBER</span>
                                     )}
                                 </div>
 
-                                {/* Symmetrical Contact Info Grid (Compact) */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full px-2">
-                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                {/* Symmetrical Contact Info Grid (Compact Mobile & Desktop) */}
+                                <div className="grid grid-cols-2 gap-2 md:gap-3 w-full px-1 md:px-2">
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
                                         <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Email</span>
-                                        <span className="text-sm font-bold text-gray-900 break-all font-sans">{selectedMember?.email}</span>
+                                        <span className="text-xs md:text-sm font-bold text-gray-900 break-all font-sans line-clamp-1">{selectedMember?.email}</span>
                                     </div>
-                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
+                                    <div className="bg-white border-2 border-gray-50 rounded-2xl p-3 md:p-4 flex flex-col items-center justify-center gap-0.5 shadow-sm hover:border-[#CE8E94]/20 transition-colors">
                                         <span className="text-[10px] font-bold text-[#CE8E94] uppercase tracking-widest mb-0.5">Phone</span>
-                                        <span className="text-sm font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
+                                        <span className="text-xs md:text-sm font-bold text-gray-900 font-mono">{selectedMember?.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
