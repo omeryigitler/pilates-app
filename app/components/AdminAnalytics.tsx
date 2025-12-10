@@ -178,7 +178,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             '|'.repeat(Math.min(filteredMonthlyStats[month], 20))
         ]);
 
-        // 5. Tabloyu Çiz
+        // 5. Tabloyu Çiz (Aylık Özet)
         autoTable(doc, {
             startY: 95,
             head: [['Month', 'Total Sessions', 'Status', 'Activity Level']],
@@ -206,7 +206,58 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             margin: { top: 90 }
         });
 
-        // 6. Footer (Alt Bilgi)
+        // --- NEW: Detailed Booking Breakdown Table ---
+        // 6. Detaylı Liste Başlığı
+        // @ts-ignore
+        const finalY = doc.lastAutoTable.finalY + 15;
+
+        doc.setFontSize(14);
+        doc.setTextColor(80);
+        doc.text("Detailed Session Breakdown", 14, finalY);
+
+        // Filter and sort bookings for the detailed list
+        const detailedBookings = slots
+            .filter(slot => {
+                const isActive = slot.status === 'Booked' || slot.status === 'Active';
+                const isCompleted = slot.status === 'Completed';
+                return (reportFilter === 'All' && (isActive || isCompleted)) ||
+                    (reportFilter === 'Active' && isActive) ||
+                    (reportFilter === 'Completed' && isCompleted);
+            })
+            // Sort by Date then Time
+            .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+
+        const detailedData = detailedBookings.map(slot => [
+            slot.date,
+            slot.time,
+            slot.bookedBy || 'Unknown User',
+            slot.status === 'Booked' ? 'Active' : slot.status
+        ]);
+
+        autoTable(doc, {
+            startY: finalY + 5,
+            head: [['Date', 'Time', 'Client Name', 'Status']],
+            body: detailedData,
+            theme: 'grid',
+            headStyles: {
+                fillColor: [100, 100, 100], // Darker gray for detail table
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 4,
+                lineColor: [230, 230, 230],
+                lineWidth: 0.1
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            // Add page break logic automatically handled by autoTable
+        });
+
+
+        // 7. Footer (Alt Bilgi)
         const footerY = pageHeight - 15;
 
         // Footer Çizgisi
@@ -238,7 +289,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                     <select
                         value={reportFilter}
                         onChange={(e) => setReportFilter(e.target.value as any)}
-                        className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-[#CE8E94] focus:border-[#CE8E94] block p-2.5"
+                        className="bg-gray-50 border border-gray-200 text-gray-700 text-base rounded-xl focus:ring-[#CE8E94] focus:border-[#CE8E94] block px-4 py-3 min-w-[160px]"
                     >
                         <option value="All">All Statuses</option>
                         <option value="Active">Active Only</option>

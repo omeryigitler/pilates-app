@@ -533,7 +533,7 @@ export const AdminPanel = ({
                                         <button
                                             key={f}
                                             onClick={() => setStatusFilter(f)}
-                                            className={`px-3 py-1 rounded-full text-xs font-bold transition ${statusFilter === f ? 'bg-[#CE8E94] text-white' : 'bg-gray-200 text-gray-600 hover:bg-gray-300'}`}
+                                            className={`px-5 py-2 rounded-full text-sm font-bold transition shadow-sm ${statusFilter === f ? 'bg-[#CE8E94] text-white ring-2 ring-[#CE8E94]/20' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                                         >
                                             {f}
                                         </button>
