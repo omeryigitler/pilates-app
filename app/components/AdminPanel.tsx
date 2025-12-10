@@ -118,6 +118,7 @@ export const AdminPanel = ({
     const [selectedMember, setSelectedMember] = useState<UserType | null>(null);
     const [memberNotes, setMemberNotes] = useState('');
     const [bookingForMember, setBookingForMember] = useState<UserType | null>(null);
+    const [bookingDateFilter, setBookingDateFilter] = useState<'all' | 'today' | 'week'>('all');
 
     const standardInputClass = "w-full p-4 border border-gray-100 rounded-2xl bg-gray-50 focus:outline-none focus:border-[#CE8E94] focus:bg-white transition placeholder-gray-400 text-gray-700 shadow-sm";
 
@@ -1037,7 +1038,22 @@ export const AdminPanel = ({
                         <div className="space-y-6">
                             <div className="text-center border-b border-gray-100 pb-4">
                                 <h2 className="text-xl font-bold text-gray-800">Book for {bookingForMember.firstName}</h2>
-                                <p className="text-xs text-gray-400">Select an available slot below</p>
+                                <p className="text-xs text-gray-400 mb-3">Select an available slot below</p>
+
+                                <div className="flex justify-center gap-2">
+                                    {['all', 'today', 'week'].map((filter) => (
+                                        <button
+                                            key={filter}
+                                            onClick={() => setBookingDateFilter(filter as any)}
+                                            className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${bookingDateFilter === filter
+                                                ? 'bg-[#CE8E94] text-white shadow-md'
+                                                : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                                }`}
+                                        >
+                                            {filter === 'all' ? 'All' : filter === 'today' ? 'Today' : 'This Week'}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -1047,6 +1063,24 @@ export const AdminPanel = ({
 
                                 {slots
                                     .filter(s => s.status === 'Available')
+                                    .filter(s => {
+                                        if (bookingDateFilter === 'all') return true;
+
+                                        const slotDate = new Date(s.date);
+                                        const now = new Date();
+                                        const todayStr = now.toISOString().split('T')[0];
+
+                                        if (bookingDateFilter === 'today') {
+                                            return s.date === todayStr;
+                                        }
+
+                                        if (bookingDateFilter === 'week') {
+                                            const nextWeek = new Date(now);
+                                            nextWeek.setDate(now.getDate() + 7);
+                                            return slotDate >= now && slotDate <= nextWeek;
+                                        }
+                                        return true;
+                                    })
                                     .sort((a, b) => new Date(`${a.date}T${a.time}`).getTime() - new Date(`${b.date}T${b.time}`).getTime())
                                     .map((slot, i) => (
                                         <div key={i} className="flex justify-between items-center p-4 bg-green-50/50 hover:bg-green-100/50 border border-green-100 rounded-xl transition-all group">
