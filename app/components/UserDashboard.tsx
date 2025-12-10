@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, Calendar, Clock, Zap, Home } from 'lucide-react';
+import { User, LogOut, Calendar, Clock, Zap, Home, ShieldCheck } from 'lucide-react';
 import { UserType, Slot } from '../types';
 import { getTodayDate, isPastDate, formatDateDisplay } from '../utils/helpers';
 import { useConfirm } from '../context/ConfirmContext';
@@ -95,7 +95,12 @@ export const UserDashboard = ({
                             {userBookings.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {userBookings.map((slot, idx) => (
-                                        <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white rounded-2xl shadow-md transition border border-[#CE8E94]/20">
+                                        <div key={idx} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-5 bg-white rounded-2xl shadow-md transition border border-[#CE8E94]/20 relative overflow-hidden">
+                                            {slot.bookedBy?.includes('(Admin)') && (
+                                                <div className="absolute top-0 right-0 bg-blue-50 px-3 py-1 rounded-bl-xl text-[10px] font-bold text-blue-600 flex items-center gap-1 border-b border-l border-blue-100">
+                                                    <ShieldCheck className="w-3 h-3" /> Confirmed by Studio
+                                                </div>
+                                            )}
                                             <div className="space-y-3 w-full sm:w-auto">
                                                 <div className="space-y-1">
                                                     <span className="text-lg font-bold text-gray-800 flex items-center gap-2"><Clock className="w-5 h-5 text-[#CE8E94]" /> {slot.time}</span>

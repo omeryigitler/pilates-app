@@ -81,6 +81,18 @@ export const AdminPanel = ({
         const fullName = `${userToAssign.firstName} ${userToAssign.lastName}`;
         const slotId = `${assigningSlot.date}-${assigningSlot.time}`;
 
+        // CHECK: Prevent Double Booking
+        const isSlotTaken = slots.some(s =>
+            s.date === assigningSlot.date &&
+            s.time === assigningSlot.time &&
+            (s.status === 'Booked' || s.status === 'Active')
+        );
+
+        if (isSlotTaken) {
+            showNotification('This slot is already booked! Please refresh or choose another.', 'error');
+            return;
+        }
+
         try {
             // 1. Assign in Firestore
             await setDoc(doc(db, 'slots', slotId), {
@@ -96,11 +108,16 @@ export const AdminPanel = ({
                 'service_335c8mj',   // Service ID
                 'template_lsuq5bc',  // Template ID
                 {
-                    to_name: fullName,
+                    to_name: userToAssign.firstName, // Just First Name is friendlier
                     to_email: userToAssign.email,
-                    date: assigningSlot.date,
-                    time: assigningSlot.time,
-                    message: `A new workout session has been booked for you on ${assigningSlot.date} at ${assigningSlot.time}.`
+                    studio_name: 'Reformer Pilates Malta',
+                    class_name: 'Reformer Pilates',
+                    class_date: formatDateDisplay(assigningSlot.date),
+                    class_time: assigningSlot.time,
+                    instructor_name: 'Ömer YİĞİTLER',
+                    studio_address: 'Triq Il-Hgejjeg, San Giljan, Malta',
+                    maps_link: 'https://maps.app.goo.gl/YourGoogleMapsLinkHere', // Replace with actual link if available, or keep generic
+                    website_url: 'https://www.reformerpilatesmalta.com'
                 },
                 'pqtdmtV_1xQxlCa0T'  // Public Key
             );
