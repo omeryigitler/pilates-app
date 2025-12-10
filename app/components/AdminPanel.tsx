@@ -1210,7 +1210,7 @@ export const AdminPanel = ({
                             </div>
 
                             {/* Admin Notes CRM (Condensed) */}
-                            <div className="mx-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                            <div className="mx-2 bg-gray-50 p-3 rounded-xl">
                                 <div className="flex justify-between items-center mb-1">
                                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                                         <FileText className="w-3 h-3" /> Notes
