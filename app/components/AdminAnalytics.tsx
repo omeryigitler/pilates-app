@@ -343,9 +343,9 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Header & Download Button */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <h3 className="text-2xl font-bold text-gray-800">Performance Overview</h3>
-                <div className="flex flex-col xl:flex-row gap-3 w-full xl:w-auto">
+                <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
                     {/* Date Filter Dropdown */}
                     <div className="relative w-full sm:w-[200px] group">
                         <button
