@@ -540,68 +540,53 @@ export const AdminPanel = ({
                                     ))}
                                 </div>
                             </div>
-                            <div className="hidden lg:grid grid-cols-[2fr_0.8fr_1fr_2fr_2fr] text-sm font-medium text-gray-600 pb-2 border-b border-gray-200 gap-4">
-                                <div className="col-span-1">Date</div>
-                                <div className="col-span-1">Time</div>
-                                <div className="col-span-1 text-center">Status</div>
-                                <div className="col-span-1">Booked By</div>
-                                <div className="col-span-1 text-right">Actions</div>
-                            </div>
+
                             <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                                 {filteredSlots.map((slot, idx) => (
-                                    <div key={idx} className="grid grid-cols-2 lg:grid-cols-[2fr_0.8fr_1fr_2fr_2fr] items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-4 lg:gap-4 relative overflow-hidden">
+                                    <div key={idx} className="grid grid-cols-2 items-center p-5 bg-white/60 rounded-2xl hover:bg-gray-50 shadow-sm transition border border-white/40 hover:border-[#CE8E94]/30 gap-4 relative overflow-hidden">
 
-                                        {/* 1. Date & Status (Mobile: Top Row Flex) */}
-                                        <div className="col-span-2 lg:col-span-1 w-full lg:w-auto pb-2 lg:pb-0 border-b lg:border-none border-gray-100 mb-2 lg:mb-0 lg:static flex flex-wrap justify-between items-start lg:block">
-                                            <div className="lg:mb-0">
-                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block lg:hidden mb-1">Date</span>
-                                                <span className="text-lg lg:text-base font-bold text-gray-800 block">{formatDateDisplay(slot.date)}</span>
+                                        {/* 1. Date & Status (Top Row) */}
+                                        <div className="col-span-2 pb-2 border-b border-gray-100 mb-2 flex flex-wrap justify-between items-start">
+                                            <div>
+                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Date</span>
+                                                <span className="text-lg font-bold text-gray-800 block">{formatDateDisplay(slot.date)}</span>
                                             </div>
 
-                                            {/* Status Badge moved here for Mobile */}
-                                            <div className="lg:hidden">
+                                            <div>
                                                 <span className={`text-xs font-bold px-3 py-1 rounded-full shadow-sm ${slot.status === 'Booked' || slot.status === 'Active' ? 'bg-red-100 text-red-500' : slot.status === 'Completed' ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
                                                     {slot.status === 'Booked' ? 'Active' : slot.status}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* 2. Time */}
-                                        <div className="col-span-1 lg:col-span-1 w-full lg:w-auto">
-                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block lg:hidden mb-1">Time</span>
-                                            <span className="text-xl lg:text-base font-bold text-gray-800 block lg:font-bold">{slot.time}</span>
+                                        {/* 2. Time (Left) */}
+                                        <div className="col-span-1">
+                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Time</span>
+                                            <span className="text-xl font-bold text-gray-800 block">{slot.time}</span>
                                         </div>
 
-                                        {/* 3. Status (Desktop Only column) */}
-                                        <div className="hidden lg:flex col-span-1 w-full justify-center">
-                                            <span className={`text-sm font-bold px-3 py-1 rounded-full min-w-24 text-center ${slot.status === 'Booked' || slot.status === 'Active' ? 'bg-red-100 text-red-500' : slot.status === 'Completed' ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
-                                                {slot.status === 'Booked' ? 'Active' : slot.status}
-                                            </span>
-                                        </div>
-
-                                        {/* 4. Booked By */}
-                                        <div className="col-span-2 lg:col-span-1 w-full lg:w-auto lg:bg-transparent rounded-xl lg:rounded-none">
-                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block lg:hidden mb-1">Booked By</span>
-                                            <div className="flex items-center gap-2">
+                                        {/* 3. Booked By (Right) */}
+                                        <div className="col-span-1 text-right">
+                                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Booked By</span>
+                                            <div className="flex items-center justify-end gap-2">
                                                 <span className="text-sm font-medium text-gray-700 block truncate" title={slot.bookedBy || ''}>{slot.bookedBy || 'Available'}</span>
                                             </div>
                                         </div>
 
-                                        {/* 5. Actions (Mobile: Full Width Footer) */}
-                                        <div className="col-span-2 lg:col-span-1 w-full lg:w-auto flex items-center justify-between lg:justify-end gap-4 mt-2 lg:mt-0 pt-3 lg:pt-0 border-t lg:border-none border-gray-100">
-
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`text-xs font-bold ${slot.status === 'Booked' || slot.status === 'Active' ? 'text-gray-400' : slot.status === 'Completed' ? 'text-gray-400' : 'text-green-600'}`}>
-                                                        {slot.status === 'Available' ? 'Active' : 'Blocked'}
-                                                    </span>
-                                                    <Switch
-                                                        checked={slot.status === 'Available'}
-                                                        onCheckedChange={() => handleToggleSlotStatus(slot.date, slot.time)}
-                                                        disabled={(slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed') && slot.bookedBy !== `Admin Action - ${loggedInUser?.firstName}`}
-                                                    />
-                                                </div>
-                                                <div className="h-4 w-px bg-gray-300 hidden lg:block"></div>
+                                        {/* 4. Actions (Bottom - Centered) */}
+                                        <div className="col-span-2 flex items-center justify-center gap-6 mt-2 pt-3 border-t border-gray-100">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-xs font-bold ${slot.status === 'Booked' || slot.status === 'Active' ? 'text-gray-400' : slot.status === 'Completed' ? 'text-gray-400' : 'text-green-600'}`}>
+                                                    {slot.status === 'Available' ? 'Active' : 'Blocked'}
+                                                </span>
+                                                <Switch
+                                                    checked={slot.status === 'Available'}
+                                                    onCheckedChange={() => handleToggleSlotStatus(slot.date, slot.time)}
+                                                    disabled={(slot.status === 'Booked' || slot.status === 'Active' || slot.status === 'Completed') && slot.bookedBy !== `Admin Action - ${loggedInUser?.firstName}`}
+                                                />
+                                            </div>
+                                            <div className="h-4 w-px bg-gray-300"></div>
+                                            <div className="flex items-center gap-2">
                                                 <button
                                                     onClick={() => openEditSlotModal(slot)}
                                                     className="p-2 text-gray-400 hover:text-blue-500 transition-colors rounded-full hover:bg-blue-50"
