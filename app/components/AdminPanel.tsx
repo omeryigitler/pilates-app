@@ -1041,9 +1041,7 @@ export const AdminPanel = ({
                             </div>
 
                             <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 hide-scrollbar">
-                                {slots.filter(s => s.status === 'Available').length === 0 && (
-                                    <div className="text-center py-8 text-gray-400">No available slots found.</div>
-                                )}
+                                {/* Removed duplicate generic empty check to rely on the specific one below */}
 
                                 {slots
                                     .filter(s => s.status === 'Available')
@@ -1074,12 +1072,31 @@ export const AdminPanel = ({
                                             </div>
                                             <Button
                                                 onClick={() => handleBookForMember(slot)}
-                                                className="bg-black text-white hover:bg-gray-800 rounded-full px-6 py-2 text-xs font-bold transition-transform active:scale-95"
+                                                className="bg-[#CE8E94] text-white hover:bg-[#b57a80] rounded-full px-6 py-2 text-xs font-bold transition-transform active:scale-95 shadow-md shadow-[#CE8E94]/20"
                                             >
                                                 Book
                                             </Button>
                                         </div>
                                     ))}
+
+                                {slots.filter(s => s.status === 'Available').filter(s => {
+                                    if (bookingDateFilter === 'all') return true;
+                                    const slotDate = new Date(s.date);
+                                    const now = new Date();
+                                    const todayStr = now.toISOString().split('T')[0];
+                                    if (bookingDateFilter === 'today') return s.date === todayStr;
+                                    if (bookingDateFilter === 'week') {
+                                        const nextWeek = new Date(now);
+                                        nextWeek.setDate(now.getDate() + 7);
+                                        return slotDate >= now && slotDate <= nextWeek;
+                                    }
+                                    return true;
+                                }).length === 0 && (
+                                        <div className="flex flex-col items-center justify-center py-12 opacity-50">
+                                            <Calendar className="w-12 h-12 text-gray-300 mb-2" />
+                                            <p className="text-sm font-bold text-gray-400">No available slots found for {bookingDateFilter}.</p>
+                                        </div>
+                                    )}
                                 {/* 7. Delete Actions (Danger Zone) */}
                             </div>
                         </div>
