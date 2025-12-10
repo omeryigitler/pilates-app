@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageSquareText, Phone, CalendarPlus, MapPin, ChevronRight, ArrowRight } from 'lucide-react';
+import { LogOut, Calendar, Users, TrendingUp, Edit3, Star, Award, Mail, Database, Clock, Plus, Trash2, SwitchCamera, Home, UserPlus, ShieldCheck, ChevronDown, Check, Search, FileText, ExternalLink, BadgeCheck, MessageSquareText, Phone, CalendarPlus, MapPin, ChevronRight, ArrowRight, User } from 'lucide-react';
 import { Switch } from "@/components/ui/switch";
 import { Slot, UserType, ManagementState } from '../types';
 import { db } from '../firebase';
@@ -489,7 +489,7 @@ export const AdminPanel = ({
     const rootClasses = "pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]";
     return (
         <div className={rootClasses}>
-            <div className="w-full max-w-[90rem] px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
+            <div className="w-full max-w-7xl px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
                 {/* ... header ... */}
 
                 {/* Added reset button near header for easy access during debug */}
@@ -951,11 +951,11 @@ export const AdminPanel = ({
                                     const badges = getMemberBadges(user, stats);
 
                                     return (
-                                        <div key={idx} className="grid grid-cols-12 items-center p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
+                                        <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
                                             <div className="col-span-12 md:col-span-4 lg:col-span-4 flex items-center gap-4 min-w-0">
-                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-br ${user.role === 'admin' ? 'from-purple-600 to-indigo-600' : 'from-[#CE8E94] to-pink-500'} shadow-md`}>
-                                                    {user.firstName[0]}{user.lastName[0]}
+                                                <div className={`w-12 h-12 flex-shrink-0 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gray-100 border border-gray-200 shadow-sm text-gray-400`}>
+                                                    <User className="w-6 h-6" />
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex items-center gap-2 mb-0.5">
@@ -1089,16 +1089,14 @@ export const AdminPanel = ({
                 {/* Member Details CRM Modal */}
                 {selectedMember && (
                     <Modal onClose={() => setSelectedMember(null)}>
-                        <div className="space-y-6 pr-1 hide-scrollbar max-h-[85vh] overflow-y-auto">
+                        <div className="space-y-8 pr-1">
 
                             {/* 1. Header & Profile (Clean Centered) */}
                             <div className="flex flex-col items-center justify-center text-center pb-4">
-                                <h2 className="text-4xl font-serif font-bold text-gray-900 tracking-tight mb-1">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
-                                <div className="text-sm text-gray-500 font-medium mb-3 flex flex-col gap-0.5">
-                                    <span>{selectedMember?.email}</span>
-                                    <span>{selectedMember?.phone}</span>
-                                </div>
-                                <div className="flex flex-wrap justify-center gap-2">
+                                <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter uppercase mb-4 font-sans">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+
+                                {/* Badge Row */}
+                                <div className="flex flex-wrap justify-center gap-2 mb-6">
                                     {selectedMember?.role === 'admin' && (
                                         <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-black text-white tracking-widest uppercase">ADMIN</span>
                                     )}
@@ -1108,6 +1106,18 @@ export const AdminPanel = ({
                                     {selectedMember?.role !== 'admin' && getMemberBadges(selectedMember!, getMemberStats(selectedMember?.email || '')).length === 0 && (
                                         <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-gray-50 text-gray-400 border border-gray-100 tracking-widest uppercase">MEMBER</span>
                                     )}
+                                </div>
+
+                                {/* Symmetrical Contact Info Grid */}
+                                <div className="grid grid-cols-2 gap-4 w-full">
+                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col items-center justify-center gap-1 group hover:border-gray-200 transition-colors">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Email</span>
+                                        <span className="text-sm font-bold text-gray-800 break-all">{selectedMember?.email}</span>
+                                    </div>
+                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4 flex flex-col items-center justify-center gap-1 group hover:border-gray-200 transition-colors">
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Phone</span>
+                                        <span className="text-sm font-bold text-gray-800">{selectedMember?.phone || 'N/A'}</span>
+                                    </div>
                                 </div>
                             </div>
 
