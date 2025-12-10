@@ -481,11 +481,9 @@ export const AdminPanel = ({
         setEditingSlot(slot);
         setEditFormData({ date: slot.date, time: slot.time });
     };
-
-
-
+    const rootClasses = "pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]";
     return (
-        <div className="pilates-root min-h-screen flex flex-col items-center p-4 md:p-10 space-y-10 font-sans bg-[#FFF0E5]">
+        <div className={rootClasses}>
             <div className="w-full max-w-6xl px-8 md:px-16 py-10 bg-white/60 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/50 space-y-12">
                 {/* ... header ... */}
 
@@ -1009,7 +1007,7 @@ export const AdminPanel = ({
                     <Modal onClose={() => setBookingForMember(null)}>
                         <div className="space-y-6">
                             <div className="text-center border-b border-gray-100 pb-4">
-                                <h2 className="text-xl font-bold text-gray-800">Book for {bookingForMember.firstName}</h2>
+                                <h2 className="text-xl font-bold text-gray-800">Book for {bookingForMember?.firstName}</h2>
                                 <p className="text-xs text-gray-400 mb-3">Select an available slot below</p>
 
                                 <div className="flex justify-center gap-2">
@@ -1071,23 +1069,8 @@ export const AdminPanel = ({
                                         </div>
                                     ))}
                                 {/* 7. Delete Actions (Danger Zone) */}
-                                {selectedMember.role !== 'admin' && (
-                                    <div className="pt-6 border-t border-gray-100 mt-4">
-                                        <Button
-                                            onClick={() => {
-                                                if (window.confirm('Are you sure you want to delete this user? This cannot be undone.')) {
-                                                    handleDeleteUser(selectedMember.email);
-                                                    setSelectedMember(null);
-                                                }
-                                            }}
-                                            className="w-full bg-transparent hover:bg-red-50 text-red-500 hover:text-red-700 py-3 rounded-xl border border-transparent hover:border-red-100 flex items-center justify-center gap-2 text-sm transition-all"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                            Delete Member
-                                        </Button>
-                                    </div>
-                                )}
                             </div>
+                        </div>
                     </Modal>
                 )}
 
@@ -1098,11 +1081,11 @@ export const AdminPanel = ({
 
                             {/* 1. Header & Profile */}
                             <div className="flex flex-col items-center justify-center text-center">
-                                <div className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center text-white font-bold text-3xl bg-gradient-to-br ${selectedMember.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-xl ring-4 ring-white`}>
-                                    {selectedMember.firstName?.[0]}{selectedMember.lastName?.[0]}
+                                <div className={`w-24 h-24 mb-4 rounded-full flex items-center justify-center text-white font-bold text-3xl bg-gradient-to-br ${selectedMember?.role === 'admin' ? 'from-purple-400 to-indigo-500' : 'from-[#CE8E94] to-pink-400'} shadow-xl ring-4 ring-white`}>
+                                    {selectedMember?.firstName?.[0]}{selectedMember?.lastName?.[0]}
                                 </div>
-                                <h2 className="text-3xl font-bold text-gray-800">{selectedMember.firstName} {selectedMember.lastName}</h2>
-                                <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mt-1">{selectedMember.role}</p>
+                                <h2 className="text-3xl font-bold text-gray-800">{selectedMember?.firstName} {selectedMember?.lastName}</h2>
+                                <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold mt-1">{selectedMember?.role}</p>
                             </div>
 
                             {/* 2. Contact Actions Card */}
@@ -1117,12 +1100,12 @@ export const AdminPanel = ({
                                         </div>
                                         <div className="text-left">
                                             <div className="text-xs text-gray-400">Phone</div>
-                                            <div className="font-semibold text-gray-800">{selectedMember.phone || 'N/A'}</div>
+                                            <div className="font-semibold text-gray-800">{selectedMember?.phone || 'N/A'}</div>
                                         </div>
                                     </div>
-                                    {selectedMember.phone && (
+                                    {selectedMember?.phone && (
                                         <Button
-                                            onClick={() => handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
+                                            onClick={() => selectedMember?.phone && handleSendWhatsApp(selectedMember.phone, selectedMember.firstName)}
                                             className="bg-green-50 text-green-600 hover:bg-green-100 border border-green-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
                                         >
                                             <MessageSquareText className="w-4 h-4" /> Chat
@@ -1138,11 +1121,11 @@ export const AdminPanel = ({
                                         </div>
                                         <div className="text-left">
                                             <div className="text-xs text-gray-400">Email</div>
-                                            <div className="font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-xs">{selectedMember.email}</div>
+                                            <div className="font-semibold text-gray-800 truncate max-w-[150px] sm:max-w-xs">{selectedMember?.email}</div>
                                         </div>
                                     </div>
                                     <Button
-                                        onClick={() => handleSendEmail(selectedMember.email)}
+                                        onClick={() => handleSendEmail(selectedMember?.email)}
                                         className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 h-auto py-2 px-4 rounded-lg text-xs font-bold flex items-center gap-2"
                                     >
                                         <Mail className="w-4 h-4" /> Mail
@@ -1159,10 +1142,10 @@ export const AdminPanel = ({
                                 className="w-full bg-[#CE8E94] hover:bg-[#b07278] text-white py-4 text-base rounded-2xl shadow-lg shadow-pink-100 transform transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 font-bold"
                             >
                                 <CalendarPlus className="w-5 h-5" />
-                                Book a Class for {selectedMember.firstName}
+                                Book a Class for {selectedMember?.firstName}
                             </Button>
 
-                            {/* 4. Stats Grid (Keep clean) */}
+                            {/* 4. Stats Grid */}
                             <div className="grid grid-cols-3 gap-3">
                                 <div className="bg-blue-50 p-3 rounded-xl border border-blue-100 text-center">
                                     <div className="text-2xl font-bold text-blue-600">{getMemberStats(selectedMember?.email ?? '').total}</div>
@@ -1381,7 +1364,7 @@ export const AdminPanel = ({
                         </div>
                     )
                 }
-            </div >
-        </div >
+            </div>
+        </div>
     );
 };
