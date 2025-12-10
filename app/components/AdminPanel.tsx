@@ -954,15 +954,15 @@ export const AdminPanel = ({
                                         <div key={idx} className="grid grid-cols-12 items-center p-6 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all border border-gray-100 group gap-4 relative">
                                             {/* User Info */}
                                             <div className="col-span-12 md:col-span-5 xl:col-span-4 flex flex-col md:flex-row items-center gap-3 md:gap-4 min-w-0 text-center md:text-center xl:text-left md:justify-center xl:justify-start">
-                                                <div className={`w-14 h-14 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
-                                                    <User className="w-7 h-7" />
+                                                <div className={`w-14 h-14 xl:w-16 xl:h-16 flex-shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-[#CE8E94]/10 border border-[#CE8E94]/20 shadow-sm text-[#CE8E94]`}>
+                                                    <User className="w-7 h-7 xl:w-8 xl:h-8" />
                                                 </div>
                                                 <div className="min-w-0 flex-1 w-full md:w-auto">
                                                     <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 mb-0.5 justify-center md:justify-center xl:justify-start">
-                                                        <h4 className="font-bold text-gray-800 truncate text-base font-sans">{user.firstName} {user.lastName}</h4>
-                                                        {user.role === 'admin' && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
+                                                        <h4 className="font-bold text-gray-800 truncate text-base xl:text-xl font-sans">{user.firstName} {user.lastName}</h4>
+                                                        {user.role === 'admin' && <span className="text-[10px] xl:text-xs font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-600 border border-indigo-100">ADMIN</span>}
                                                     </div>
-                                                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                                    <p className="text-xs xl:text-sm text-gray-500 truncate">{user.email}</p>
                                                     {/* Mobile Badges */}
                                                     <div className="flex md:hidden flex-wrap justify-center gap-1 mt-2">
                                                         {badges.map((b, i) => (
@@ -975,16 +975,16 @@ export const AdminPanel = ({
                                             {/* Status / Badges (Desktop) */}
                                             <div className="hidden md:flex md:col-span-2 xl:col-span-3 flex-wrap gap-2 items-center justify-center">
                                                 {badges.map((b, i) => (
-                                                    <span key={i} className={`text-xs font-bold px-4 py-1.5 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
+                                                    <span key={i} className={`text-xs xl:text-sm font-bold px-4 py-1.5 xl:px-5 xl:py-2 rounded-full border border-transparent ${b.color}`}>{b.label}</span>
                                                 ))}
-                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-xs font-bold px-4 py-1.5 rounded-full bg-gray-50 text-gray-400 border border-gray-100">Member</span>}
+                                                {user.role !== 'admin' && badges.length === 0 && <span className="text-xs xl:text-sm font-bold px-4 py-1.5 xl:px-5 xl:py-2 rounded-full bg-gray-50 text-gray-400 border border-gray-100">Member</span>}
                                             </div>
 
                                             {/* Stats (Desktop) */}
                                             <div className="hidden md:block md:col-span-2 xl:col-span-3 text-center border-l border-gray-100">
                                                 <div className="flex flex-col items-center">
-                                                    <span className="text-lg font-bold text-gray-700 font-sans">{stats.total}</span>
-                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wider">Bookings</span>
+                                                    <span className="text-lg xl:text-3xl font-bold text-gray-700 font-sans">{stats.total}</span>
+                                                    <span className="text-[10px] xl:text-xs text-gray-400 uppercase tracking-wider">Bookings</span>
                                                 </div>
                                             </div>
 
@@ -995,7 +995,7 @@ export const AdminPanel = ({
                                                         setSelectedMember(user);
                                                         setMemberNotes(user.adminNotes || '');
                                                     }}
-                                                    className="w-full md:w-auto bg-[#CE8E94] hover:bg-[#b57a80] text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-sans"
+                                                    className="w-full md:w-auto bg-[#CE8E94] hover:bg-[#b57a80] text-white text-xs xl:text-sm font-bold px-6 py-2.5 xl:px-8 xl:py-3 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-sans"
                                                 >
                                                     Manage
                                                     <ChevronDown className="w-3 h-3" />
