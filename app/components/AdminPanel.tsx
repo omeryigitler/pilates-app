@@ -725,17 +725,53 @@ export const AdminPanel = ({
                                         {formatDateDisplay(newSlotDate)}
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-gray-600">Time</label>
-                                    <input
-                                        type="text"
-                                        placeholder="e.g., 10:30 AM"
-                                        value={newSlotTime}
-                                        onChange={e => setNewSlotTime(e.target.value)}
-                                        className={`${standardInputClass} block text-lg py-4`}
-                                    />
-                                    <p className="text-xs text-gray-400">Format: HH:MM AM/PM (e.g. 09:30 AM)</p>
+
+                                {/* Quick Time Selection Grid */}
+                                <div className="space-y-3">
+                                    <label className="text-sm font-bold text-gray-600 flex justify-between">
+                                        <span>Quick Time Select</span>
+                                        <span className="text-xs font-normal text-gray-400">Click to fill</span>
+                                    </label>
+                                    <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                        {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'].map(time => {
+                                            const isTaken = slots.some(s => s.date === newSlotDate && s.time === time && (s.status === 'Booked' || s.status === 'Active' || s.status === 'Completed'));
+                                            return (
+                                                <button
+                                                    key={time}
+                                                    disabled={isTaken}
+                                                    onClick={() => setNewSlotTime(time)}
+                                                    className={`
+                                                        py-2 px-1 text-sm font-bold rounded-lg transition-all duration-200 border
+                                                        ${isTaken
+                                                            ? 'bg-red-50 text-red-400 border-red-100 cursor-not-allowed opacity-60'
+                                                            : newSlotTime === time
+                                                                ? 'bg-[#CE8E94] text-white border-[#CE8E94] shadow-md transform scale-105'
+                                                                : 'bg-white text-gray-600 border-gray-200 hover:border-[#CE8E94] hover:text-[#CE8E94]'
+                                                        }
+                                                    `}
+                                                >
+                                                    {time}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
+
+                                <div className="space-y-2 relative">
+                                    <label className="text-sm font-bold text-gray-600">Custom Time</label>
+                                    <div className="relative">
+                                        <Clock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                        <input
+                                            type="text"
+                                            placeholder="e.g., 04:25 or 10:30"
+                                            value={newSlotTime}
+                                            onChange={e => setNewSlotTime(e.target.value)}
+                                            className={`${standardInputClass} block text-lg py-4 pl-12`}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-400">Type manually for custom times (e.g. 04:25)</p>
+                                </div>
+
                                 <Button
                                     onClick={handleAddSlot}
                                     className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold shadow-md transition-colors text-lg flex items-center justify-center"
@@ -1346,7 +1382,7 @@ export const AdminPanel = ({
                 {/* Custom Date Range Modal for Admin Slots Filtering */}
                 {
                     showCustomDateModal && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#CE8E94]/10 backdrop-blur-md animate-in fade-in duration-200">
                             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
                                 <h3 className="text-xl font-bold text-gray-800">Select Date Range</h3>
                                 <div className="space-y-3">
@@ -1356,7 +1392,8 @@ export const AdminPanel = ({
                                             type="date"
                                             value={customStartDate}
                                             onChange={(e) => setCustomStartDate(e.target.value)}
-                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none text-gray-800 bg-white placeholder-gray-600"
+                                            style={{ colorScheme: 'light' }}
                                         />
                                     </div>
                                     <div>
@@ -1365,7 +1402,8 @@ export const AdminPanel = ({
                                             type="date"
                                             value={customEndDate}
                                             onChange={(e) => setCustomEndDate(e.target.value)}
-                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none"
+                                            className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#CE8E94]/20 outline-none text-gray-800 bg-white placeholder-gray-600"
+                                            style={{ colorScheme: 'light' }}
                                         />
                                     </div>
                                 </div>

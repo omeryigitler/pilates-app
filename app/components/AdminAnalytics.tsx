@@ -515,7 +515,7 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
             {/* Custom Date Range Modal */}
             {
                 showCustomDateModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#CE8E94]/10 backdrop-blur-md animate-in fade-in duration-200">
                         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4">
                             <div className="flex justify-between items-center border-b border-gray-100 pb-4">
                                 <h3 className="text-lg font-bold text-gray-800">Select Date Range</h3>
@@ -531,7 +531,8 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                                         type="date"
                                         value={customStartDate}
                                         onChange={(e) => setCustomStartDate(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 text-gray-800 bg-white placeholder-gray-600"
+                                        style={{ colorScheme: 'light' }}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -540,7 +541,8 @@ export const AdminAnalytics = ({ slots, users, currentLogo }: { slots: Slot[], u
                                         type="date"
                                         value={customEndDate}
                                         onChange={(e) => setCustomEndDate(e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#CE8E94]/20 text-gray-800 bg-white placeholder-gray-600"
+                                        style={{ colorScheme: 'light' }}
                                     />
                                 </div>
                             </div>

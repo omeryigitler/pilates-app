@@ -19,7 +19,7 @@ export const Modal = ({ children, onClose }: { children: React.ReactNode, onClos
     if (!mounted) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#CE8E94]/10 backdrop-blur-md transition-opacity duration-300">
             {/* Arka plan overlay - tıklayınca kapanır */}
             <div className="absolute inset-0" onClick={onClose}></div>
 
