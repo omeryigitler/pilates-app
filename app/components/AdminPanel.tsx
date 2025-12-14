@@ -728,9 +728,8 @@ export const AdminPanel = ({
 
                                 {/* Quick Time Selection Grid */}
                                 <div className="space-y-3">
-                                    <label className="text-sm font-bold text-gray-600 flex justify-between">
-                                        <span>Quick Time Select</span>
-                                        <span className="text-xs font-normal text-gray-400">Click to fill</span>
+                                    <label className="text-sm font-bold text-gray-600">
+                                        Quick Time Select
                                     </label>
                                     <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
                                         {['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'].map(time => {
