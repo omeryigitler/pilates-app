@@ -718,7 +718,7 @@ export const AdminPanel = ({
                                     selectedDate={newSlotDate}
                                 />
                             </div>
-                            <div className="lg:col-span-1 flex flex-col justify-between space-y-6 bg-white p-6 md:p-8 rounded-[3rem] shadow-xl border border-white/50 h-full">
+                            <div className="lg:col-span-1 flex flex-col justify-between space-y-6 bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-white/50 h-full">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-600">Selected Date</label>
                                     <div className="text-2xl font-bold text-gray-800 border-b pb-2 border-gray-200">
