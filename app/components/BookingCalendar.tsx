@@ -96,7 +96,7 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
             const isSelected = dateStr === selectedDate;
             const isPast = isPastDate(dateStr);
 
-            const baseClass = "p-1 md:p-3 rounded-full text-center font-bold transition-all duration-200 text-sm md:text-base flex items-center justify-center aspect-square";
+            const baseClass = "p-2 md:p-4 rounded-full text-center font-bold transition-all duration-200 text-sm md:text-base flex items-center justify-center aspect-square";
             let colorClass = 'text-gray-700 hover:bg-gray-100 cursor-pointer';
 
             if (isPast) {
@@ -154,7 +154,7 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
                 <div className="text-center text-xs md:text-sm font-bold text-gray-500 py-1 md:py-2 border-b-2 border-[#CE8E94]/30">Sun</div>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 md:gap-2">
+            <div className="grid grid-cols-7 gap-1 md:gap-3 xl:gap-4">
                 {renderDays()}
             </div>
             <div className="pt-4 flex justify-center gap-6 text-sm text-gray-600">
