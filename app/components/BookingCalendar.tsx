@@ -132,7 +132,7 @@ export const BookingCalendar = ({ slots, onSelectDate, selectedDate }: { slots: 
     };
 
     return (
-        <div className="bg-white p-4 md:p-6 rounded-[2rem] md:rounded-[3rem] shadow-xl border border-white/50 space-y-2 md:space-y-4">
+        <div className="bg-white p-6 md:p-8 rounded-[3rem] shadow-xl border border-white/50 space-y-4 h-full">
             <div className="flex justify-between items-center mb-2 md:mb-4">
                 <Button onClick={() => handleMonthChange('prev')} className="p-2 md:p-3 rounded-full bg-gray-100 text-gray-700 hover:bg-[#CE8E94] hover:text-white transition shadow-md hover:shadow-lg">
                     <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
